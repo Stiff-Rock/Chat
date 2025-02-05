@@ -1,4 +1,4 @@
-package com.stiffrock.chat;
+package com.stiffrock.chat.model;
 
 import java.util.List;
 
@@ -9,9 +9,9 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 
 public interface ApiService {
-    @POST("chat/enviar")
+    @POST("mensajes/enviar")
     Call<Mensaje> enviarMensaje(@Body Mensaje mensaje);
 
-    @GET("chat/mensajes/{usuario}")
+    @GET("mensajes/recibir/{usuario}")
     Call<List<Mensaje>> obtenerMensajes(@Path("usuario") String usuario);
 }

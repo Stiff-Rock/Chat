@@ -34,6 +34,9 @@ dependencies {
 
     implementation(libs.retrofit)
     implementation(libs.logging.interceptor)
+    implementation(libs.gson)
+    implementation(libs.converter.gson)
+    implementation (libs.gson.javatime.serialisers)
 
     implementation(libs.appcompat)
     implementation(libs.material)
