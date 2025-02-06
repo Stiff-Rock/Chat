@@ -2,4 +2,7 @@
     <string name="app_name">Chat</string>
     <string name="recibir_mensajes">Recibir Mensajes</string>
     <string name="enviar_mensaje">Enviar Mensaje</string>
+    <string name="mensaje">Mensaje</string>
+    <string name="send_button">Send Button</string>
+    <string name="send_symbol"><![CDATA[>]]></string>
 </resources>
