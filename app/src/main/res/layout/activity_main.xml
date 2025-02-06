@@ -4,29 +4,26 @@
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MainActivitya"
+        tools:context=".MainActivity"
         android:orientation="vertical"
         android:padding="25dp"
         android:gravity="center">
 
-    <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
 
-        <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/btnRecibir"
-                android:layout_weight="1"
-                android:text="@string/recibir_mensajes" />
+    <EditText
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:autofillHints=""
+            android:hint="@string/usuario"
+            android:layout_marginBottom="20dp"
+            android:inputType="text"
+            android:textColorHint="#546E7A"
+            android:id="@+id/etUser"/>
 
-        <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/btnEnviar"
-                android:layout_weight="1"
-                android:text="@string/enviar_mensaje" />
-    </LinearLayout>
+    <Button
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:id="@+id/btnEntrar"
+            android:text="Entrar" />
 
 </LinearLayout>
