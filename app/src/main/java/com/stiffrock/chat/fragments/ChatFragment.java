@@ -1,66 +1,155 @@
 package com.stiffrock.chat.fragments;
 
+import static com.stiffrock.chat.utils.LogTag.TAG;
+
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.stiffrock.chat.R;
+import com.stiffrock.chat.items.Item;
+import com.stiffrock.chat.items.ItemMessageRecieved;
+import com.stiffrock.chat.items.ItemMessageSent;
+import com.stiffrock.chat.model.ApiService;
+import com.stiffrock.chat.model.Mensaje;
+import com.stiffrock.chat.model.MyAdapter;
+import com.stiffrock.chat.model.RetrofitClient;
+import com.stiffrock.chat.model.User;
+import com.stiffrock.chat.model.WebSocketClient;
+import com.stiffrock.chat.utils.OnMessageReceivedListener;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ChatFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class ChatFragment extends Fragment {
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class ChatFragment extends Fragment implements OnMessageReceivedListener {
+    private final List<Item> messagesList = new ArrayList<>();
+    private RecyclerView recyclerView;
+    private MyAdapter adapter;
+    private EditText etMensaje;
 
-    public ChatFragment() {
-        // Required empty public constructor
-    }
+    private ApiService apiService;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ChatFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ChatFragment newInstance(String param1, String param2) {
-        ChatFragment fragment = new ChatFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    private final Random randomId = new Random();
+
+    private final String recipient;
+
+    public ChatFragment(String recipientUser) {
+        this.recipient = recipientUser;
+        WebSocketClient.getInstance().setOnMessageReceivedListener(this);
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_chat, container, false);
+
+        etMensaje = view.findViewById(R.id.etMensaje);
+
+        view.findViewById(R.id.sendText).setOnClickListener(e -> sendMessage());
+
+        recyclerView = view.findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        adapter = new MyAdapter(messagesList);
+        recyclerView.setAdapter(adapter);
+
+        apiService = RetrofitClient.getApiService();
+
+        //TODO: Revise message loading at start, this only loads recived messages but not the ones you sent.
+        apiGetMessages(User.getUsername());
+
+        return view;
+    }
+
+    @Override
+    public void onMessageReceived(String message) {
+        addTextBubble(2, message);
+    }
+
+    public void addTextBubble(int itemType, String text) {
+        if (itemType == 1) {
+            messagesList.add(new ItemMessageSent(text));
+        } else if (itemType == 2) {
+            messagesList.add(new ItemMessageRecieved(text));
         }
+
+        adapter.notifyItemInserted(messagesList.size() - 1);
+        recyclerView.scrollToPosition(messagesList.size() - 1);
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_chat, container, false);
+    private void sendMessage() {
+        String texto = etMensaje.getText().toString().trim();
+
+        if (texto.isBlank()) return;
+
+        etMensaje.setText("");
+
+        Long id = randomId.nextLong();
+        String sender = User.getUsername();
+        LocalDateTime timestamp = LocalDateTime.now();
+
+        Mensaje mensaje = new Mensaje(id, sender, recipient, texto, timestamp);
+
+        addTextBubble(1, texto);
+
+        apiSendMessage(mensaje);
+    }
+
+    private void apiSendMessage(Mensaje mensaje) {
+        Call<Mensaje> call = apiService.enviarMensaje(mensaje);
+        call.enqueue(new Callback<Mensaje>() {
+            @Override
+            public void onResponse(@NonNull Call<Mensaje> call, @NonNull Response<Mensaje> response) {
+                if (response.isSuccessful()) {
+                    Mensaje mensajeEnviado = response.body();
+
+                    if (mensajeEnviado != null)
+                        Log.d(TAG, "Mensaje enviado: " + mensajeEnviado.getMensaje());
+                } else {
+                    Log.e(TAG, "Error en la respuesta: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Mensaje> call, @NonNull Throwable t) {
+                Log.e(TAG, "Fallo en la llamada: " + t.getMessage());
+            }
+        });
+    }
+
+    private void apiGetMessages(String usuario) {
+        Call<List<Mensaje>> call = apiService.obtenerMensajes(usuario);
+        call.enqueue(new Callback<List<Mensaje>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<Mensaje>> call, @NonNull Response<List<Mensaje>> response) {
+                if (response.isSuccessful()) {
+                    List<Mensaje> messageList = response.body();
+
+                    if (messageList != null) for (Mensaje mensaje : messageList) {
+                        addTextBubble(2, mensaje.getMensaje());
+                    }
+                } else {
+                    Log.e(TAG, "Error en la respuesta: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<Mensaje>> call, @NonNull Throwable t) {
+                Log.e(TAG, "Fallo en la llamada: " + t.getMessage());
+            }
+        });
     }
 }

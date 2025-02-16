@@ -1,45 +1,46 @@
 package com.stiffrock.chat;
 
-import android.content.Intent;
+import static com.stiffrock.chat.utils.LogTag.TAG;
+
+import android.content.Context;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
+import com.stiffrock.chat.fragments.ChatFragment;
 import com.stiffrock.chat.model.User;
+import com.stiffrock.chat.model.WebSocketClient;
 
 
 public class MainActivity extends AppCompatActivity {
-    private EditText etUser;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        Button btnEntrar = findViewById(R.id.btnEntrar);
-        etUser = findViewById(R.id.etUser);
-
-        btnEntrar.setOnClickListener(v -> logIn());
     }
 
-    private void logIn() {
-        String usuario = etUser.getText().toString().trim();
+    public void replaceFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-        if (usuario.isBlank()) {
-            Toast.makeText(this, "Debes introducir un usuario", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        // Animaciones de entrada y salida entre fragments
+        transaction.setCustomAnimations(
+                android.R.anim.slide_in_left,
+                android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left,
+                android.R.anim.slide_out_right
+        );
 
-        User.setUsername(usuario);
+        transaction.replace(R.id.fcvMainActivity, fragment);
 
-        openChatActivity();
-    }
+        Fragment currentFragment = fragmentManager.findFragmentById(R.id.fcvMainActivity);
+        if (currentFragment != null)
+            transaction.addToBackStack(currentFragment.getClass().getName());
 
-    private void openChatActivity() {
-        Intent intent = new Intent(MainActivity.this, ChatActivity.class);
-        startActivity(intent);
+        transaction.commit();
     }
 }

@@ -36,7 +36,8 @@ dependencies {
     implementation(libs.logging.interceptor)
     implementation(libs.gson)
     implementation(libs.converter.gson)
-    implementation (libs.gson.javatime.serialisers)
+    implementation(libs.gson.javatime.serialisers)
+    implementation(libs.okhttp)
 
     implementation(libs.appcompat)
     implementation(libs.material)
