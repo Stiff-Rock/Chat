@@ -6,22 +6,12 @@
         tools:context=".fragments.HomeScreenFragment"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="50dp">
+        android:padding="25dp">
 
-    <EditText
-            android:layout_width="250dp"
-            android:layout_height="50dp"
-            android:autofillHints="username"
-            android:hint="User To Text"
-            android:layout_marginBottom="40dp"
-            android:id="@+id/etUserToText"
-            android:inputType="text"
-            android:textAlignment="center"/>
-
-    <Button
-            android:layout_width="250dp"
-            android:layout_height="50dp"
-            android:id="@+id/btnOpenChat"
-            android:text="Open Chat"/>
+    <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
 </LinearLayout>

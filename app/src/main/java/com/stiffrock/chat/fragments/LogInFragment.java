@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment;
 
 import com.stiffrock.chat.MainActivity;
 import com.stiffrock.chat.R;
-import com.stiffrock.chat.model.User;
+import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.WebSocketClient;
 
 public class LogInFragment extends Fragment {
@@ -28,6 +28,7 @@ public class LogInFragment extends Fragment {
         return view;
     }
 
+    //TODO: HANDLE "REMEMBER ME" IN SHARED PREFS AND ADD LOG OUT
     private void handleLogin() {
         String inputUsername = etUsername.getText().toString().trim();
         String inputPassword = etPassword.getText().toString().trim();
@@ -35,7 +36,7 @@ public class LogInFragment extends Fragment {
         if (inputUsername.isBlank())
             return;
 
-        User.setUsername(inputUsername);
+        CurrentUser.setUsername(inputUsername);
         WebSocketClient.getInstance().connect();
 
         ((MainActivity) requireActivity()).replaceFragment(new HomeScreenFragment());

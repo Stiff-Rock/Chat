@@ -1,19 +1,11 @@
 package com.stiffrock.chat;
 
-import static com.stiffrock.chat.utils.LogTag.TAG;
-
-import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
-import com.stiffrock.chat.fragments.ChatFragment;
-import com.stiffrock.chat.model.User;
-import com.stiffrock.chat.model.WebSocketClient;
 
 
 public class MainActivity extends AppCompatActivity {

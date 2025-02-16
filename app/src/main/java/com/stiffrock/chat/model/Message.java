@@ -1,17 +1,15 @@
 package com.stiffrock.chat.model;
 
-import androidx.annotation.NonNull;
-
 import java.time.LocalDateTime;
 
-public class Mensaje {
+public class Message {
     private Long id;
     private String remitente;
     private String destinatario;
     private String mensaje;
     private LocalDateTime timestamp;
 
-    public Mensaje(Long id, String remitente, String destinatario, String mensaje, LocalDateTime timestamp) {
+    public Message(Long id, String remitente, String destinatario, String mensaje, LocalDateTime timestamp) {
         this.id = id;
         this.remitente = remitente;
         this.destinatario = destinatario;

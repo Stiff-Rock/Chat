@@ -28,7 +28,7 @@ public class WebSocketClient {
 
     private WebSocketClient() {
         client = new OkHttpClient();
-        String usernameQueryParameter = "?username=" + User.getUsername();
+        String usernameQueryParameter = "?username=" + CurrentUser.getUsername();
         WEB_SOCKET_URL = "ws://" + ServerConfig.SOCKET_ADDR + "/chat" + usernameQueryParameter;
     }
 
@@ -43,14 +43,11 @@ public class WebSocketClient {
         this.listener = listener;
     }
 
+    //TODO: HANDLE FALIED CONNECTIONS
     public void connect() {
         Request request = new Request.Builder().url(WEB_SOCKET_URL).build();
 
         webSocket = client.newWebSocket(request, new WebSocketListener() {
-            @Override
-            public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
-                Log.d(TAG, "WebSocket conectado.");
-            }
 
             @Override
             public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
@@ -62,11 +59,6 @@ public class WebSocketClient {
             @Override
             public void onMessage(@NonNull WebSocket webSocket, @NonNull ByteString bytes) {
                 Log.d(TAG, "Mensaje binario recibido: " + bytes.hex());
-            }
-
-            @Override
-            public void onClosing(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
-                Log.d(TAG, "Conexión WebSocket cerrándose: " + reason);
             }
 
             @Override

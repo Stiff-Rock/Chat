@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:gravity="center"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:id="@+id/parentLayout">
+
+    <ImageView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:contentDescription="Foto de perfil"
+            tools:srcCompat="@tools:sample/avatars"
+            android:id="@+id/ivChatPhoto"
+            android:layout_weight="1" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="200dp"
+            android:layout_height="match_parent">
+
+        <TextView
+                android:id="@+id/tvChatName"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center_vertical"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/tvMessagePreview" />
+
+        <TextView
+                android:id="@+id/tvMessagePreview"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text=""
+                app:layout_constraintTop_toBottomOf="@id/tvChatName"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:contentDescription="@string/n_mero_de_mensajes_nuevos"
+            tools:srcCompat="@tools:sample/avatars"
+            android:id="@+id/ivChatNotification"
+            android:layout_weight="1" />
+</LinearLayout>

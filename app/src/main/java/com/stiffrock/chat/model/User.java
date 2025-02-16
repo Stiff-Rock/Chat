@@ -1,13 +1,27 @@
 package com.stiffrock.chat.model;
 
 public class User {
-    private static String username = null;
+    private String username;
+    private String pwd;
 
-    public static String getUsername() {
+    public User(String username, String pwd) {
+        this.username = username;
+        this.pwd = pwd;
+    }
+
+    public String getUsername() {
         return username;
     }
 
-    public static void setUsername(String newUsername) {
-        username = newUsername;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPwd() {
+        return pwd;
+    }
+
+    public void setPwd(String pwd) {
+        this.pwd = pwd;
     }
 }

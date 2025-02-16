@@ -19,10 +19,10 @@ import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemMessageRecieved;
 import com.stiffrock.chat.items.ItemMessageSent;
 import com.stiffrock.chat.model.ApiService;
-import com.stiffrock.chat.model.Mensaje;
+import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.model.MyAdapter;
 import com.stiffrock.chat.model.RetrofitClient;
-import com.stiffrock.chat.model.User;
+import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.WebSocketClient;
 import com.stiffrock.chat.utils.OnMessageReceivedListener;
 
@@ -37,9 +37,10 @@ import retrofit2.Response;
 
 public class ChatFragment extends Fragment implements OnMessageReceivedListener {
     private final List<Item> messagesList = new ArrayList<>();
+    private EditText etMensaje;
+
     private RecyclerView recyclerView;
     private MyAdapter adapter;
-    private EditText etMensaje;
 
     private ApiService apiService;
 
@@ -69,7 +70,7 @@ public class ChatFragment extends Fragment implements OnMessageReceivedListener 
         apiService = RetrofitClient.getApiService();
 
         //TODO: Revise message loading at start, this only loads recived messages but not the ones you sent.
-        apiGetMessages(User.getUsername());
+        apiGetMessages(CurrentUser.getUsername());
 
         return view;
     }
@@ -98,48 +99,49 @@ public class ChatFragment extends Fragment implements OnMessageReceivedListener 
         etMensaje.setText("");
 
         Long id = randomId.nextLong();
-        String sender = User.getUsername();
+        String sender = CurrentUser.getUsername();
         LocalDateTime timestamp = LocalDateTime.now();
 
-        Mensaje mensaje = new Mensaje(id, sender, recipient, texto, timestamp);
+        Message message = new Message(id, sender, recipient, texto, timestamp);
 
         addTextBubble(1, texto);
 
-        apiSendMessage(mensaje);
+        apiSendMessage(message);
     }
 
-    private void apiSendMessage(Mensaje mensaje) {
-        Call<Mensaje> call = apiService.enviarMensaje(mensaje);
-        call.enqueue(new Callback<Mensaje>() {
+    //TODO: HANDLE FALIED CONNECTIONS
+    private void apiSendMessage(Message message) {
+        Call<Message> call = apiService.sendMessage(message);
+        call.enqueue(new Callback<Message>() {
             @Override
-            public void onResponse(@NonNull Call<Mensaje> call, @NonNull Response<Mensaje> response) {
+            public void onResponse(@NonNull Call<Message> call, @NonNull Response<Message> response) {
                 if (response.isSuccessful()) {
-                    Mensaje mensajeEnviado = response.body();
+                    Message messageEnviado = response.body();
 
-                    if (mensajeEnviado != null)
-                        Log.d(TAG, "Mensaje enviado: " + mensajeEnviado.getMensaje());
+                    if (messageEnviado != null)
+                        Log.d(TAG, "Mensaje enviado: " + messageEnviado.getMensaje());
                 } else {
                     Log.e(TAG, "Error en la respuesta: " + response.code());
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<Mensaje> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<Message> call, @NonNull Throwable t) {
                 Log.e(TAG, "Fallo en la llamada: " + t.getMessage());
             }
         });
     }
 
     private void apiGetMessages(String usuario) {
-        Call<List<Mensaje>> call = apiService.obtenerMensajes(usuario);
-        call.enqueue(new Callback<List<Mensaje>>() {
+        Call<List<Message>> call = apiService.recieveMessage(usuario);
+        call.enqueue(new Callback<List<Message>>() {
             @Override
-            public void onResponse(@NonNull Call<List<Mensaje>> call, @NonNull Response<List<Mensaje>> response) {
+            public void onResponse(@NonNull Call<List<Message>> call, @NonNull Response<List<Message>> response) {
                 if (response.isSuccessful()) {
-                    List<Mensaje> messageList = response.body();
+                    List<Message> messageList = response.body();
 
-                    if (messageList != null) for (Mensaje mensaje : messageList) {
-                        addTextBubble(2, mensaje.getMensaje());
+                    if (messageList != null) for (Message message : messageList) {
+                        addTextBubble(2, message.getMensaje());
                     }
                 } else {
                     Log.e(TAG, "Error en la respuesta: " + response.code());
@@ -147,7 +149,7 @@ public class ChatFragment extends Fragment implements OnMessageReceivedListener 
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<Mensaje>> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<List<Message>> call, @NonNull Throwable t) {
                 Log.e(TAG, "Fallo en la llamada: " + t.getMessage());
             }
         });

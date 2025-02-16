@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Chat</string>
-    <string name="mensaje">Mensaje</string>
+    <string name="message">Mensaje</string>
     <string name="send_button">Send Button</string>
     <string name="send_symbol"><![CDATA[>]]></string>
     <string name="usuario">Usuario</string>
@@ -15,4 +15,5 @@
     <string name="crear_cuenta">Crear cuenta</string>
     <string name="ya_tienes_cuenta">¿Ya tienes cuenta?</string>
     <string name="recu_rdame">Recuérdame</string>
+    <string name="n_mero_de_mensajes_nuevos">Número de mensajes nuevos</string>
 </resources>
