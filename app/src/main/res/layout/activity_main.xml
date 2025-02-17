@@ -9,7 +9,6 @@
     <androidx.fragment.app.FragmentContainerView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:name="com.stiffrock.chat.fragments.LogInFragment"
             android:id="@+id/fcvMainActivity"
             tools:layout="@layout/fragment_log_in" />
 

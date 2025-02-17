@@ -2,18 +2,20 @@ package com.stiffrock.chat.fragments;
 
 import static com.stiffrock.chat.utils.LogTag.TAG;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.google.gson.Gson;
 import com.stiffrock.chat.MainActivity;
 import com.stiffrock.chat.R;
 import com.stiffrock.chat.model.ApiResponse;
@@ -30,6 +32,7 @@ import retrofit2.Response;
 
 public class LogInFragment extends Fragment {
     private EditText etUsername, etPassword;
+    private CheckBox ckbxRememberMe;
 
     private ApiService apiService;
 
@@ -39,6 +42,7 @@ public class LogInFragment extends Fragment {
 
         etUsername = view.findViewById(R.id.etUsername);
         etPassword = view.findViewById(R.id.etPwd);
+        ckbxRememberMe = view.findViewById(R.id.ckbxRememberMe);
         view.findViewById(R.id.btnLogin).setOnClickListener(v -> handleLogin());
         view.findViewById(R.id.sigInRedirect).setOnClickListener(v -> replaceFragment(new SignUpFragment()));
 
@@ -47,7 +51,6 @@ public class LogInFragment extends Fragment {
         return view;
     }
 
-    //TODO: HANDLE "REMEMBER ME" IN SHARED PREFS AND ADD LOG OUT
     private void handleLogin() {
         String inputUsername = etUsername.getText().toString().trim();
         String inputPassword = etPassword.getText().toString().trim();
@@ -65,6 +68,15 @@ public class LogInFragment extends Fragment {
                 WebSocketClient.getInstance().connect();
                 replaceFragment(new HomeScreenFragment());
                 Toast.makeText(requireContext(), result, Toast.LENGTH_SHORT).show();
+
+                SharedPreferences sp = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+                sp.edit().putBoolean("rememberLogIn", ckbxRememberMe.isChecked()).apply();
+
+                if (ckbxRememberMe.isChecked()) {
+                    sp.edit().putString("storedUser", inputUsername).apply();
+                } else {
+                    sp.edit().putString("storedUser", "").apply();
+                }
             } else {
                 Toast.makeText(requireContext(), result, Toast.LENGTH_SHORT).show();
             }
