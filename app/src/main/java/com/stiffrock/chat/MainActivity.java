@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.addChat) {
-            System.out.println("IMPLEMENT");
+            getSupportFragmentManager().getFragment()
             return true;
         } else if (item.getItemId() == R.id.logOut) {
             logOut();
