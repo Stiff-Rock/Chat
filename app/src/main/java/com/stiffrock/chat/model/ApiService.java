@@ -14,15 +14,18 @@ public interface ApiService {
     @POST("messages/send")
     Call<Message> sendMessage(@Body Message message);
 
-    @GET("messages/recieve")
+    @GET("messages/recieve/{recipient}")
     Call<List<Message>> recieveMessage(@Path("recipient") String usuario);
 
     //Endpoint de usuarios
     @POST("users/register")
-    Call<Message> registerUser(@Body Message message);
+    Call<ApiResponse> registerUser(@Body User user);
 
-    @POST("users/login/{usuario}")
-    Call<List<Message>> logInUser(@Path("usuario") String usuario);
+    @POST("users/login")
+    Call<ApiResponse> logInUser(@Body User user);
+
+    @GET("users/online")
+    Call<List<User>> getOnlineUsers();
 
     //Endpoint de grupos
 }

@@ -115,14 +115,8 @@ public class ChatFragment extends Fragment implements OnMessageReceivedListener 
         call.enqueue(new Callback<Message>() {
             @Override
             public void onResponse(@NonNull Call<Message> call, @NonNull Response<Message> response) {
-                if (response.isSuccessful()) {
-                    Message messageEnviado = response.body();
-
-                    if (messageEnviado != null)
-                        Log.d(TAG, "Mensaje enviado: " + messageEnviado.getMensaje());
-                } else {
+                if (!response.isSuccessful())
                     Log.e(TAG, "Error en la respuesta: " + response.code());
-                }
             }
 
             @Override
@@ -132,8 +126,8 @@ public class ChatFragment extends Fragment implements OnMessageReceivedListener 
         });
     }
 
-    private void apiGetMessages(String usuario) {
-        Call<List<Message>> call = apiService.recieveMessage(usuario);
+    private void apiGetMessages(String user) {
+        Call<List<Message>> call = apiService.recieveMessage(user);
         call.enqueue(new Callback<List<Message>>() {
             @Override
             public void onResponse(@NonNull Call<List<Message>> call, @NonNull Response<List<Message>> response) {
