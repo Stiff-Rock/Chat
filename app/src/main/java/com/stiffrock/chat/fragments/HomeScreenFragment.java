@@ -1,21 +1,21 @@
 package com.stiffrock.chat.fragments;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.stiffrock.chat.MainActivity;
 import com.stiffrock.chat.R;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemChatCard;
-import com.stiffrock.chat.model.MyAdapter;
 import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.model.MyAdapter;
 import com.stiffrock.chat.utils.OnChatCardClickListener;
 
 import java.util.ArrayList;
