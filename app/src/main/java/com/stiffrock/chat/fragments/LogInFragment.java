@@ -73,7 +73,6 @@ public class LogInFragment extends Fragment {
 
     private void apiLogIn(User user, ApiCallback<String> callback) {
         Call<ApiResponse> call = apiService.logInUser(user);
-
         call.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
@@ -87,17 +86,15 @@ public class LogInFragment extends Fragment {
                             errorMessage = "Bad Request: Invalid input.";
                             break;
                         case 401:
-                            errorMessage = "Error: Credenciales incorrectas"; // Unauthorized
+                            errorMessage = "Error: Credenciales incorrectas";
                             break;
                         case 409:
-                            errorMessage = "Conflict: Contraseña vacía."; // Conflict
+                            errorMessage = "Conflict: Contraseña vacía.";
                             break;
                         default:
                             errorMessage = "Login failed, please try again.";
                             break;
                     }
-                    Log.e(TAG, "Login failed: " + response.code() + "\n" + errorMessage);
-                    callback.onResult(false, errorMessage);
                     Log.e(TAG, "Login failed: " + response.code() + "\n" + errorMessage);
                     callback.onResult(false, errorMessage);
                 }

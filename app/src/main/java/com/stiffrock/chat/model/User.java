@@ -1,12 +1,24 @@
 package com.stiffrock.chat.model;
 
 public class User {
+    private Long id;
     private String username;
-    private String pwd;
+    private String password;
 
-    public User(String username, String pwd) {
+    public User() {
+    }
+
+    public User(String username, String password) {
         this.username = username;
-        this.pwd = pwd;
+        this.password = password;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getUsername() {
@@ -17,11 +29,11 @@ public class User {
         this.username = username;
     }
 
-    public String getPwd() {
-        return pwd;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPwd(String pwd) {
-        this.pwd = pwd;
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

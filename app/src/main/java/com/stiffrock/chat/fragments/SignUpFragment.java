@@ -85,14 +85,7 @@ public class SignUpFragment extends Fragment {
                             errorMessage = "Bad Request: Invalid input.";
                             break;
                         case 409:
-                            //TODO: CHECK WHY IT DOES THIS
-                            
-                            // Conflict error, for example: username already exists or empty password
-                            if (response.body() != null) {
-                                errorMessage = response.body().getMessage(); // Extract message from the body
-                            } else {
-                                errorMessage = "Conflict: User already exists or password is empty.";
-                            }
+                            errorMessage = "Conflict: User already exists or password is empty.";
                             break;
                         case 422:
                             errorMessage = "Unprocessable Entity: Invalid data provided.";
