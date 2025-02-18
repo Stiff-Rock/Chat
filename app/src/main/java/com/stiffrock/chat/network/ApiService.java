@@ -2,7 +2,6 @@ package com.stiffrock.chat.network;
 
 import com.stiffrock.chat.dto.CreateGroupDTO;
 import com.stiffrock.chat.dto.LoginDTO;
-import com.stiffrock.chat.dto.UserDTO;
 import com.stiffrock.chat.model.ApiResponse;
 import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.model.User;
@@ -26,7 +25,7 @@ public interface ApiService {
 
     //Endpoint de usuarios
     @POST("users/register")
-    Call<ApiResponse> registerUser(@Body User user);
+    Call<ApiResponse> registerUser(@Body LoginDTO credentials);
 
     @POST("users/login")
     Call<User> logInUser(@Body LoginDTO credentials);

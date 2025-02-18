@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 
 import com.stiffrock.chat.MainActivity;
 import com.stiffrock.chat.R;
+import com.stiffrock.chat.dto.LoginDTO;
 import com.stiffrock.chat.model.ApiResponse;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
@@ -57,10 +58,10 @@ public class SignUpFragment extends Fragment {
             return;
         }
 
-        User user = new User(inputUsername, inputPassword1);
+        LoginDTO credentials = new LoginDTO(inputUsername, inputPassword1);
 
         //TODO: IMPROVE USER FEEDBACK
-        Call<ApiResponse> call = apiService.registerUser(user);
+        Call<ApiResponse> call = apiService.registerUser(credentials);
         call.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
