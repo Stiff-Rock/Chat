@@ -66,7 +66,9 @@ public class LogInFragment extends Fragment {
             if (success) {
                 CurrentUser.setUsername(inputUsername);
                 WebSocketClient.getInstance().connect();
-                replaceFragment(new HomeScreenFragment());
+
+                ((MainActivity) requireActivity()).navigateToHomeActivity();
+
                 Toast.makeText(requireContext(), result, Toast.LENGTH_SHORT).show();
 
                 SharedPreferences sp = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);

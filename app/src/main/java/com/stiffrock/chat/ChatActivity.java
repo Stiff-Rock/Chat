@@ -1,28 +1,28 @@
-package com.stiffrock.chat.fragments;
+package com.stiffrock.chat;
 
 import static com.stiffrock.chat.utils.LogTag.TAG;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.stiffrock.chat.R;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemMessageRecieved;
 import com.stiffrock.chat.items.ItemMessageSent;
 import com.stiffrock.chat.model.ApiService;
+import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.model.MyAdapter;
 import com.stiffrock.chat.model.RetrofitClient;
-import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.WebSocketClient;
 import com.stiffrock.chat.utils.OnMessageReceivedListener;
 
@@ -35,7 +35,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ChatFragment extends Fragment implements OnMessageReceivedListener {
+public class ChatActivity extends AppCompatActivity implements OnMessageReceivedListener {
     private final List<Item> messagesList = new ArrayList<>();
     private EditText etMensaje;
 
@@ -46,23 +46,27 @@ public class ChatFragment extends Fragment implements OnMessageReceivedListener 
 
     private final Random randomId = new Random();
 
-    private final String recipient;
-
-    public ChatFragment(String recipientUser) {
-        this.recipient = recipientUser;
-        WebSocketClient.getInstance().setOnMessageReceivedListener(this);
-    }
+    private String recipient;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_chat, container, false);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_chat);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
-        etMensaje = view.findViewById(R.id.etMensaje);
+        recipient = getIntent().getStringExtra("recipient");
 
-        view.findViewById(R.id.sendText).setOnClickListener(e -> sendMessage());
+        etMensaje = findViewById(R.id.etMensaje);
 
-        recyclerView = view.findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        findViewById(R.id.sendText).setOnClickListener(e -> sendMessage());
+
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         adapter = new MyAdapter(messagesList);
         recyclerView.setAdapter(adapter);
@@ -72,7 +76,7 @@ public class ChatFragment extends Fragment implements OnMessageReceivedListener 
         //TODO: Revise message loading at start, this only loads recived messages but not the ones you sent.
         apiGetMessages(CurrentUser.getUsername());
 
-        return view;
+        WebSocketClient.getInstance().setOnMessageReceivedListener(this);
     }
 
     @Override

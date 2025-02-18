@@ -10,6 +10,15 @@ public class ItemChatCard extends Item {
 
     private String chatId;
 
+    //TODO: QUIZAS HACER UN CONSTRUCTOR SEPARADO PARA CHATS PRIVADOS
+
+    /**
+     * Constructor en el que el ID se genera automaticamente
+     *
+     * @param chatName     Nombre del chat que aparecerá en la lista
+     * @param participants Participantes del chat
+     * @param isGroupChat  Inidica si es un chat grupal
+     */
     public ItemChatCard(String chatName, List<String> participants, boolean isGroupChat) {
         this.chatName = chatName;
         this.participants = participants;
@@ -18,6 +27,16 @@ public class ItemChatCard extends Item {
         generateChatId();
     }
 
+
+    /**
+     * Constructor en el que el ID del chat se provee.
+     * Se usa para cuando un usuario se une a un grupo o añade un contacto por ID
+     *
+     * @param chatName     Nombre del chat que aparecerá en la lista
+     * @param participants Participantes del chat
+     * @param isGroupChat  Inidica si es un chat grupal
+     * @param chatID       Id del chat al que se está haciendo referencia
+     */
     public ItemChatCard(String chatName, List<String> participants, boolean isGroupChat, String chatID) {
         this.chatName = chatName;
         this.participants = participants;
@@ -56,7 +75,7 @@ public class ItemChatCard extends Item {
         return 2;
     }
 
-    //TODO: Make local Sqlite database
+    //TODO: Make Sqlite database
 
     //Genera un identificador único para el chat
     public void generateChatId() {
