@@ -18,12 +18,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemMessageRecieved;
 import com.stiffrock.chat.items.ItemMessageSent;
-import com.stiffrock.chat.model.ApiService;
+import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.Message;
-import com.stiffrock.chat.model.MyAdapter;
-import com.stiffrock.chat.model.RetrofitClient;
-import com.stiffrock.chat.model.WebSocketClient;
+import com.stiffrock.chat.adapters.MyAdapter;
+import com.stiffrock.chat.network.RetrofitClient;
+import com.stiffrock.chat.network.WebSocketClient;
 import com.stiffrock.chat.utils.OnMessageReceivedListener;
 
 import java.time.LocalDateTime;

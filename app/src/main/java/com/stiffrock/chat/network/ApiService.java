@@ -1,4 +1,9 @@
-package com.stiffrock.chat.model;
+package com.stiffrock.chat.network;
+
+import com.stiffrock.chat.model.ApiResponse;
+import com.stiffrock.chat.model.Chat;
+import com.stiffrock.chat.model.Message;
+import com.stiffrock.chat.model.User;
 
 import java.util.List;
 
@@ -28,4 +33,6 @@ public interface ApiService {
     Call<List<User>> getOnlineUsers();
 
     //Endpoint de grupos
+    @POST("groups/create")
+    Call<Chat> createGroupChat();
 }

@@ -6,31 +6,20 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.stiffrock.chat.items.Item;
-import com.stiffrock.chat.items.ItemChatCard;
+import com.stiffrock.chat.fragments.home.AddContactFragment;
+import com.stiffrock.chat.fragments.home.AddGroupFragment;
 import com.stiffrock.chat.model.CurrentUser;
-import com.stiffrock.chat.model.MyAdapter;
-import com.stiffrock.chat.model.WebSocketClient;
-import com.stiffrock.chat.utils.OnChatCardClickListener;
+import com.stiffrock.chat.network.WebSocketClient;
+import com.stiffrock.chat.utils.FragmentContainerActivity;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class HomeActivity extends AppCompatActivity implements OnChatCardClickListener {
-    private MyAdapter adapter;
-    private List<Item> chatCards;
+public class HomeActivity extends FragmentContainerActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,14 +33,6 @@ public class HomeActivity extends AppCompatActivity implements OnChatCardClickLi
         });
 
         setSupportActionBar(findViewById(R.id.toolbar));
-
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        //TODO: LOAD CONTACT CLASS EITHER FROM LOCAL STORAGE OR REMOTE
-        chatCards = new ArrayList<>();
-        adapter = new MyAdapter(chatCards, this);
-        recyclerView.setAdapter(adapter);
     }
 
     @Override
@@ -62,8 +43,11 @@ public class HomeActivity extends AppCompatActivity implements OnChatCardClickLi
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.addChat) {
-            showAddContactDialog();
+        if (item.getItemId() == R.id.addContact) {
+            replaceFragment(new AddContactFragment());
+            return true;
+        } else if (item.getItemId() == R.id.addGroup) {
+            replaceFragment(new AddGroupFragment());
             return true;
         } else if (item.getItemId() == R.id.logOut) {
             logOut();
@@ -85,34 +69,7 @@ public class HomeActivity extends AppCompatActivity implements OnChatCardClickLi
         navigateToActivity(MainActivity.class, null);
     }
 
-    public void showAddContactDialog() {
-        EditText editText = new EditText(this);
-
-        //TODO: BUSQUEDA POR USERNAME O POR ID
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Enter Text").setMessage("Please input some text:").setView(editText).setPositiveButton("OK", (dialog, which) -> {
-            String inputText = editText.getText().toString().trim();
-
-            if (!inputText.isBlank()) addContact(inputText);
-        }).setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-
-        builder.show();
-    }
-
-    //TODO: ESTO ESTA FATAL
-    private void addContact(String input) {
-        chatCards.add(new ItemChatCard(input, new ArrayList<>(), false));
-        adapter.notifyItemInserted(chatCards.size() - 1);
-    }
-
-    @Override
-    public void onChatCardClick(ItemChatCard chat) {
-        Bundle bundle = new Bundle();
-        bundle.putString("recipient", chat.getChatName());
-        navigateToActivity(ChatActivity.class, bundle);
-    }
-
-    private void navigateToActivity(Class<?> targetActivity, Bundle bundle) {
+    public void navigateToActivity(Class<?> targetActivity, Bundle bundle) {
         Intent intent = new Intent(HomeActivity.this, targetActivity);
         if (bundle != null) intent.putExtras(bundle);
         startActivity(intent);

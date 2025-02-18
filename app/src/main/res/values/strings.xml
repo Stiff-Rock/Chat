@@ -17,5 +17,6 @@
     <string name="recu_rdame">Recuérdame</string>
     <string name="n_mero_de_mensajes_nuevos">Número de mensajes nuevos</string>
     <string name="cerrar_sesi_n">Cerrar sesión</string>
-    <string name="nuevo_chat">Nuevo chat</string>
+    <string name="Anadir_contacto">Añadir contacto</string>
+    <string name="Anadir_grupo">Añadir grupo</string>
 </resources>

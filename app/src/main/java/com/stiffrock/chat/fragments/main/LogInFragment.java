@@ -1,4 +1,4 @@
-package com.stiffrock.chat.fragments;
+package com.stiffrock.chat.fragments.main;
 
 import static com.stiffrock.chat.utils.LogTag.TAG;
 
@@ -19,11 +19,11 @@ import androidx.fragment.app.Fragment;
 import com.stiffrock.chat.MainActivity;
 import com.stiffrock.chat.R;
 import com.stiffrock.chat.model.ApiResponse;
-import com.stiffrock.chat.model.ApiService;
+import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.model.CurrentUser;
-import com.stiffrock.chat.model.RetrofitClient;
+import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.model.User;
-import com.stiffrock.chat.model.WebSocketClient;
+import com.stiffrock.chat.network.WebSocketClient;
 import com.stiffrock.chat.utils.ApiCallback;
 
 import retrofit2.Call;

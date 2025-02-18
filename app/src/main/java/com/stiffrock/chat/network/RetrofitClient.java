@@ -1,4 +1,4 @@
-package com.stiffrock.chat.model;
+package com.stiffrock.chat.network;
 
 import com.fatboyindustrial.gsonjavatime.Converters;
 import com.google.gson.Gson;

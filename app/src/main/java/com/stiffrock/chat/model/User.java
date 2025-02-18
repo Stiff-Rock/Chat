@@ -1,9 +1,12 @@
 package com.stiffrock.chat.model;
 
+import java.util.Set;
+
 public class User {
     private Long id;
     private String username;
     private String password;
+    private Set<Chat> chats;
 
     public User() {
     }
@@ -35,5 +38,13 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Set<Chat> getChats() {
+        return chats;
+    }
+
+    public void setChats(Set<Chat> chats) {
+        this.chats = chats;
     }
 }

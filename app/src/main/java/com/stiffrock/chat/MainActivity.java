@@ -6,18 +6,13 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
-import com.stiffrock.chat.fragments.LogInFragment;
+import com.stiffrock.chat.fragments.main.LogInFragment;
 import com.stiffrock.chat.model.CurrentUser;
-import com.stiffrock.chat.model.WebSocketClient;
+import com.stiffrock.chat.network.WebSocketClient;
+import com.stiffrock.chat.utils.FragmentContainerActivity;
 
 
-public class MainActivity extends AppCompatActivity {
-
+public class MainActivity extends FragmentContainerActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,22 +40,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             replaceFragment(new LogInFragment());
         }
-    }
-
-    public void replaceFragment(Fragment fragment) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-
-        // Animaciones de entrada y salida entre fragments
-        transaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right, android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-
-        transaction.replace(R.id.fcvMainActivity, fragment);
-
-        Fragment currentFragment = fragmentManager.findFragmentById(R.id.fcvMainActivity);
-        if (currentFragment != null)
-            transaction.addToBackStack(currentFragment.getClass().getName());
-
-        transaction.commit();
     }
 
     public void navigateToHomeActivity() {

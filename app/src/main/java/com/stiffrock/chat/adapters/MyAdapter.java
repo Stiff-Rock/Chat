@@ -1,4 +1,4 @@
-package com.stiffrock.chat.model;
+package com.stiffrock.chat.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -71,7 +71,10 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ItemChatCard item = (ItemChatCard) datos.get(position);
 
             view.parentLayout.setOnClickListener(e -> listener.onChatCardClick(item));
-            view.ivChatPhoto.setImageResource(R.drawable.default_user);
+
+            if (item.isGroupChat()) view.ivChatPhoto.setImageResource(R.drawable.default_group);
+            else view.ivChatPhoto.setImageResource(R.drawable.default_user);
+
             view.tvChatName.setText(item.getChatName());
         }
     }

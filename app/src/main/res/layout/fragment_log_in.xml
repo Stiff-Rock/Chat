@@ -3,7 +3,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".fragments.LogInFragment"
+        tools:context=".fragments.main.LogInFragment"
         android:gravity="center"
         android:orientation="vertical"
         android:padding="50dp">

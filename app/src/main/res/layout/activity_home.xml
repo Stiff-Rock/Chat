@@ -17,11 +17,11 @@
             android:id="@+id/toolbar"
             android:layout_weight="0" />
 
-    <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+    <androidx.fragment.app.FragmentContainerView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:padding="25dp" />
+            android:id="@+id/fcv"
+            tools:layout="@layout/fragment_contacts"
+            android:layout_weight="1" />
 
 </LinearLayout>

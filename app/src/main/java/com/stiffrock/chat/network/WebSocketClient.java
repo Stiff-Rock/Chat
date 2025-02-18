@@ -1,4 +1,4 @@
-package com.stiffrock.chat.model;
+package com.stiffrock.chat.network;
 
 import static com.stiffrock.chat.utils.LogTag.TAG;
 
@@ -8,6 +8,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.utils.OnMessageReceivedListener;
 import com.stiffrock.chat.utils.ServerConfig;
 
