@@ -74,7 +74,7 @@ public class ChatActivity extends AppCompatActivity implements OnMessageReceived
         apiService = RetrofitClient.getApiService();
 
         //TODO: Revise message loading at start, this only loads recived messages but not the ones you sent.
-        apiGetMessages(CurrentUser.getUsername());
+        apiGetMessages(CurrentUser.getCurrentUser().getUsername());
 
         WebSocketClient.getInstance().setOnMessageReceivedListener(this);
     }
@@ -103,7 +103,7 @@ public class ChatActivity extends AppCompatActivity implements OnMessageReceived
         etMensaje.setText("");
 
         Long id = randomId.nextLong();
-        String sender = CurrentUser.getUsername();
+        String sender = CurrentUser.getCurrentUser().getUsername();
         LocalDateTime timestamp = LocalDateTime.now();
 
         Message message = new Message(id, sender, recipient, texto, timestamp);

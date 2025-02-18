@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:gravity="center"
+        android:padding="10dp"
+        android:id="@+id/parentLayout">
+
+    <ImageView
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/foto_de_perfil"
+            android:src="@drawable/default_user"
+            android:id="@+id/ivContactPhoto"
+            android:layout_weight="0" />
+
+
+    <TextView
+            android:id="@+id/tvContactName"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:padding="10dp"
+            android:gravity="center_vertical"
+            android:layout_weight="1" />
+
+
+    <Button
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:id="@+id/btnDeleteContact"
+            android:layout_weight="0"/>
+</LinearLayout>

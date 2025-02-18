@@ -1,7 +1,8 @@
 package com.stiffrock.chat.network;
 
+import com.stiffrock.chat.dto.CreateGroupRequest;
+import com.stiffrock.chat.dto.UserDTO;
 import com.stiffrock.chat.model.ApiResponse;
-import com.stiffrock.chat.model.Chat;
 import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.model.User;
 
@@ -27,12 +28,15 @@ public interface ApiService {
     Call<ApiResponse> registerUser(@Body User user);
 
     @POST("users/login")
-    Call<ApiResponse> logInUser(@Body User user);
+    Call<UserDTO> logInUser(@Body User user);
 
     @GET("users/online")
-    Call<List<User>> getOnlineUsers();
+    Call<List<UserDTO>> getOnlineUsers();
+
+    @GET("users/{username}")
+    Call<UserDTO> getUserByUsername(@Path("username") String username);
 
     //Endpoint de grupos
     @POST("groups/create")
-    Call<Chat> createGroupChat();
+    Call<ApiResponse> createGroupChat(@Body CreateGroupRequest request);
 }

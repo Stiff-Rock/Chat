@@ -17,6 +17,12 @@
     <string name="recu_rdame">Recuérdame</string>
     <string name="n_mero_de_mensajes_nuevos">Número de mensajes nuevos</string>
     <string name="cerrar_sesi_n">Cerrar sesión</string>
-    <string name="Anadir_contacto">Añadir contacto</string>
-    <string name="Anadir_grupo">Añadir grupo</string>
+    <string name="anadir_contacto">Añadir contacto</string>
+    <string name="nuevo_grupo">Nuevo grupo</string>
+    <string name="crear_grupo">Crear grupo</string>
+    <string name="nombre_del_grupo">Nombre del grupo</string>
+    <string name="elegir_usuario">Ingrese un usuario</string>
+    <string name="a_adir">Añadir</string>
+    <string name="foto_del_grupo">Foto del grupo</string>
+    <string name="foto_de_perfil">Foto de perfil</string>
 </resources>

@@ -13,22 +13,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.stiffrock.chat.R;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemChatCard;
+import com.stiffrock.chat.items.ItemContactCard;
 import com.stiffrock.chat.items.ItemMessageRecieved;
 import com.stiffrock.chat.items.ItemMessageSent;
-import com.stiffrock.chat.utils.OnChatCardClickListener;
+import com.stiffrock.chat.utils.OnItemClickListener;
 
 import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final List<Item> datos;
 
-    private OnChatCardClickListener listener;
+    private OnItemClickListener listener;
 
     public MyAdapter(List<Item> datos) {
         this.datos = datos;
     }
 
-    public MyAdapter(List<Item> datos, OnChatCardClickListener listener) {
+    public MyAdapter(List<Item> datos, OnItemClickListener listener) {
         this.datos = datos;
         this.listener = listener;
     }
@@ -48,9 +49,12 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (viewType == 1) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message_sent, parent, false);
             return new ViewHolderMessageSent(view);
-        } else {
+        } else if (viewType == 2) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_card, parent, false);
             return new ViewHolderChatCard(view);
+        } else {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_contact_card, parent, false);
+            return new ViewHolderContactCard(view);
         }
     }
 
@@ -66,16 +70,22 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ItemMessageSent item = (ItemMessageSent) datos.get(position);
 
             view.textView.setText(item.getMessage());
-        } else {
+        } else if (holder instanceof ViewHolderChatCard) {
             ViewHolderChatCard view = (ViewHolderChatCard) holder;
             ItemChatCard item = (ItemChatCard) datos.get(position);
 
-            view.parentLayout.setOnClickListener(e -> listener.onChatCardClick(item));
+            view.parentLayout.setOnClickListener(e -> listener.onItemClick(item));
 
             if (item.isGroupChat()) view.ivChatPhoto.setImageResource(R.drawable.default_group);
             else view.ivChatPhoto.setImageResource(R.drawable.default_user);
 
             view.tvChatName.setText(item.getChatName());
+        } else {
+            ViewHolderContactCard view = (ViewHolderContactCard) holder;
+            ItemContactCard item = (ItemContactCard) datos.get(position);
+            
+            view.ivContactPhoto.setImageResource(R.drawable.default_user);
+            view.tvContactName.setText(item.getName());
         }
     }
 
@@ -112,6 +122,19 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             parentLayout = itemView.findViewById(R.id.parentLayout);
             ivChatPhoto = itemView.findViewById(R.id.ivChatPhoto);
             tvChatName = itemView.findViewById(R.id.tvChatName);
+        }
+    }
+
+    public static class ViewHolderContactCard extends RecyclerView.ViewHolder {
+        private final LinearLayout parentLayout;
+        private final ImageView ivContactPhoto;
+        private final TextView tvContactName;
+
+        public ViewHolderContactCard(@NonNull View itemView) {
+            super(itemView);
+            parentLayout = itemView.findViewById(R.id.parentLayout);
+            ivContactPhoto = itemView.findViewById(R.id.ivContactPhoto);
+            tvContactName = itemView.findViewById(R.id.tvContactName);
         }
     }
 }

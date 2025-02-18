@@ -58,7 +58,7 @@ public class HomeActivity extends FragmentContainerActivity {
     }
 
     private void logOut() {
-        CurrentUser.setUsername("");
+        CurrentUser.setCurrentUser(null);
         WebSocketClient.getInstance().disconnect();
 
         SharedPreferences sp = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);

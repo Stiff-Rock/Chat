@@ -15,17 +15,17 @@ import com.stiffrock.chat.R;
 import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemChatCard;
-import com.stiffrock.chat.utils.OnChatCardClickListener;
+import com.stiffrock.chat.utils.OnItemClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class ContactsFragment extends Fragment implements OnChatCardClickListener {
+public class ContactsFragment extends Fragment implements OnItemClickListener {
     private RecyclerView recyclerView;
     private MyAdapter adapter;
 
-    private List<Item> contacts = new ArrayList<>();
+    private List<Item> chats = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -34,15 +34,15 @@ public class ContactsFragment extends Fragment implements OnChatCardClickListene
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        adapter = new MyAdapter(contacts, this);
+        chats.add(new ItemChatCard("name", false));
+        adapter = new MyAdapter(chats, this);
         recyclerView.setAdapter(adapter);
 
         return view;
     }
 
-
     @Override
-    public void onChatCardClick(ItemChatCard chat) {
+    public void onItemClick(ItemChatCard chat) {
         Bundle bundle = new Bundle();
         bundle.putString("recipient", chat.getChatName());
         ((HomeActivity) requireActivity()).navigateToActivity(ChatActivity.class, bundle);

@@ -16,8 +16,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.google.gson.Gson;
 import com.stiffrock.chat.MainActivity;
 import com.stiffrock.chat.R;
+import com.stiffrock.chat.dto.UserDTO;
 import com.stiffrock.chat.model.ApiResponse;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.model.CurrentUser;
@@ -62,62 +64,62 @@ public class LogInFragment extends Fragment {
 
         User user = new User(inputUsername, inputPassword);
 
-        apiLogIn(user, (success, result) -> {
-            if (success) {
-                CurrentUser.setUsername(inputUsername);
-                WebSocketClient.getInstance().connect();
 
+        //TODO: DESHACER EL CALLBACK HACERLO TODO DIRECTMENTE AHI
+        apiLogIn(user, (success, userDto) -> {
+            if (success && userDto != null) {
+                CurrentUser.setCurrentUser(userDto);
+                WebSocketClient.getInstance().connect();
                 ((MainActivity) requireActivity()).navigateToHomeActivity();
 
-                Toast.makeText(requireContext(), result, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Inicio de sesión correcto", Toast.LENGTH_SHORT).show();
 
                 SharedPreferences sp = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
                 sp.edit().putBoolean("rememberLogIn", ckbxRememberMe.isChecked()).apply();
 
                 if (ckbxRememberMe.isChecked()) {
-                    sp.edit().putString("storedUser", inputUsername).apply();
+                    sp.edit().putLong("storedUserId", userDto.getId()).apply();
+                    sp.edit().putString("storedUserName", userDto.getUsername()).apply();
                 } else {
-                    sp.edit().putString("storedUser", "").apply();
+                    sp.edit().putLong("storedUserId", -1).apply();
+                    sp.edit().putString("storedUserName", "").apply();
                 }
             } else {
-                Toast.makeText(requireContext(), result, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Error al iniciar sesión. Verifica tus credenciales.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void apiLogIn(User user, ApiCallback<String> callback) {
-        Call<ApiResponse> call = apiService.logInUser(user);
-        call.enqueue(new Callback<ApiResponse>() {
+    //TODO: MEJORAR EL FEEDBACK AL USUARIO
+    private void apiLogIn(User user, ApiCallback<UserDTO> callback) {
+        Call<UserDTO> call = apiService.logInUser(user);
+        call.enqueue(new Callback<UserDTO>() {
             @Override
-            public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
+            public void onResponse(@NonNull Call<UserDTO> call, @NonNull Response<UserDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.d(TAG, "Login successful: " + response.body().getMessage());
-                    callback.onResult(true, response.body().getMessage());
+                    UserDTO userDto = response.body();
+                    Log.d(TAG, "Login successful");
+                    callback.onResult(true, userDto);
                 } else {
-                    String errorMessage;
-                    switch (response.code()) {
-                        case 400:
-                            errorMessage = "Bad Request: Invalid input.";
-                            break;
-                        case 401:
-                            errorMessage = "Error: Credenciales incorrectas";
-                            break;
-                        case 409:
-                            errorMessage = "Conflict: Contraseña vacía.";
-                            break;
-                        default:
-                            errorMessage = "Login failed, please try again.";
-                            break;
+                    String errorMessage = "Login failed, please try again.";
+                    try {
+                        if (response.errorBody() != null) {
+                            ApiResponse errorResponse = new Gson().fromJson(response.errorBody().string(), ApiResponse.class);
+                            errorMessage = errorResponse.getMessage();
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error parsing error response", e);
                     }
-                    Log.e(TAG, "Login failed: " + response.code() + "\n" + errorMessage);
-                    callback.onResult(false, errorMessage);
+
+                    Log.e(TAG, "Login failed: " + response.code() + " - " + errorMessage);
+                    callback.onResult(false, null);
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<UserDTO> call, @NonNull Throwable t) {
                 Log.e(TAG, "Login request failed: " + t.getMessage());
-                callback.onResult(false, "Connection error");
+                callback.onResult(false, null);
             }
         });
     }

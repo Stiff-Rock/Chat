@@ -1,10 +1,10 @@
 package com.stiffrock.chat.items;
 
-import com.stiffrock.chat.R;
 import com.stiffrock.chat.model.Chat;
 
 public class ItemChatCard extends Item {
     private String chatName;
+    //TODO: DELTE THIS HANDLE DIFFERENTLY
     private boolean isGroupChat;
 
     public ItemChatCard(String chatName, boolean isGroupChat) {

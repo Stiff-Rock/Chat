@@ -3,12 +3,12 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".fragments.home.ContactsFragment">
+        tools:context=".fragments.home.ContactsFragment"
+        android:padding="25dp">
 
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="25dp" />
+            android:layout_height="match_parent" />
 
 </FrameLayout>

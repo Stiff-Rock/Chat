@@ -29,7 +29,7 @@ public class WebSocketClient {
 
     private WebSocketClient() {
         client = new OkHttpClient();
-        String usernameQueryParameter = "?username=" + CurrentUser.getUsername();
+        String usernameQueryParameter = "?username=" + CurrentUser.getCurrentUser();
         WEB_SOCKET_URL = "ws://" + ServerConfig.SOCKET_ADDR + "/chat" + usernameQueryParameter;
     }
 

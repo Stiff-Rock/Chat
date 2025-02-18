@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.stiffrock.chat.R;
 
+//TODO: HACER QUE SI SE HA HECHOAUTO LOGIN NO PUEDA VOVLER A CON LA FLECHA DE HACIA ATRAS AL LOGIN
 public class FragmentContainerActivity extends AppCompatActivity {
     public void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
