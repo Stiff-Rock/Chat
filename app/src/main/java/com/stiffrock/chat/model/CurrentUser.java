@@ -1,15 +1,13 @@
 package com.stiffrock.chat.model;
 
-import com.stiffrock.chat.dto.UserDTO;
-
 public class CurrentUser {
-    private static UserDTO currentUser;
+    private static User currentUser;
 
-    public static UserDTO getCurrentUser() {
+    public static User getCurrentUser() {
         return currentUser;
     }
 
-    public static void setCurrentUser(UserDTO newUser) {
+    public static void setCurrentUser(User newUser) {
         currentUser = newUser;
     }
 }

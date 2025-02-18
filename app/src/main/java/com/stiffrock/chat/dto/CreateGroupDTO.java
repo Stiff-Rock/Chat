@@ -1,12 +1,14 @@
 package com.stiffrock.chat.dto;
 
+import com.stiffrock.chat.model.User;
+
 import java.util.List;
 
-public class CreateGroupRequest {
+public class CreateGroupDTO {
     private String groupName;
-    private List<UserDTO> participants;
+    private List<User> participants;
 
-    public CreateGroupRequest(String groupName, List<UserDTO> participants) {
+    public CreateGroupDTO(String groupName, List<User> participants) {
         this.groupName = groupName;
         this.participants = participants;
     }
@@ -19,11 +21,11 @@ public class CreateGroupRequest {
         this.groupName = groupName;
     }
 
-    public List<UserDTO> getParticipants() {
+    public List<User> getParticipants() {
         return participants;
     }
 
-    public void setParticipants(List<UserDTO> participants) {
+    public void setParticipants(List<User> participants) {
         this.participants = participants;
     }
 }

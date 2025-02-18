@@ -15,13 +15,15 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemMessageRecieved;
 import com.stiffrock.chat.items.ItemMessageSent;
-import com.stiffrock.chat.network.ApiService;
+import com.stiffrock.chat.model.Chat;
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.Message;
-import com.stiffrock.chat.adapters.MyAdapter;
+import com.stiffrock.chat.model.User;
+import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.network.WebSocketClient;
 import com.stiffrock.chat.utils.OnMessageReceivedListener;
@@ -44,7 +46,7 @@ public class ChatActivity extends AppCompatActivity implements OnMessageReceived
 
     private ApiService apiService;
 
-    private final Random randomId = new Random();
+    private Chat chat;
 
     private String recipient;
 
@@ -59,6 +61,7 @@ public class ChatActivity extends AppCompatActivity implements OnMessageReceived
             return insets;
         });
 
+        //TODO GET THE USERDTO OF THE RECIEVER
         recipient = getIntent().getStringExtra("recipient");
 
         etMensaje = findViewById(R.id.etMensaje);
@@ -102,15 +105,14 @@ public class ChatActivity extends AppCompatActivity implements OnMessageReceived
 
         etMensaje.setText("");
 
-        Long id = randomId.nextLong();
-        String sender = CurrentUser.getCurrentUser().getUsername();
+        User sender = CurrentUser.getCurrentUser();
         LocalDateTime timestamp = LocalDateTime.now();
 
-        Message message = new Message(id, sender, recipient, texto, timestamp);
-
-        addTextBubble(1, texto);
-
-        apiSendMessage(message);
+//        Message message = new Message(sender, recipient, chat, texto, timestamp);
+//
+//        addTextBubble(1, texto);
+//
+//        apiSendMessage(message);
     }
 
     //TODO: HANDLE FALIED CONNECTIONS
@@ -139,7 +141,7 @@ public class ChatActivity extends AppCompatActivity implements OnMessageReceived
                     List<Message> messageList = response.body();
 
                     if (messageList != null) for (Message message : messageList) {
-                        addTextBubble(2, message.getMensaje());
+                        addTextBubble(2, message.getMessageContent());
                     }
                 } else {
                     Log.e(TAG, "Error en la respuesta: " + response.code());

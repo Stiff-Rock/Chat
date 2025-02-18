@@ -19,7 +19,7 @@ import androidx.fragment.app.Fragment;
 import com.google.gson.Gson;
 import com.stiffrock.chat.MainActivity;
 import com.stiffrock.chat.R;
-import com.stiffrock.chat.dto.UserDTO;
+import com.stiffrock.chat.dto.LoginDTO;
 import com.stiffrock.chat.model.ApiResponse;
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.User;
@@ -61,16 +61,16 @@ public class LogInFragment extends Fragment {
             return;
         }
 
-        User user = new User(inputUsername, inputPassword);
+        LoginDTO credentials = new LoginDTO(inputUsername, inputPassword);
 
         //TODO: IMPROVE USER FEEDBACK
-        Call<UserDTO> call = apiService.logInUser(user);
-        call.enqueue(new Callback<UserDTO>() {
+        Call<User> call = apiService.logInUser(credentials);
+        call.enqueue(new Callback<User>() {
             @Override
-            public void onResponse(@NonNull Call<UserDTO> call, @NonNull Response<UserDTO> response) {
+            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    UserDTO userDto = response.body();
-                    CurrentUser.setCurrentUser(userDto);
+                    User user = response.body();
+                    CurrentUser.setCurrentUser(user);
 
                     WebSocketClient.getInstance().connect();
 
@@ -81,8 +81,8 @@ public class LogInFragment extends Fragment {
                     sp.edit().putBoolean("rememberLogIn", ckbxRememberMe.isChecked()).apply();
 
                     if (ckbxRememberMe.isChecked()) {
-                        sp.edit().putLong("storedUserId", userDto.getId()).apply();
-                        sp.edit().putString("storedUserName", userDto.getUsername()).apply();
+                        sp.edit().putLong("storedUserId", user.getId()).apply();
+                        sp.edit().putString("storedUserName", user.getUsername()).apply();
                     } else {
                         sp.edit().putLong("storedUserId", -1).apply();
                         sp.edit().putString("storedUserName", "").apply();
@@ -107,7 +107,7 @@ public class LogInFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(@NonNull Call<UserDTO> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
                 Log.e(TAG, "Login request failed: " + t.getMessage());
                 Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }

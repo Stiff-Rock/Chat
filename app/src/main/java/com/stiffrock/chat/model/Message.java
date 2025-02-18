@@ -1,58 +1,70 @@
 package com.stiffrock.chat.model;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Message {
     private Long id;
-    private String remitente;
-    private String destinatario;
-    private String mensaje;
+    private Long senderId;
+    private Chat chat;
+    private Set<Long> recipientsId = new HashSet<>();
+    private String messageContent;
     private LocalDateTime timestamp;
 
-    public Message(Long id, String remitente, String destinatario, String mensaje, LocalDateTime timestamp) {
-        this.id = id;
-        this.remitente = remitente;
-        this.destinatario = destinatario;
-        this.mensaje = mensaje;
+    public Message() {
+    }
+
+    public Message(Long senderId, Chat chat, Set<Long> recipientsId, String messageContent, LocalDateTime timestamp) {
+        this.senderId = senderId;
+        this.chat = chat;
+        this.recipientsId = recipientsId;
+        this.messageContent = messageContent;
         this.timestamp = timestamp;
     }
 
-    // Getters
     public Long getId() {
         return id;
     }
 
-    public String getRemitente() {
-        return remitente;
-    }
-
-    public String getDestinatario() {
-        return destinatario;
-    }
-
-    public String getMensaje() {
-        return mensaje;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    // Setters
     public void setId(Long id) {
         this.id = id;
     }
 
-    public void setRemitente(String remitente) {
-        this.remitente = remitente;
+    public Long getSenderId() {
+        return senderId;
     }
 
-    public void setDestinatario(String destinatario) {
-        this.destinatario = destinatario;
+    public void setSenderId(Long senderId) {
+        this.senderId = senderId;
     }
 
-    public void setMensaje(String mensaje) {
-        this.mensaje = mensaje;
+    public Chat getChat() {
+        return chat;
+    }
+
+    public void setChat(Chat chat) {
+        this.chat = chat;
+    }
+
+    public Set<Long> getRecipientsId() {
+        return recipientsId;
+    }
+
+    public void setRecipientsId(Set<Long> recipientsId) {
+        this.recipientsId = recipientsId;
+    }
+
+    public String getMessageContent() {
+        return messageContent;
+    }
+
+    public void setMessageContent(String messageContent) {
+        this.messageContent = messageContent;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
     }
 
     public void setTimestamp(LocalDateTime timestamp) {

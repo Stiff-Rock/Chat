@@ -17,12 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.stiffrock.chat.R;
 import com.stiffrock.chat.adapters.MyAdapter;
-import com.stiffrock.chat.dto.CreateGroupRequest;
-import com.stiffrock.chat.dto.UserDTO;
+import com.stiffrock.chat.dto.CreateGroupDTO;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemContactCard;
 import com.stiffrock.chat.model.ApiResponse;
 import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
 
@@ -38,7 +38,7 @@ public class AddGroupFragment extends Fragment {
 
     private MyAdapter adapter;
     private List<Item> contactCardItems;
-    private List<UserDTO> participants;
+    private List<User> participants;
 
     private ApiService apiService;
 
@@ -75,10 +75,10 @@ public class AddGroupFragment extends Fragment {
             return;
         }
 
-        Call<UserDTO> call = apiService.getUserByUsername(name);
-        call.enqueue(new Callback<UserDTO>() {
+        Call<User> call = apiService.getUserByUsername(name);
+        call.enqueue(new Callback<User>() {
             @Override
-            public void onResponse(@NonNull Call<UserDTO> call, @NonNull Response<UserDTO> response) {
+            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     contactCardItems.add(new ItemContactCard(name));
                     participants.add(response.body());
@@ -90,7 +90,7 @@ public class AddGroupFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(@NonNull Call<UserDTO> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
                 Log.e(TAG, "GetUserByUsername request failed: " + t.getMessage());
                 Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }
@@ -109,18 +109,23 @@ public class AddGroupFragment extends Fragment {
             return;
         }
 
-        CreateGroupRequest cgr = new CreateGroupRequest(groupName, participants);
+        CreateGroupDTO cgr = new CreateGroupDTO(groupName, participants);
 
         Call<ApiResponse> call = apiService.createGroupChat(cgr);
         call.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                if (response.isSuccessful()) {
 
+                } else {
+
+                }
             }
 
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable throwable) {
-
+                Log.e(TAG, "Creating group request failed: " + throwable.getMessage());
+                Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }
         });
     }

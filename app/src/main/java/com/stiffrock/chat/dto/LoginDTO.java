@@ -1,13 +1,13 @@
 package com.stiffrock.chat.dto;
 
-public class LogInDTO {
+public class LoginDTO {
     private String username;
     private String password;
 
-    public LogInDTO() {
+    public LoginDTO() {
     }
 
-    public LogInDTO(String username, String password) {
+    public LoginDTO(String username, String password) {
         this.username = username;
         this.password = password;
     }
