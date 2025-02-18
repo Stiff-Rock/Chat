@@ -21,13 +21,12 @@ import com.stiffrock.chat.dto.CreateGroupRequest;
 import com.stiffrock.chat.dto.UserDTO;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemContactCard;
+import com.stiffrock.chat.model.ApiResponse;
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
-import com.stiffrock.chat.utils.ApiCallback;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -51,7 +50,8 @@ public class AddGroupFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         contactCardItems = new ArrayList<>();
-        participants = Collections.singletonList(CurrentUser.getCurrentUser());
+        participants = new ArrayList<>();
+        participants.add(CurrentUser.getCurrentUser());
 
         adapter = new MyAdapter(contactCardItems);
         recyclerView.setAdapter(adapter);
@@ -75,41 +75,30 @@ public class AddGroupFragment extends Fragment {
             return;
         }
 
-        apiCheckIfUserExists(name, (success, userDto) -> {
-            if (userDto == null) {
-                Toast.makeText(requireContext(), "El usuario introducido no existe", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            contactCardItems.add(new ItemContactCard(name));
-            participants.add(userDto);
-            adapter.notifyItemInserted(contactCardItems.size() - 1);
-        });
-    }
-
-    private void apiCheckIfUserExists(String username, ApiCallback<UserDTO> callback) {
-        Call<UserDTO> call = apiService.getUserByUsername(username);
+        Call<UserDTO> call = apiService.getUserByUsername(name);
         call.enqueue(new Callback<UserDTO>() {
             @Override
             public void onResponse(@NonNull Call<UserDTO> call, @NonNull Response<UserDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    callback.onResult(true, response.body());
+                    contactCardItems.add(new ItemContactCard(name));
+                    participants.add(response.body());
+                    adapter.notifyItemInserted(contactCardItems.size() - 1);
+                    etUser.setText("");
                 } else {
-                    callback.onResult(false, null);
+                    Toast.makeText(requireContext(), "El usuario introducido no existe", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<UserDTO> call, @NonNull Throwable t) {
                 Log.e(TAG, "GetUserByUsername request failed: " + t.getMessage());
-                callback.onResult(false, null);
+                Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void createGroup() {
         String groupName = etGroupName.getText().toString().trim();
-
         if (groupName.isBlank()) {
             Toast.makeText(requireContext(), "Introduce un nombre de grupo", Toast.LENGTH_SHORT).show();
             return;
@@ -120,6 +109,19 @@ public class AddGroupFragment extends Fragment {
             return;
         }
 
-        apiService.createGroupChat(new CreateGroupRequest(groupName, participants));
+        CreateGroupRequest cgr = new CreateGroupRequest(groupName, participants);
+
+        Call<ApiResponse> call = apiService.createGroupChat(cgr);
+        call.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable throwable) {
+
+            }
+        });
     }
 }

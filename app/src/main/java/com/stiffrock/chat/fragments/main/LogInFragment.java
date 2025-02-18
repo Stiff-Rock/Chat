@@ -21,12 +21,11 @@ import com.stiffrock.chat.MainActivity;
 import com.stiffrock.chat.R;
 import com.stiffrock.chat.dto.UserDTO;
 import com.stiffrock.chat.model.ApiResponse;
-import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.model.CurrentUser;
-import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.model.User;
+import com.stiffrock.chat.network.ApiService;
+import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.network.WebSocketClient;
-import com.stiffrock.chat.utils.ApiCallback;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -64,42 +63,32 @@ public class LogInFragment extends Fragment {
 
         User user = new User(inputUsername, inputPassword);
 
-
-        //TODO: DESHACER EL CALLBACK HACERLO TODO DIRECTMENTE AHI
-        apiLogIn(user, (success, userDto) -> {
-            if (success && userDto != null) {
-                CurrentUser.setCurrentUser(userDto);
-                WebSocketClient.getInstance().connect();
-                ((MainActivity) requireActivity()).navigateToHomeActivity();
-
-                Toast.makeText(requireContext(), "Inicio de sesión correcto", Toast.LENGTH_SHORT).show();
-
-                SharedPreferences sp = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-                sp.edit().putBoolean("rememberLogIn", ckbxRememberMe.isChecked()).apply();
-
-                if (ckbxRememberMe.isChecked()) {
-                    sp.edit().putLong("storedUserId", userDto.getId()).apply();
-                    sp.edit().putString("storedUserName", userDto.getUsername()).apply();
-                } else {
-                    sp.edit().putLong("storedUserId", -1).apply();
-                    sp.edit().putString("storedUserName", "").apply();
-                }
-            } else {
-                Toast.makeText(requireContext(), "Error al iniciar sesión. Verifica tus credenciales.", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    //TODO: MEJORAR EL FEEDBACK AL USUARIO
-    private void apiLogIn(User user, ApiCallback<UserDTO> callback) {
+        //TODO: IMPROVE USER FEEDBACK
         Call<UserDTO> call = apiService.logInUser(user);
         call.enqueue(new Callback<UserDTO>() {
             @Override
             public void onResponse(@NonNull Call<UserDTO> call, @NonNull Response<UserDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     UserDTO userDto = response.body();
+                    CurrentUser.setCurrentUser(userDto);
+
+                    WebSocketClient.getInstance().connect();
+
                     Log.d(TAG, "Login successful");
-                    callback.onResult(true, userDto);
+                    Toast.makeText(requireContext(), "Inicio de sesión correcto", Toast.LENGTH_SHORT).show();
+
+                    SharedPreferences sp = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+                    sp.edit().putBoolean("rememberLogIn", ckbxRememberMe.isChecked()).apply();
+
+                    if (ckbxRememberMe.isChecked()) {
+                        sp.edit().putLong("storedUserId", userDto.getId()).apply();
+                        sp.edit().putString("storedUserName", userDto.getUsername()).apply();
+                    } else {
+                        sp.edit().putLong("storedUserId", -1).apply();
+                        sp.edit().putString("storedUserName", "").apply();
+                    }
+
+                    ((MainActivity) requireActivity()).navigateToHomeActivity();
                 } else {
                     String errorMessage = "Login failed, please try again.";
                     try {
@@ -112,14 +101,15 @@ public class LogInFragment extends Fragment {
                     }
 
                     Log.e(TAG, "Login failed: " + response.code() + " - " + errorMessage);
-                    callback.onResult(false, null);
+                    Toast.makeText(requireContext(), "Error al iniciar sesión. Verifica tus credenciales.", Toast.LENGTH_SHORT).show();
+
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<UserDTO> call, @NonNull Throwable t) {
                 Log.e(TAG, "Login request failed: " + t.getMessage());
-                callback.onResult(false, null);
+                Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }
         });
     }

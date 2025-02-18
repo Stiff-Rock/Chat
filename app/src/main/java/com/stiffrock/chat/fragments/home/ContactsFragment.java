@@ -22,19 +22,19 @@ import java.util.List;
 
 
 public class ContactsFragment extends Fragment implements OnItemClickListener {
-    private RecyclerView recyclerView;
     private MyAdapter adapter;
 
-    private List<Item> chats = new ArrayList<>();
+    private final List<Item> chats = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
 
-        recyclerView = view.findViewById(R.id.recyclerView);
+        RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        chats.add(new ItemChatCard("name", false));
+        if (chats.isEmpty()) chats.add(new ItemChatCard("name", false));
+
         adapter = new MyAdapter(chats, this);
         recyclerView.setAdapter(adapter);
 

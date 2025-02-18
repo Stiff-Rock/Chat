@@ -16,10 +16,9 @@ import androidx.fragment.app.Fragment;
 import com.stiffrock.chat.MainActivity;
 import com.stiffrock.chat.R;
 import com.stiffrock.chat.model.ApiResponse;
+import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
-import com.stiffrock.chat.model.User;
-import com.stiffrock.chat.utils.ApiCallback;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -60,24 +59,14 @@ public class SignUpFragment extends Fragment {
 
         User user = new User(inputUsername, inputPassword1);
 
-        apiRegister(user, (success, result) -> {
-            if (success) {
-                Toast.makeText(requireContext(), result, Toast.LENGTH_SHORT).show();
-                redirectToLogIn();
-            } else {
-                Toast.makeText(requireContext(), result, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void apiRegister(User user, ApiCallback<String> callback) {
+        //TODO: IMPROVE USER FEEDBACK
         Call<ApiResponse> call = apiService.registerUser(user);
         call.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d(TAG, "Register successful: " + response.body().getMessage());
-                    callback.onResult(true, response.body().getMessage());
+                    Toast.makeText(requireContext(), response.body().getMessage(), Toast.LENGTH_SHORT).show();
                 } else {
                     String errorMessage;
                     switch (response.code()) {
@@ -95,14 +84,14 @@ public class SignUpFragment extends Fragment {
                             break;
                     }
                     Log.e(TAG, "Register failed: " + response.code() + "\n" + errorMessage);
-                    callback.onResult(false, errorMessage);
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
                 Log.e(TAG, "Register request failed: " + t.getMessage());
-                callback.onResult(false, "Conecction error");
+                Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }
         });
     }
