@@ -68,7 +68,6 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         apiService = RetrofitClient.getApiService();
 
         //TODO: LOAD MESSAGES AT THE START
-
         WebSocketClient.getInstance().setOnMessageReceivedListener(this);
     }
 
@@ -88,7 +87,9 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         if (text.isBlank()) return;
         etMensaje.setText("");
         addTextBubble(1, text);
-        apiSendMessage(new MessageDTO(CurrentUser.getCurrentUser(), CurrentUser.getCurrentChat(), text));
+        Long userId = CurrentUser.getCurrentUser().getId();
+        Long chatID = CurrentUser.getCurrentChat().getChatId();
+        apiSendMessage(new MessageDTO(userId, chatID, text));
     }
 
     //TODO: HANDLE FALIED CONNECTIONS
@@ -97,8 +98,10 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         call.enqueue(new Callback<Message>() {
             @Override
             public void onResponse(@NonNull Call<Message> call, @NonNull Response<Message> response) {
-                if (!response.isSuccessful()) {
-                    Log.e(TAG, "Error enviado el mensaje: " + response.code());
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "Message sent: " + response.body());
+                } else {
+                    Log.e(TAG, "Error sending message: " + response.code());
                     Toast.makeText(ChatActivity.this, "Error enviado el mensaje", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -116,20 +119,17 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         call.enqueue(new Callback<Message>() {
             @Override
             public void onResponse(@NonNull Call<Message> call, @NonNull Response<Message> response) {
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() && response.body() != null) {
                     Message message = response.body();
-
-                    if (message == null) return;
-
                     addTextBubble(2, message.getMessageContent());
                 } else {
-                    Log.e(TAG, "Error en la respuesta: " + response.code());
+                    Log.e(TAG, "Error recieving message: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<Message> call, @NonNull Throwable t) {
-                Log.e(TAG, "Fallo en la llamada: " + t.getMessage());
+                Log.e(TAG, "RecieveMessage request failed: " + t.getMessage());
             }
         });
     }
@@ -137,6 +137,7 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
     //TODO: QUIZAS ESTO TAMBIEN EN EL CONTANCTFRAGMENT CON LA NOTIFICACION DE TOAST
     @Override
     public void onNotificationReceived(String notification) {
+        Log.d(TAG, "Message recieved: " + notification);
         apiGetMessage(Long.valueOf(notification));
     }
 }

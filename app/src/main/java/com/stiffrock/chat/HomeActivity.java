@@ -134,7 +134,8 @@ public class HomeActivity extends FragmentContainerActivity {
             public void onResponse(@NonNull Call<Chat> call, @NonNull Response<Chat> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
-                    ((ContactsFragment) currentFragment).addContact(response.body());
+                    if (currentFragment != null)
+                        ((ContactsFragment) currentFragment).addContact(response.body());
                     Toast.makeText(HomeActivity.this, "Contacto añadido", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(HomeActivity.this, "Error añadiendo contacto", Toast.LENGTH_SHORT).show();

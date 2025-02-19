@@ -3,7 +3,7 @@ package com.stiffrock.chat.network;
 import com.stiffrock.chat.dto.CreateChatDTO;
 import com.stiffrock.chat.dto.CredentialsDTO;
 import com.stiffrock.chat.dto.MessageDTO;
-import com.stiffrock.chat.model.ApiResponse;
+import com.stiffrock.chat.dto.ApiResponse;
 import com.stiffrock.chat.model.Chat;
 import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.model.User;

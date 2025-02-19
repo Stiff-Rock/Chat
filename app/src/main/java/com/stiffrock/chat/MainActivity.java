@@ -18,6 +18,7 @@ import com.stiffrock.chat.dto.CredentialsDTO;
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.RetrofitClient;
+import com.stiffrock.chat.network.WebSocketClient;
 import com.stiffrock.chat.utils.FragmentContainerActivity;
 import com.stiffrock.chat.utils.SecureStorage;
 
@@ -62,10 +63,11 @@ public class MainActivity extends FragmentContainerActivity {
             @Override
             public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    navigateToHomeActivity();
                     User user = response.body();
                     CurrentUser.setCurrentUser(user);
+                    WebSocketClient.getInstance().connect();
                     Toast.makeText(MainActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
-                    navigateToHomeActivity();
                 } else {
                     sp.edit().putBoolean("rememberLogIn", false).apply();
                     Log.e(TAG, "Error handling autologin: Server could not authenticate");

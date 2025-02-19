@@ -5,14 +5,23 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".ChatActivity"
-        android:orientation="vertical"
-        android:padding="25dp">
+        android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:theme="?attr/actionBarTheme"
+            android:minHeight="?attr/actionBarSize"
+            android:id="@+id/toolbar"
+            android:layout_weight="0" />
 
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:padding="25dp" />
 
     <LinearLayout
             android:layout_width="match_parent"

@@ -20,7 +20,7 @@ import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.dto.CreateChatDTO;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemContactCard;
-import com.stiffrock.chat.model.ApiResponse;
+import com.stiffrock.chat.dto.ApiResponse;
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;

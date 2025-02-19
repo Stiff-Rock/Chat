@@ -43,10 +43,6 @@ dependencies {
 
     implementation(libs.security.crypto)
 
-    implementation(libs.lombok)
-    compileOnly(libs.lombok)
-    annotationProcessor(libs.lombok)
-
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
