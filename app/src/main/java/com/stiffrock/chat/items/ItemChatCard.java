@@ -1,15 +1,15 @@
 package com.stiffrock.chat.items;
 
-import com.stiffrock.chat.model.Chat;
+import com.stiffrock.chat.model.GroupChat;
 
 public class ItemChatCard extends Item {
     private String chatName;
     //TODO: DELTE THIS HANDLE DIFFERENTLY
-    private Chat chat;
+    private GroupChat groupChat;
 
-    public ItemChatCard(Chat chat) {
-        this.chatName = chat.getName();
-        this.chat = chat;
+    public ItemChatCard(GroupChat groupChat) {
+        this.chatName = groupChat.getName();
+        this.groupChat = groupChat;
     }
 
     public String getChatName() {
@@ -20,12 +20,12 @@ public class ItemChatCard extends Item {
         this.chatName = chatName;
     }
 
-    public Chat getChat() {
-        return chat;
+    public GroupChat getChat() {
+        return groupChat;
     }
 
-    public void setChat(Chat chat) {
-        this.chat = chat;
+    public void setChat(GroupChat groupChat) {
+        this.groupChat = groupChat;
     }
 
     @Override

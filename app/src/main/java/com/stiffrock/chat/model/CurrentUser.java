@@ -2,7 +2,7 @@ package com.stiffrock.chat.model;
 
 public class CurrentUser {
     private static User currentUser;
-    private static Chat currentChat;
+    private static GroupChat currentGroupChat;
 
     public static User getCurrentUser() {
         return currentUser;
@@ -12,12 +12,12 @@ public class CurrentUser {
         CurrentUser.currentUser = currentUser;
     }
 
-    public static Chat getCurrentChat() {
-        return currentChat;
+    public static GroupChat getCurrentChat() {
+        return currentGroupChat;
     }
 
-    public static void setCurrentChat(Chat currentChat) {
-        CurrentUser.currentChat = currentChat;
+    public static void setCurrentChat(GroupChat currentGroupChat) {
+        CurrentUser.currentGroupChat = currentGroupChat;
     }
 
 

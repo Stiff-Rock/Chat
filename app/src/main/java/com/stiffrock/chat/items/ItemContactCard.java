@@ -1,7 +1,5 @@
 package com.stiffrock.chat.items;
 
-import com.stiffrock.chat.model.Chat;
-
 public class ItemContactCard extends Item {
     private String name;
 

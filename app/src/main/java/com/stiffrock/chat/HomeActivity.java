@@ -24,7 +24,7 @@ import androidx.fragment.app.Fragment;
 import com.stiffrock.chat.dto.CreateChatDTO;
 import com.stiffrock.chat.fragments.home.AddGroupFragment;
 import com.stiffrock.chat.fragments.home.ContactsFragment;
-import com.stiffrock.chat.model.Chat;
+import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
@@ -127,10 +127,10 @@ public class HomeActivity extends FragmentContainerActivity {
 
         CreateChatDTO ccd = new CreateChatDTO(user.getUsername(), false, participants);
 
-        Call<Chat> call = apiService.addContact(ccd);
-        call.enqueue(new Callback<Chat>() {
+        Call<GroupChat> call = apiService.addContact(ccd);
+        call.enqueue(new Callback<GroupChat>() {
             @Override
-            public void onResponse(@NonNull Call<Chat> call, @NonNull Response<Chat> response) {
+            public void onResponse(@NonNull Call<GroupChat> call, @NonNull Response<GroupChat> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
                     if (currentFragment != null)
@@ -142,7 +142,7 @@ public class HomeActivity extends FragmentContainerActivity {
             }
 
             @Override
-            public void onFailure(@NonNull Call<Chat> call, @NonNull Throwable throwable) {
+            public void onFailure(@NonNull Call<GroupChat> call, @NonNull Throwable throwable) {
                 Log.e(TAG, "GetUserByUsername request failed: " + throwable.getMessage());
                 Toast.makeText(HomeActivity.this, "Error de conexión", Toast.LENGTH_SHORT).show();
             }

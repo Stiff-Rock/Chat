@@ -20,7 +20,7 @@ import com.stiffrock.chat.R;
 import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemChatCard;
-import com.stiffrock.chat.model.Chat;
+import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
@@ -60,14 +60,14 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     }
 
     private void apiGetChatList() {
-        Call<List<Chat>> call = apiService.getUserChats(CurrentUser.getCurrentUser().getId());
-        call.enqueue(new Callback<List<Chat>>() {
+        Call<List<GroupChat>> call = apiService.getUserChats(CurrentUser.getCurrentUser().getId());
+        call.enqueue(new Callback<List<GroupChat>>() {
             @Override
-            public void onResponse(@NonNull Call<List<Chat>> call, @NonNull Response<List<Chat>> response) {
+            public void onResponse(@NonNull Call<List<GroupChat>> call, @NonNull Response<List<GroupChat>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    for (Chat chat : response.body()) {
+                    for (GroupChat groupChat : response.body()) {
                         //TODO: MAKE SEPPARATE CONTACT AND GROUP CLASSES
-                        chats.add(new ItemChatCard(chat));
+                        chats.add(new ItemChatCard(groupChat));
                     }
                 } else {
                     Toast.makeText(requireContext(), "No se han encontrado contactos", Toast.LENGTH_SHORT).show();
@@ -78,7 +78,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<Chat>> call, @NonNull Throwable throwable) {
+            public void onFailure(@NonNull Call<List<GroupChat>> call, @NonNull Throwable throwable) {
                 Log.e(TAG, "GetUserChats request failed: " + throwable.getMessage());
                 Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
 
@@ -88,8 +88,8 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         });
     }
 
-    public void addContact(Chat chat) {
-        chats.add(new ItemChatCard(chat));
+    public void addContact(GroupChat groupChat) {
+        chats.add(new ItemChatCard(groupChat));
         adapter.notifyItemInserted(chats.size() - 1);
     }
 
@@ -100,14 +100,14 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     }
 
     private void apiGetChat(Long chatId) {
-        Call<Chat> call = apiService.getChat(chatId);
-        call.enqueue(new Callback<Chat>() {
+        Call<GroupChat> call = apiService.getChat(chatId);
+        call.enqueue(new Callback<GroupChat>() {
             @Override
-            public void onResponse(@NonNull Call<Chat> call, @NonNull Response<Chat> response) {
+            public void onResponse(@NonNull Call<GroupChat> call, @NonNull Response<GroupChat> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Chat chat = response.body();
-                    Log.d(TAG, "CHAT RECIEVED: " + chat);
-                    chats.add(new ItemChatCard(chat));
+                    GroupChat groupChat = response.body();
+                    Log.d(TAG, "CHAT RECIEVED: " + groupChat);
+                    chats.add(new ItemChatCard(groupChat));
                     adapter.notifyItemInserted(chats.size() - 1);
                     Toast.makeText(requireContext(), "Se ha añadido un nuevo chat", Toast.LENGTH_SHORT).show();
                 } else {
@@ -117,7 +117,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
             }
 
             @Override
-            public void onFailure(@NonNull Call<Chat> call, @NonNull Throwable throwable) {
+            public void onFailure(@NonNull Call<GroupChat> call, @NonNull Throwable throwable) {
                 Log.e(TAG, "GetChat request failed: " + throwable.getMessage());
                 Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }

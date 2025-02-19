@@ -4,7 +4,7 @@ import com.stiffrock.chat.dto.ApiResponse;
 import com.stiffrock.chat.dto.CreateChatDTO;
 import com.stiffrock.chat.dto.CredentialsDTO;
 import com.stiffrock.chat.dto.MessageDTO;
-import com.stiffrock.chat.model.Chat;
+import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.model.User;
 
@@ -40,15 +40,15 @@ public interface ApiService {
     Call<User> getUserByUsername(@Path("username") String username);
 
     @GET("users/user/{userId}/chats")
-    Call<List<Chat>> getUserChats(@Path("userId") Long userId);
+    Call<List<GroupChat>> getUserChats(@Path("userId") Long userId);
 
 
     // Endpoint de chats
     @POST("chats/create")
-    Call<Chat> addContact(@Body CreateChatDTO createChatDTO);
+    Call<GroupChat> addContact(@Body CreateChatDTO createChatDTO);
 
     @GET("chats/chat/{chatId}")
-    Call<Chat> getChat(@Path("chatId") Long chatId);
+    Call<GroupChat> getChat(@Path("chatId") Long chatId);
 
 
     // Endpoint de grupos
