@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.stiffrock.chat.R;
 import com.stiffrock.chat.adapters.MyAdapter;
-import com.stiffrock.chat.dto.CreateGroupDTO;
+import com.stiffrock.chat.dto.CreateChatDTO;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemContactCard;
 import com.stiffrock.chat.model.ApiResponse;
@@ -27,7 +27,9 @@ import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -38,7 +40,7 @@ public class AddGroupFragment extends Fragment {
 
     private MyAdapter adapter;
     private List<Item> contactCardItems;
-    private List<User> participants;
+    private Set<User> participants;
 
     private ApiService apiService;
 
@@ -50,7 +52,7 @@ public class AddGroupFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         contactCardItems = new ArrayList<>();
-        participants = new ArrayList<>();
+        participants = new HashSet<>();
         participants.add(CurrentUser.getCurrentUser());
 
         adapter = new MyAdapter(contactCardItems);
@@ -109,13 +111,13 @@ public class AddGroupFragment extends Fragment {
             return;
         }
 
-        CreateGroupDTO cgr = new CreateGroupDTO(groupName, participants);
+        CreateChatDTO cgr = new CreateChatDTO(groupName, true, participants);
 
         //TODO
         Call<ApiResponse> call = apiService.createGroupChat(cgr);
         call.enqueue(new Callback<ApiResponse>() {
             @Override
-            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+            public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
                 if (response.isSuccessful()) {
 
                 } else {
@@ -124,7 +126,7 @@ public class AddGroupFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<ApiResponse> call, Throwable throwable) {
+            public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable throwable) {
                 Log.e(TAG, "Creating group request failed: " + throwable.getMessage());
                 Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }

@@ -1,10 +1,15 @@
 package com.stiffrock.chat.fragments.home;
 
+import static com.stiffrock.chat.utils.LogTag.TAG;
+
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,16 +20,24 @@ import com.stiffrock.chat.R;
 import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemChatCard;
+import com.stiffrock.chat.model.Chat;
 import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.network.ApiService;
+import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.utils.OnItemClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 
 public class ContactsFragment extends Fragment implements OnItemClickListener {
+    private ApiService apiService;
+    private RecyclerView recyclerView;
     private MyAdapter adapter;
-
     private final List<Item> chats = new ArrayList<>();
 
     @Override
@@ -33,13 +46,48 @@ public class ContactsFragment extends Fragment implements OnItemClickListener {
 
         CurrentUser.setCurrentChat(null);
 
-        RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
+        apiService = RetrofitClient.getApiService();
+
+        recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        adapter = new MyAdapter(chats, this);
-        recyclerView.setAdapter(adapter);
+        apiGetChatList();
 
         return view;
+    }
+
+    private void apiGetChatList() {
+        Call<List<Chat>> call = apiService.getUserChats(CurrentUser.getCurrentUser().getId());
+        call.enqueue(new Callback<List<Chat>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<Chat>> call, @NonNull Response<List<Chat>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (Chat chat : response.body()) {
+                        //TODO: MAKE SEPPARATE CONTACT AND GROUP CLASSES
+                        chats.add(new ItemChatCard(chat));
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "No se han encontrado contactos", Toast.LENGTH_SHORT).show();
+                }
+
+                adapter = new MyAdapter(chats, ContactsFragment.this);
+                recyclerView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<Chat>> call, @NonNull Throwable throwable) {
+                Log.e(TAG, "GetUserChats request failed: " + throwable.getMessage());
+                Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+
+                adapter = new MyAdapter(chats, ContactsFragment.this);
+                recyclerView.setAdapter(adapter);
+            }
+        });
+    }
+
+    public void addContact(Chat chat) {
+        chats.add(new ItemChatCard(chat));
+        adapter.notifyItemInserted(chats.size() - 1);
     }
 
     @Override

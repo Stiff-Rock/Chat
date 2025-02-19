@@ -14,7 +14,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.stiffrock.chat.dto.LoginDTO;
+import com.stiffrock.chat.dto.CredentialsDTO;
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.RetrofitClient;
@@ -48,7 +48,7 @@ public class MainActivity extends FragmentContainerActivity {
         if (!rememberLogIn) return;
 
         SecureStorage ss = new SecureStorage();
-        LoginDTO credentials = ss.getUserCredentials(this);
+        CredentialsDTO credentials = ss.getUserCredentials(this);
 
         if (credentials.getUsername() == null || credentials.getPassword() == null) {
             sp.edit().putBoolean("rememberLogIn", false).apply();
@@ -64,19 +64,19 @@ public class MainActivity extends FragmentContainerActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     User user = response.body();
                     CurrentUser.setCurrentUser(user);
-                    Toast.makeText(getBaseContext(), "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
                     navigateToHomeActivity();
                 } else {
                     sp.edit().putBoolean("rememberLogIn", false).apply();
                     Log.e(TAG, "Error handling autologin: Server could not authenticate");
-                    Toast.makeText(getBaseContext(), "No pudimos iniciar sesión, intenta nuevamente", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "No pudimos iniciar sesión, intenta nuevamente", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
                 Log.e(TAG, "Error handling autologin: " + t.getMessage());
-                Toast.makeText(getBaseContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Error de conexión", Toast.LENGTH_SHORT).show();
             }
         });
 

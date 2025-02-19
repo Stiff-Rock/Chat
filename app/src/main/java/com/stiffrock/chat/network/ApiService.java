@@ -1,8 +1,10 @@
 package com.stiffrock.chat.network;
 
-import com.stiffrock.chat.dto.CreateGroupDTO;
-import com.stiffrock.chat.dto.LoginDTO;
+import com.stiffrock.chat.dto.CreateChatDTO;
+import com.stiffrock.chat.dto.CredentialsDTO;
+import com.stiffrock.chat.dto.MessageDTO;
 import com.stiffrock.chat.model.ApiResponse;
+import com.stiffrock.chat.model.Chat;
 import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.model.User;
 
@@ -16,19 +18,20 @@ import retrofit2.http.Path;
 
 public interface ApiService {
 
-    //Endpoint de mensajes
+    // Endpoint de mensajes
     @POST("messages/send")
-    Call<Message> sendMessage(@Body Message message);
+    Call<Message> sendMessage(@Body MessageDTO messageDTO);
 
     @GET("messages/recieve/{messageId}")
     Call<Message> recieveMessage(@Path("messageId") Long messageId);
 
-    //Endpoint de usuarios
+
+    // Endpoint de usuarios
     @POST("users/register")
-    Call<ApiResponse> registerUser(@Body LoginDTO credentials);
+    Call<ApiResponse> registerUser(@Body CredentialsDTO credentials);
 
     @POST("users/login")
-    Call<User> logInUser(@Body LoginDTO credentials);
+    Call<User> logInUser(@Body CredentialsDTO credentials);
 
     @GET("users/online")
     Call<List<User>> getOnlineUsers();
@@ -36,7 +39,16 @@ public interface ApiService {
     @GET("users/{username}")
     Call<User> getUserByUsername(@Path("username") String username);
 
-    //Endpoint de grupos
+
+    // Endpoint de chats
+    @POST("chats/create")
+    Call<Chat> addContact(@Body CreateChatDTO createChatDTO);
+
+    @GET("chats/{userId}")
+    Call<List<Chat>> getUserChats(@Path("userId") Long userId);
+
+
+    // Endpoint de grupos
     @POST("groups/create")
-    Call<ApiResponse> createGroupChat(@Body CreateGroupDTO request);
+    Call<ApiResponse> createGroupChat(@Body CreateChatDTO request);
 }

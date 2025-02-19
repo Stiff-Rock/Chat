@@ -1,22 +1,13 @@
 package com.stiffrock.chat.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class CurrentUser {
+    @Getter
+    @Setter
     private static User currentUser;
+    @Getter
+    @Setter
     private static Chat currentChat;
-
-    public static User getCurrentUser() {
-        return currentUser;
-    }
-
-    public static void setCurrentUser(User newUser) {
-        currentUser = newUser;
-    }
-
-    public static Chat getCurrentChat() {
-        return currentChat;
-    }
-
-    public static void setCurrentChat(Chat currentChat) {
-        CurrentUser.currentChat = currentChat;
-    }
 }

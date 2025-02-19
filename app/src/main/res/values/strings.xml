@@ -23,4 +23,5 @@
     <string name="a_adir">Añadir</string>
     <string name="foto_del_grupo">Foto del grupo</string>
     <string name="foto_de_perfil">Foto de perfil</string>
+    <string name="nombre_de_usuario">Nombre de usuario</string>
 </resources>

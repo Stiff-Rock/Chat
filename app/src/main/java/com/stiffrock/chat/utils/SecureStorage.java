@@ -9,7 +9,7 @@ import android.util.Log;
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
 
-import com.stiffrock.chat.dto.LoginDTO;
+import com.stiffrock.chat.dto.CredentialsDTO;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -28,22 +28,22 @@ public class SecureStorage {
         return securePrefs;
     }
 
-    public void saveUserCredentials(Context context, LoginDTO loginDTO) {
+    public void saveUserCredentials(Context context, CredentialsDTO credentialsDTO) {
         try {
             SharedPreferences prefs = getEncryptedPrefs(context);
-            prefs.edit().putString(USERNAME_KEY, loginDTO.getUsername()).apply();
-            prefs.edit().putString(PASSWORD_KEY, loginDTO.getPassword()).apply();
+            prefs.edit().putString(USERNAME_KEY, credentialsDTO.getUsername()).apply();
+            prefs.edit().putString(PASSWORD_KEY, credentialsDTO.getPassword()).apply();
         } catch (GeneralSecurityException | IOException e) {
             Log.e(TAG, "Error saving to EncryptedPrefs: " + e.getMessage());
         }
     }
 
-    public LoginDTO getUserCredentials(Context context) {
+    public CredentialsDTO getUserCredentials(Context context) {
         try {
             SharedPreferences prefs = getEncryptedPrefs(context);
             String usr = prefs.getString(USERNAME_KEY, null);
             String pwd = prefs.getString(PASSWORD_KEY, null);
-            return new LoginDTO(usr, pwd);
+            return new CredentialsDTO(usr, pwd);
         } catch (GeneralSecurityException | IOException e) {
             Log.e(TAG, "Error getting from EncryptedPrefs: " + e.getMessage());
             return null;

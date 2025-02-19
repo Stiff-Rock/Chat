@@ -31,14 +31,21 @@ android {
 }
 
 dependencies {
-
     implementation(libs.retrofit)
+
     implementation(libs.logging.interceptor)
+
     implementation(libs.gson)
     implementation(libs.converter.gson)
     implementation(libs.gson.javatime.serialisers)
+
     implementation(libs.okhttp)
+
     implementation(libs.security.crypto)
+
+    implementation(libs.lombok)
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
 
     implementation(libs.appcompat)
     implementation(libs.material)

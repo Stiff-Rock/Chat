@@ -17,19 +17,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stiffrock.chat.adapters.MyAdapter;
+import com.stiffrock.chat.dto.MessageDTO;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemMessageRecieved;
 import com.stiffrock.chat.items.ItemMessageSent;
-import com.stiffrock.chat.model.Chat;
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.Message;
-import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.network.WebSocketClient;
-import com.stiffrock.chat.utils.OnMessageReceivedListener;
+import com.stiffrock.chat.utils.WebSocketNotificationListener;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +35,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ChatActivity extends AppCompatActivity implements OnMessageReceivedListener {
+public class ChatActivity extends AppCompatActivity implements WebSocketNotificationListener {
     private final List<Item> messagesList = new ArrayList<>();
     private EditText etMensaje;
 
@@ -86,39 +84,29 @@ public class ChatActivity extends AppCompatActivity implements OnMessageReceived
     }
 
     private void sendMessage() {
-        String texto = etMensaje.getText().toString().trim();
-
-        if (texto.isBlank()) return;
-
+        String text = etMensaje.getText().toString().trim();
+        if (text.isBlank()) return;
         etMensaje.setText("");
-
-        User sender = CurrentUser.getCurrentUser();
-        LocalDateTime timestamp = LocalDateTime.now();
-        Chat chat = CurrentUser.getCurrentChat();
-
-        Message message = new Message(sender, chat, chat.getParticipants(), texto, timestamp);
-
-        addTextBubble(1, texto);
-
-        apiSendMessage(message);
+        addTextBubble(1, text);
+        apiSendMessage(new MessageDTO(CurrentUser.getCurrentUser(), CurrentUser.getCurrentChat(), text));
     }
 
     //TODO: HANDLE FALIED CONNECTIONS
-    private void apiSendMessage(Message message) {
-        Call<Message> call = apiService.sendMessage(message);
+    private void apiSendMessage(MessageDTO messageDTO) {
+        Call<Message> call = apiService.sendMessage(messageDTO);
         call.enqueue(new Callback<Message>() {
             @Override
             public void onResponse(@NonNull Call<Message> call, @NonNull Response<Message> response) {
                 if (!response.isSuccessful()) {
-                    Log.e(TAG, "Error en la respuesta: " + response.code());
-                    Toast.makeText(getBaseContext(), "Error enviado el mensaje", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Error enviado el mensaje: " + response.code());
+                    Toast.makeText(ChatActivity.this, "Error enviado el mensaje", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<Message> call, @NonNull Throwable t) {
-                Log.e(TAG, "Fallo en la llamada: " + t.getMessage());
-                Toast.makeText(getBaseContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "SendMesssage request failed: " + t.getMessage());
+                Toast.makeText(ChatActivity.this, "Error de conexión", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -148,7 +136,7 @@ public class ChatActivity extends AppCompatActivity implements OnMessageReceived
 
     //TODO: QUIZAS ESTO TAMBIEN EN EL CONTANCTFRAGMENT CON LA NOTIFICACION DE TOAST
     @Override
-    public void onMessageReceived(String messageId) {
-        apiGetMessage(Long.valueOf(messageId));
+    public void onNotificationReceived(String notification) {
+        apiGetMessage(Long.valueOf(notification));
     }
 }

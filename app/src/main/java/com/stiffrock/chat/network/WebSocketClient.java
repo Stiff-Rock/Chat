@@ -9,7 +9,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.stiffrock.chat.model.CurrentUser;
-import com.stiffrock.chat.utils.OnMessageReceivedListener;
+import com.stiffrock.chat.utils.WebSocketNotificationListener;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -25,7 +25,7 @@ public class WebSocketClient {
     private final String APP_WEB_SOCKET_URL;
     private final String GROUP_CHAT_WEB_SOCKET_URL;
 
-    private OnMessageReceivedListener listener;
+    private WebSocketNotificationListener listener;
 
     private WebSocketClient() {
         client = new OkHttpClient();
@@ -41,7 +41,7 @@ public class WebSocketClient {
         return instance;
     }
 
-    public void setOnMessageReceivedListener(OnMessageReceivedListener listener) {
+    public void setOnMessageReceivedListener(WebSocketNotificationListener listener) {
         this.listener = listener;
     }
 
@@ -54,7 +54,7 @@ public class WebSocketClient {
             @Override
             public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
                 if (listener != null) {
-                    new Handler(Looper.getMainLooper()).post(() -> listener.onMessageReceived(text));
+                    new Handler(Looper.getMainLooper()).post(() -> listener.onNotificationReceived(text));
                 }
             }
 

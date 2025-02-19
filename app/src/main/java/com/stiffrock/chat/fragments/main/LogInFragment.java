@@ -19,7 +19,7 @@ import androidx.fragment.app.Fragment;
 import com.google.gson.Gson;
 import com.stiffrock.chat.MainActivity;
 import com.stiffrock.chat.R;
-import com.stiffrock.chat.dto.LoginDTO;
+import com.stiffrock.chat.dto.CredentialsDTO;
 import com.stiffrock.chat.model.ApiResponse;
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.User;
@@ -62,7 +62,7 @@ public class LogInFragment extends Fragment {
             return;
         }
 
-        LoginDTO credentials = new LoginDTO(inputUsername, inputPassword);
+        CredentialsDTO credentials = new CredentialsDTO(inputUsername, inputPassword);
 
         //TODO: IMPROVE USER FEEDBACK
         Call<User> call = apiService.logInUser(credentials);
@@ -85,7 +85,7 @@ public class LogInFragment extends Fragment {
                     if (ckbxRememberMe.isChecked()) {
                         ss.saveUserCredentials(requireContext(), credentials);
                     } else {
-                        ss.saveUserCredentials(requireContext(), new LoginDTO());
+                        ss.saveUserCredentials(requireContext(), new CredentialsDTO());
                     }
                     ((MainActivity) requireActivity()).navigateToHomeActivity();
                 } else {
