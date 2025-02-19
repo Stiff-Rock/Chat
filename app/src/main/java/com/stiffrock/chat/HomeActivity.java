@@ -120,11 +120,10 @@ public class HomeActivity extends FragmentContainerActivity {
         });
     }
 
-    //TODO: AQUI PASA ALGO RARO DE COJONES QUE SE REINICIA
     private void addContact(User user) {
-        Set<User> participants = new HashSet<>();
-        participants.add(CurrentUser.getCurrentUser());
-        participants.add(user);
+        Set<Long> participants = new HashSet<>();
+        participants.add(CurrentUser.getCurrentUser().getId());
+        participants.add(user.getId());
 
         CreateChatDTO ccd = new CreateChatDTO(user.getUsername(), false, participants);
 

@@ -15,12 +15,13 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.stiffrock.chat.HomeActivity;
 import com.stiffrock.chat.R;
 import com.stiffrock.chat.adapters.MyAdapter;
+import com.stiffrock.chat.dto.ApiResponse;
 import com.stiffrock.chat.dto.CreateChatDTO;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemContactCard;
-import com.stiffrock.chat.dto.ApiResponse;
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
@@ -40,7 +41,7 @@ public class AddGroupFragment extends Fragment {
 
     private MyAdapter adapter;
     private List<Item> contactCardItems;
-    private Set<User> participants;
+    private Set<Long> participants;
 
     private ApiService apiService;
 
@@ -53,7 +54,7 @@ public class AddGroupFragment extends Fragment {
 
         contactCardItems = new ArrayList<>();
         participants = new HashSet<>();
-        participants.add(CurrentUser.getCurrentUser());
+        participants.add(CurrentUser.getCurrentUser().getId());
 
         adapter = new MyAdapter(contactCardItems);
         recyclerView.setAdapter(adapter);
@@ -68,7 +69,6 @@ public class AddGroupFragment extends Fragment {
         return view;
     }
 
-    //TODO CHECK IF EXISTS CONTACT
     private void addParticipant() {
         String name = etUser.getText().toString().trim();
 
@@ -77,15 +77,26 @@ public class AddGroupFragment extends Fragment {
             return;
         }
 
+        if (name.equals(CurrentUser.getCurrentUser().getUsername())) {
+            Toast.makeText(requireContext(), "No hace falta introducir tu propio usuario", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Comprueba si el usuario introducido existe en la base de datos
         Call<User> call = apiService.getUserByUsername(name);
         call.enqueue(new Callback<User>() {
             @Override
             public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    contactCardItems.add(new ItemContactCard(name));
-                    participants.add(response.body());
-                    adapter.notifyItemInserted(contactCardItems.size() - 1);
-                    etUser.setText("");
+                    Long userId = response.body().getId();
+                    if (!participants.contains(userId)) {
+                        contactCardItems.add(new ItemContactCard(name));
+                        participants.add(userId);
+                        adapter.notifyItemInserted(contactCardItems.size() - 1);
+                        etUser.setText("");
+                    } else {
+                        Toast.makeText(requireContext(), "Usuario ya presente en el grupo", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Toast.makeText(requireContext(), "El usuario introducido no existe", Toast.LENGTH_SHORT).show();
                 }
@@ -113,15 +124,18 @@ public class AddGroupFragment extends Fragment {
 
         CreateChatDTO cgr = new CreateChatDTO(groupName, true, participants);
 
-        //TODO
+        Log.w(TAG, "CREATE GROUP DTO: " + cgr);
+
+        //TODO update recylcer? dataset?
         Call<ApiResponse> call = apiService.createGroupChat(cgr);
         call.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
                 if (response.isSuccessful()) {
-
+                    Toast.makeText(requireContext(), "Grupo creado correctamente", Toast.LENGTH_SHORT).show();
+                    ((HomeActivity) requireActivity()).replaceFragment(new ContactsFragment());
                 } else {
-
+                    Toast.makeText(requireContext(), "Error creando grupo", Toast.LENGTH_SHORT).show();
                 }
             }
 

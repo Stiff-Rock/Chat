@@ -1,9 +1,9 @@
 package com.stiffrock.chat.network;
 
+import com.stiffrock.chat.dto.ApiResponse;
 import com.stiffrock.chat.dto.CreateChatDTO;
 import com.stiffrock.chat.dto.CredentialsDTO;
 import com.stiffrock.chat.dto.MessageDTO;
-import com.stiffrock.chat.dto.ApiResponse;
 import com.stiffrock.chat.model.Chat;
 import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.model.User;
@@ -36,19 +36,22 @@ public interface ApiService {
     @GET("users/online")
     Call<List<User>> getOnlineUsers();
 
-    @GET("users/{username}")
+    @GET("users/user/{username}")
     Call<User> getUserByUsername(@Path("username") String username);
+
+    @GET("users/user/{userId}/chats")
+    Call<List<Chat>> getUserChats(@Path("userId") Long userId);
 
 
     // Endpoint de chats
     @POST("chats/create")
     Call<Chat> addContact(@Body CreateChatDTO createChatDTO);
 
-    @GET("chats/{userId}")
-    Call<List<Chat>> getUserChats(@Path("userId") Long userId);
+    @GET("chats/chat/{chatId}")
+    Call<Chat> getChat(@Path("chatId") Long chatId);
 
 
     // Endpoint de grupos
     @POST("groups/create")
-    Call<ApiResponse> createGroupChat(@Body CreateChatDTO request);
+    Call<ApiResponse> createGroupChat(@Body CreateChatDTO createChatDTO);
 }

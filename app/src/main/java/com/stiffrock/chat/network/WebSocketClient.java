@@ -41,7 +41,7 @@ public class WebSocketClient {
         return instance;
     }
 
-    public void setOnMessageReceivedListener(WebSocketNotificationListener listener) {
+    public void setOnNotificationReceivedListener(WebSocketNotificationListener listener) {
         this.listener = listener;
     }
 

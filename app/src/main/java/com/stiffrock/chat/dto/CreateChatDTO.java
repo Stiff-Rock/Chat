@@ -1,18 +1,16 @@
 package com.stiffrock.chat.dto;
 
-import com.stiffrock.chat.model.User;
-
 import java.util.Set;
 
 public class CreateChatDTO {
     private String chatName;
     private boolean isGroupChat;
-    private Set<User> participants;
+    private Set<Long> participants;
 
     public CreateChatDTO() {
     }
 
-    public CreateChatDTO(String chatName, boolean isGroupChat, Set<User> participants) {
+    public CreateChatDTO(String chatName, boolean isGroupChat, Set<Long> participants) {
         this.chatName = chatName;
         this.isGroupChat = isGroupChat;
         this.participants = participants;
@@ -34,11 +32,20 @@ public class CreateChatDTO {
         isGroupChat = groupChat;
     }
 
-    public Set<User> getParticipants() {
+    public Set<Long> getParticipants() {
         return participants;
     }
 
-    public void setParticipants(Set<User> participants) {
+    public void setParticipants(Set<Long> participants) {
         this.participants = participants;
+    }
+    
+    @Override
+    public String toString() {
+        return "CreateChatDTO{" +
+                "chatName='" + chatName + '\'' +
+                ", isGroupChat=" + isGroupChat +
+                ", participants=" + participants +
+                '}';
     }
 }

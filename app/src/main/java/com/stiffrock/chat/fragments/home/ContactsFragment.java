@@ -24,7 +24,9 @@ import com.stiffrock.chat.model.Chat;
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
+import com.stiffrock.chat.network.WebSocketClient;
 import com.stiffrock.chat.utils.OnItemClickListener;
+import com.stiffrock.chat.utils.WebSocketNotificationListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +36,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class ContactsFragment extends Fragment implements OnItemClickListener {
+public class ContactsFragment extends Fragment implements OnItemClickListener, WebSocketNotificationListener {
     private ApiService apiService;
     private RecyclerView recyclerView;
     private MyAdapter adapter;
@@ -47,6 +49,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener {
         CurrentUser.setCurrentChat(null);
 
         apiService = RetrofitClient.getApiService();
+        WebSocketClient.getInstance().setOnNotificationReceivedListener(this);
 
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -94,5 +97,47 @@ public class ContactsFragment extends Fragment implements OnItemClickListener {
     public void onItemClick(ItemChatCard chat) {
         CurrentUser.setCurrentChat(chat.getChat());
         ((HomeActivity) requireActivity()).navigateToActivity(ChatActivity.class);
+    }
+
+    private void apiGetChat(Long chatId) {
+        Call<Chat> call = apiService.getChat(chatId);
+        call.enqueue(new Callback<Chat>() {
+            @Override
+            public void onResponse(@NonNull Call<Chat> call, @NonNull Response<Chat> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Chat chat = response.body();
+                    chats.add(new ItemChatCard(chat));
+                    adapter.notifyItemInserted(chats.size() - 1);
+                    Toast.makeText(requireContext(), "Se ha añadido un nuevo chat", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.e(TAG, "Error getting chat");
+                    Toast.makeText(requireContext(), "No se ha podido obtener el chat", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Chat> call, @NonNull Throwable throwable) {
+                Log.e(TAG, "GetChat request failed: " + throwable.getMessage());
+                Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void apiDeleteChat(Long chatId) {
+
+    }
+
+    @Override
+    public void onNotificationReceived(String notification) {
+        //TODO: LOOK FOR ANOTHER WAY TO DO THIS
+        Log.e(TAG, notification);
+        String[] query = notification.split(":");
+        String action = query[0];
+        Long chatId = Long.valueOf(query[1]);
+        if (action.equals("ADD")) {
+            apiGetChat(chatId);
+        } else {
+            apiDeleteChat(chatId);
+        }
     }
 }

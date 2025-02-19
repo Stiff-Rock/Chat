@@ -55,7 +55,6 @@ public class Chat {
                 "chatId=" + chatId +
                 ", name='" + name + '\'' +
                 ", isGroupChat=" + isGroupChat +
-                ", participants=" + participants +
                 '}';
     }
 }

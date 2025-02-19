@@ -68,7 +68,7 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         apiService = RetrofitClient.getApiService();
 
         //TODO: LOAD MESSAGES AT THE START
-        WebSocketClient.getInstance().setOnMessageReceivedListener(this);
+        WebSocketClient.getInstance().setOnNotificationReceivedListener(this);
     }
 
     public void addTextBubble(int itemType, String text) {
