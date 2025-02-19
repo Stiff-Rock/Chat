@@ -4,21 +4,22 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+
 public class Message {
     private Long id;
-    private Long senderId;
+    private User sender;
     private Chat chat;
-    private Set<Long> recipientsId = new HashSet<>();
+    private Set<User> recipients = new HashSet<>();
     private String messageContent;
     private LocalDateTime timestamp;
 
     public Message() {
     }
 
-    public Message(Long senderId, Chat chat, Set<Long> recipientsId, String messageContent, LocalDateTime timestamp) {
-        this.senderId = senderId;
+    public Message(User sender, Chat chat, Set<User> recipients, String messageContent, LocalDateTime timestamp) {
+        this.sender = sender;
         this.chat = chat;
-        this.recipientsId = recipientsId;
+        this.recipients = recipients;
         this.messageContent = messageContent;
         this.timestamp = timestamp;
     }
@@ -31,12 +32,12 @@ public class Message {
         this.id = id;
     }
 
-    public Long getSenderId() {
-        return senderId;
+    public User getSender() {
+        return sender;
     }
 
-    public void setSenderId(Long senderId) {
-        this.senderId = senderId;
+    public void setSender(User sender) {
+        this.sender = sender;
     }
 
     public Chat getChat() {
@@ -47,12 +48,12 @@ public class Message {
         this.chat = chat;
     }
 
-    public Set<Long> getRecipientsId() {
-        return recipientsId;
+    public Set<User> getRecipients() {
+        return recipients;
     }
 
-    public void setRecipientsId(Set<Long> recipientsId) {
-        this.recipientsId = recipientsId;
+    public void setRecipients(Set<User> recipients) {
+        this.recipients = recipients;
     }
 
     public String getMessageContent() {

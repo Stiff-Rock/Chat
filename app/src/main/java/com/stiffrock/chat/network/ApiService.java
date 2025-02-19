@@ -20,8 +20,8 @@ public interface ApiService {
     @POST("messages/send")
     Call<Message> sendMessage(@Body Message message);
 
-    @GET("messages/recieve/{recipient}")
-    Call<List<Message>> recieveMessage(@Path("recipient") String usuario);
+    @GET("messages/recieve/{messageId}")
+    Call<Message> recieveMessage(@Path("messageId") Long messageId);
 
     //Endpoint de usuarios
     @POST("users/register")

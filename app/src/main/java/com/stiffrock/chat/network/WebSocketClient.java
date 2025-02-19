@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.utils.OnMessageReceivedListener;
-import com.stiffrock.chat.utils.ServerConfig;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -23,14 +22,16 @@ public class WebSocketClient {
     private static WebSocketClient instance;
     private WebSocket webSocket;
     private final OkHttpClient client;
-    private final String WEB_SOCKET_URL;
+    private final String APP_WEB_SOCKET_URL;
+    private final String GROUP_CHAT_WEB_SOCKET_URL;
 
     private OnMessageReceivedListener listener;
 
     private WebSocketClient() {
         client = new OkHttpClient();
         String usernameQueryParameter = "?username=" + CurrentUser.getCurrentUser();
-        WEB_SOCKET_URL = "ws://" + ServerConfig.SOCKET_ADDR + "/chat" + usernameQueryParameter;
+        APP_WEB_SOCKET_URL = "ws://" + ServerConfig.SOCKET_ADDR + "/chat" + usernameQueryParameter;
+        GROUP_CHAT_WEB_SOCKET_URL = "ws://" + ServerConfig.SOCKET_ADDR + "/chat/group/{groupId}";
     }
 
     public static WebSocketClient getInstance() {
@@ -46,7 +47,7 @@ public class WebSocketClient {
 
     //TODO: HANDLE FALIED CONNECTIONS
     public void connect() {
-        Request request = new Request.Builder().url(WEB_SOCKET_URL).build();
+        Request request = new Request.Builder().url(APP_WEB_SOCKET_URL).build();
 
         webSocket = client.newWebSocket(request, new WebSocketListener() {
 

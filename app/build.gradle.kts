@@ -38,6 +38,7 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.gson.javatime.serialisers)
     implementation(libs.okhttp)
+    implementation(libs.security.crypto)
 
     implementation(libs.appcompat)
     implementation(libs.material)

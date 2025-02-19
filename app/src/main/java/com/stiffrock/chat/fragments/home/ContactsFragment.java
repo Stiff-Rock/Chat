@@ -15,6 +15,7 @@ import com.stiffrock.chat.R;
 import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemChatCard;
+import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.utils.OnItemClickListener;
 
 import java.util.ArrayList;
@@ -30,10 +31,10 @@ public class ContactsFragment extends Fragment implements OnItemClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
 
+        CurrentUser.setCurrentChat(null);
+
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-
-        if (chats.isEmpty()) chats.add(new ItemChatCard("name", false));
 
         adapter = new MyAdapter(chats, this);
         recyclerView.setAdapter(adapter);
@@ -43,8 +44,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener {
 
     @Override
     public void onItemClick(ItemChatCard chat) {
-        Bundle bundle = new Bundle();
-        bundle.putString("recipient", chat.getChatName());
-        ((HomeActivity) requireActivity()).navigateToActivity(ChatActivity.class, bundle);
+        CurrentUser.setCurrentChat(chat.getChat());
+        ((HomeActivity) requireActivity()).navigateToActivity(ChatActivity.class);
     }
 }

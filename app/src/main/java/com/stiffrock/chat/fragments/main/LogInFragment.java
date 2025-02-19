@@ -26,6 +26,7 @@ import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.network.WebSocketClient;
+import com.stiffrock.chat.utils.SecureStorage;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -80,14 +81,12 @@ public class LogInFragment extends Fragment {
                     SharedPreferences sp = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
                     sp.edit().putBoolean("rememberLogIn", ckbxRememberMe.isChecked()).apply();
 
+                    SecureStorage ss = new SecureStorage();
                     if (ckbxRememberMe.isChecked()) {
-                        sp.edit().putLong("storedUserId", user.getId()).apply();
-                        sp.edit().putString("storedUserName", user.getUsername()).apply();
+                        ss.saveUserCredentials(requireContext(), credentials);
                     } else {
-                        sp.edit().putLong("storedUserId", -1).apply();
-                        sp.edit().putString("storedUserName", "").apply();
+                        ss.saveUserCredentials(requireContext(), new LoginDTO());
                     }
-
                     ((MainActivity) requireActivity()).navigateToHomeActivity();
                 } else {
                     String errorMessage = "Login failed, please try again.";

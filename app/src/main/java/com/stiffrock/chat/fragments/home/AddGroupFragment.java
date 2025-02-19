@@ -111,6 +111,7 @@ public class AddGroupFragment extends Fragment {
 
         CreateGroupDTO cgr = new CreateGroupDTO(groupName, participants);
 
+        //TODO
         Call<ApiResponse> call = apiService.createGroupChat(cgr);
         call.enqueue(new Callback<ApiResponse>() {
             @Override

@@ -4,8 +4,6 @@
     <string name="send_button">Send Button</string>
     <string name="send_symbol"><![CDATA[>]]></string>
     <string name="usuario">Usuario</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="iniciar_sesi_n">Iniciar Sesión</string>
     <string name="contrase_a">Contraseña</string>
     <string name="no_tienes_cuenta">¿No tienes cuenta?</string>

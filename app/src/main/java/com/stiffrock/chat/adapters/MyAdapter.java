@@ -76,14 +76,15 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             view.parentLayout.setOnClickListener(e -> listener.onItemClick(item));
 
-            if (item.isGroupChat()) view.ivChatPhoto.setImageResource(R.drawable.default_group);
+            if (item.getChat().isGroupChat())
+                view.ivChatPhoto.setImageResource(R.drawable.default_group);
             else view.ivChatPhoto.setImageResource(R.drawable.default_user);
 
             view.tvChatName.setText(item.getChatName());
         } else {
             ViewHolderContactCard view = (ViewHolderContactCard) holder;
             ItemContactCard item = (ItemContactCard) datos.get(position);
-            
+
             view.ivContactPhoto.setImageResource(R.drawable.default_user);
             view.tvContactName.setText(item.getName());
         }

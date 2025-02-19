@@ -5,6 +5,7 @@ import static com.stiffrock.chat.utils.LogTag.TAG;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -31,7 +32,6 @@ import com.stiffrock.chat.utils.OnMessageReceivedListener;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -46,10 +46,6 @@ public class ChatActivity extends AppCompatActivity implements OnMessageReceived
 
     private ApiService apiService;
 
-    private Chat chat;
-
-    private String recipient;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,9 +56,6 @@ public class ChatActivity extends AppCompatActivity implements OnMessageReceived
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
-        //TODO GET THE USERDTO OF THE RECIEVER
-        recipient = getIntent().getStringExtra("recipient");
 
         etMensaje = findViewById(R.id.etMensaje);
 
@@ -76,15 +69,9 @@ public class ChatActivity extends AppCompatActivity implements OnMessageReceived
 
         apiService = RetrofitClient.getApiService();
 
-        //TODO: Revise message loading at start, this only loads recived messages but not the ones you sent.
-        apiGetMessages(CurrentUser.getCurrentUser().getUsername());
+        //TODO: LOAD MESSAGES AT THE START
 
         WebSocketClient.getInstance().setOnMessageReceivedListener(this);
-    }
-
-    @Override
-    public void onMessageReceived(String message) {
-        addTextBubble(2, message);
     }
 
     public void addTextBubble(int itemType, String text) {
@@ -107,12 +94,13 @@ public class ChatActivity extends AppCompatActivity implements OnMessageReceived
 
         User sender = CurrentUser.getCurrentUser();
         LocalDateTime timestamp = LocalDateTime.now();
+        Chat chat = CurrentUser.getCurrentChat();
 
-//        Message message = new Message(sender, recipient, chat, texto, timestamp);
-//
-//        addTextBubble(1, texto);
-//
-//        apiSendMessage(message);
+        Message message = new Message(sender, chat, chat.getParticipants(), texto, timestamp);
+
+        addTextBubble(1, texto);
+
+        apiSendMessage(message);
     }
 
     //TODO: HANDLE FALIED CONNECTIONS
@@ -121,8 +109,34 @@ public class ChatActivity extends AppCompatActivity implements OnMessageReceived
         call.enqueue(new Callback<Message>() {
             @Override
             public void onResponse(@NonNull Call<Message> call, @NonNull Response<Message> response) {
-                if (!response.isSuccessful())
+                if (!response.isSuccessful()) {
                     Log.e(TAG, "Error en la respuesta: " + response.code());
+                    Toast.makeText(getBaseContext(), "Error enviado el mensaje", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Message> call, @NonNull Throwable t) {
+                Log.e(TAG, "Fallo en la llamada: " + t.getMessage());
+                Toast.makeText(getBaseContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void apiGetMessage(Long messageId) {
+        Call<Message> call = apiService.recieveMessage(messageId);
+        call.enqueue(new Callback<Message>() {
+            @Override
+            public void onResponse(@NonNull Call<Message> call, @NonNull Response<Message> response) {
+                if (response.isSuccessful()) {
+                    Message message = response.body();
+
+                    if (message == null) return;
+
+                    addTextBubble(2, message.getMessageContent());
+                } else {
+                    Log.e(TAG, "Error en la respuesta: " + response.code());
+                }
             }
 
             @Override
@@ -132,26 +146,9 @@ public class ChatActivity extends AppCompatActivity implements OnMessageReceived
         });
     }
 
-    private void apiGetMessages(String user) {
-        Call<List<Message>> call = apiService.recieveMessage(user);
-        call.enqueue(new Callback<List<Message>>() {
-            @Override
-            public void onResponse(@NonNull Call<List<Message>> call, @NonNull Response<List<Message>> response) {
-                if (response.isSuccessful()) {
-                    List<Message> messageList = response.body();
-
-                    if (messageList != null) for (Message message : messageList) {
-                        addTextBubble(2, message.getMessageContent());
-                    }
-                } else {
-                    Log.e(TAG, "Error en la respuesta: " + response.code());
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<List<Message>> call, @NonNull Throwable t) {
-                Log.e(TAG, "Fallo en la llamada: " + t.getMessage());
-            }
-        });
+    //TODO: QUIZAS ESTO TAMBIEN EN EL CONTANCTFRAGMENT CON LA NOTIFICACION DE TOAST
+    @Override
+    public void onMessageReceived(String messageId) {
+        apiGetMessage(Long.valueOf(messageId));
     }
 }
