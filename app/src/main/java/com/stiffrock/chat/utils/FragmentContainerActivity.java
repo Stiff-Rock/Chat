@@ -9,8 +9,6 @@ import com.stiffrock.chat.R;
 
 //TODO: HACER QUE SI SE HA HECHOAUTO LOGIN NO PUEDA VOVLER A CON LA FLECHA DE HACIA ATRAS AL LOGIN
 public class FragmentContainerActivity extends AppCompatActivity {
-    protected Fragment currentFragment;
-
     public void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -20,9 +18,8 @@ public class FragmentContainerActivity extends AppCompatActivity {
 
         transaction.replace(R.id.fcv, fragment);
 
-        currentFragment = fragmentManager.findFragmentById(R.id.fcv);
-        if (currentFragment != null)
-            transaction.addToBackStack(currentFragment.getClass().getName());
+        Fragment loadedFragment = fragmentManager.findFragmentById(R.id.fcv);
+        if (loadedFragment != null) transaction.addToBackStack(loadedFragment.getClass().getName());
 
         transaction.commit();
     }

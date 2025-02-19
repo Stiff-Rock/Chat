@@ -14,8 +14,7 @@ public class User {
     private String username;
     private Set<Chat> chats;
 
-    public User(String username, Set<Chat> chats) {
+    public User(String username) {
         this.username = username;
-        this.chats = chats;
     }
 }

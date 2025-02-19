@@ -19,6 +19,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 
 import com.stiffrock.chat.dto.CreateChatDTO;
 import com.stiffrock.chat.fragments.home.AddGroupFragment;
@@ -104,6 +105,7 @@ public class HomeActivity extends FragmentContainerActivity {
             @Override
             public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "YES");
                     addContact(response.body());
                 } else {
                     Toast.makeText(HomeActivity.this, "El usuario introducido no existe", Toast.LENGTH_SHORT).show();
@@ -118,6 +120,7 @@ public class HomeActivity extends FragmentContainerActivity {
         });
     }
 
+    //TODO: AQUI PASA ALGO RARO DE COJONES QUE SE REINICIA
     private void addContact(User user) {
         Set<User> participants = new HashSet<>();
         participants.add(CurrentUser.getCurrentUser());
@@ -130,14 +133,8 @@ public class HomeActivity extends FragmentContainerActivity {
             @Override
             public void onResponse(@NonNull Call<Chat> call, @NonNull Response<Chat> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.d(TAG, currentFragment.getClass().toString());
-                    //TODO: THIS DOES NOT WORK
-                    if (currentFragment instanceof ContactsFragment) {
-                        Log.w(TAG, "Adding Item to Recycler");
-                        ((ContactsFragment) currentFragment).addContact(response.body());
-                    } else {
-                        Log.w(TAG, "FUCK ME");
-                    }
+                    Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
+                    ((ContactsFragment) currentFragment).addContact(response.body());
                     Toast.makeText(HomeActivity.this, "Contacto añadido", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(HomeActivity.this, "Error añadiendo contacto", Toast.LENGTH_SHORT).show();
