@@ -106,6 +106,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
             public void onResponse(@NonNull Call<Chat> call, @NonNull Response<Chat> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Chat chat = response.body();
+                    Log.d(TAG, "CHAT RECIEVED: " + chat);
                     chats.add(new ItemChatCard(chat));
                     adapter.notifyItemInserted(chats.size() - 1);
                     Toast.makeText(requireContext(), "Se ha añadido un nuevo chat", Toast.LENGTH_SHORT).show();
@@ -130,7 +131,6 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     @Override
     public void onNotificationReceived(String notification) {
         //TODO: LOOK FOR ANOTHER WAY TO DO THIS
-        Log.e(TAG, notification);
         String[] query = notification.split(":");
         String action = query[0];
         Long chatId = Long.valueOf(query[1]);

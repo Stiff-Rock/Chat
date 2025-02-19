@@ -4,15 +4,15 @@ import java.util.Set;
 
 public class CreateChatDTO {
     private String chatName;
-    private boolean isGroupChat;
+    private boolean groupChat;
     private Set<Long> participants;
 
     public CreateChatDTO() {
     }
 
-    public CreateChatDTO(String chatName, boolean isGroupChat, Set<Long> participants) {
+    public CreateChatDTO(String chatName, boolean groupChat, Set<Long> participants) {
         this.chatName = chatName;
-        this.isGroupChat = isGroupChat;
+        this.groupChat = groupChat;
         this.participants = participants;
     }
 
@@ -24,12 +24,12 @@ public class CreateChatDTO {
         this.chatName = chatName;
     }
 
-    public boolean isGroupChat() {
-        return isGroupChat;
+    public boolean getGroupChat() {
+        return groupChat;
     }
 
     public void setGroupChat(boolean groupChat) {
-        isGroupChat = groupChat;
+        this.groupChat = groupChat;
     }
 
     public Set<Long> getParticipants() {
@@ -39,12 +39,12 @@ public class CreateChatDTO {
     public void setParticipants(Set<Long> participants) {
         this.participants = participants;
     }
-    
+
     @Override
     public String toString() {
         return "CreateChatDTO{" +
                 "chatName='" + chatName + '\'' +
-                ", isGroupChat=" + isGroupChat +
+                ", isGroupChat=" + groupChat +
                 ", participants=" + participants +
                 '}';
     }
