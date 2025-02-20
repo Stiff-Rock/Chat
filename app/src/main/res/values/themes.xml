@@ -39,8 +39,8 @@
         <item name="materialButtonStyle">@style/Widget.Chat.Button</item>
         <item name="editTextStyle">@style/Widget.Chat.EditText</item>
         <item name="checkboxStyle">@style/Widget.Chat.CheckBox</item>
-        <item name="popupMenuStyle">@style/Widget.Chat.PopupMenu.Overflow</item>
-        <item name="textAppearanceLargePopupMenu">@style/TextAppearance.Chat.PopupMenu</item>
+
         <item name="textAppearanceSmallPopupMenu">@style/TextAppearance.Chat.PopupMenu</item>
+        <item name="textAppearanceLargePopupMenu">@style/TextAppearance.Chat.PopupMenu</item>
     </style>
 </resources>

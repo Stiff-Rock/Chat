@@ -27,11 +27,6 @@
         <item name="subtitleTextColor">@color/md_theme_dark_onPrimary</item>
     </style>
 
-    <!-- Popup Menu Style -->
-    <style name="Widget.Chat.PopupMenu.Overflow" parent="Widget.MaterialComponents.PopupMenu.Overflow">
-        <item name="android:popupBackground">@color/md_theme_dark_primary</item>
-    </style>
-
     <!-- Popup Menu Text Appearance -->
     <style name="TextAppearance.Chat.PopupMenu" parent="TextAppearance.MaterialComponents.Body1">
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>

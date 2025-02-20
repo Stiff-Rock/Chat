@@ -5,10 +5,15 @@ import static com.stiffrock.chat.utils.LogTag.TAG;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -77,6 +82,7 @@ public class HomeActivity extends FragmentContainerActivity {
         }
     }
 
+    //TODO: FIND A BETTER WAY
     private void addContactDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LinearLayout layout = new LinearLayout(this);
@@ -89,11 +95,32 @@ public class HomeActivity extends FragmentContainerActivity {
         editText.setHint("Nombre de usuario");
         layout.addView(editText);
 
-        builder.setTitle("Nuevo contacto").setView(layout).setPositiveButton("OK", (dialog, which) -> {
+        int textColor = getColor(R.color.standard_text_color_tertiary);
+
+        SpannableString title = new SpannableString("Nuevo contacto");
+        title.setSpan(new ForegroundColorSpan(textColor), 0, title.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        builder.setTitle(title).setView(layout).setPositiveButton("Aceptar", (dialog, which) -> {
             String userInput = editText.getText().toString().trim();
             if (userInput.isBlank()) return;
             getUserByUsername(userInput);
-        }).setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss()).create().show();
+        }).setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        int backgroundColor = getColor(R.color.md_theme_dark_primaryContainer);
+
+        Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        if (positiveButton != null) positiveButton.setTextColor(textColor);
+
+
+        Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+        if (negativeButton != null) negativeButton.setTextColor(textColor);
+
+
+        if (dialog.getWindow() != null)
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(backgroundColor));
     }
 
     private void getUserByUsername(String name) {
