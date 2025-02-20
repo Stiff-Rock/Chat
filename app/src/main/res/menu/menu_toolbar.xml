@@ -5,15 +5,15 @@
     <item
             android:id="@+id/addContact"
             android:title="@string/anadir_contacto"
-            app:showAsAction="never" />
+            app:showAsAction="never"/>
 
     <item
             android:id="@+id/addGroup"
             android:title="@string/crear_grupo"
-            app:showAsAction="never" />
+            app:showAsAction="never"/>
 
     <item
             android:id="@+id/logOut"
             android:title="@string/cerrar_sesi_n"
-            app:showAsAction="never" />
+            app:showAsAction="never"/>
 </menu>

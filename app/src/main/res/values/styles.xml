@@ -8,4 +8,44 @@
         <item name="android:padding">8dp</item>
     </style>
 
+    <!-- Customized EditText Style -->
+    <style name="Widget.Chat.EditText" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/edit_text_background</item>
+
+        <item name="android:textColor">@android:color/white</item>
+
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+    </style>
+
+    <!-- Customized Toolbar Style -->
+    <style name="Widget.Chat.Toolbar" parent="Widget.MaterialComponents.Toolbar">
+        <item name="background">@color/md_theme_dark_primary</item>
+        <item name="titleTextColor">@color/md_theme_dark_onPrimary</item>
+        <item name="subtitleTextColor">@color/md_theme_dark_onPrimary</item>
+    </style>
+
+    <!-- Popup Menu Style -->
+    <style name="Widget.Chat.PopupMenu.Overflow" parent="Widget.MaterialComponents.PopupMenu.Overflow">
+        <item name="android:popupBackground">@color/md_theme_dark_primary</item>
+    </style>
+
+    <!-- Popup Menu Text Appearance -->
+    <style name="TextAppearance.Chat.PopupMenu" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <!-- Customized CheckBox Style -->
+    <style name="Widget.Chat.CheckBox" parent="Widget.MaterialComponents.CompoundButton.CheckBox">
+        <item name="android:textColor">@color/standard_text_color_tertiary</item>
+    </style>
+
+    <!-- Customized Button Style -->
+    <style name="Widget.Chat.Button" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/md_theme_dark_accent</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="android:textColor">@color/md_theme_dark_onSecondary</item>
+    </style>
 </resources>

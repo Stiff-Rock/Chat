@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base Application Theme using Material3 Dark DayNight -->
-    <style name="Theme.Chat" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.Chat" parent="Theme.Material3.Light.NoActionBar">
         <!-- Primary Colors -->
         <item name="colorPrimary">@color/md_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
@@ -29,38 +28,19 @@
         <item name="colorAccent">@color/md_theme_dark_accent</item>
         <item name="android:colorButtonNormal">@color/md_theme_dark_button</item>
 
+        <!-- Text Colors -->
+        <item name="android:textColorPrimary">@color/standard_text_color</item>
+        <item name="android:textColorSecondary">@color/standard_text_color_secondary</item>
+        <item name="android:textColorTertiary">@color/standard_text_color_tertiary</item>
+        <item name="android:textColorHint">@color/standard_text_color_hint</item>
+
         <!-- Component Styles -->
         <item name="toolbarStyle">@style/Widget.Chat.Toolbar</item>
         <item name="materialButtonStyle">@style/Widget.Chat.Button</item>
         <item name="editTextStyle">@style/Widget.Chat.EditText</item>
-    </style>
-
-    <!-- Customized EditText Style -->
-    <style name="Widget.Chat.EditText" parent="Widget.AppCompat.EditText">
-        <!-- Ensure no underline and set custom background -->
-        <item name="android:background">@drawable/edit_text_background</item>
-
-        <!-- Set text color -->
-        <item name="android:textColor">@android:color/white</item>
-
-        <!-- Padding for text inside EditText -->
-        <item name="android:paddingStart">16dp</item>
-        <item name="android:paddingEnd">16dp</item>
-        <item name="android:paddingTop">12dp</item>
-        <item name="android:paddingBottom">12dp</item>
-    </style>
-
-    <!-- Customized Toolbar Style -->
-    <style name="Widget.Chat.Toolbar" parent="Widget.MaterialComponents.Toolbar">
-        <item name="background">@color/md_theme_dark_primary</item>
-        <item name="titleTextColor">@color/md_theme_dark_onPrimary</item>
-        <item name="subtitleTextColor">@color/md_theme_dark_onPrimary</item>
-    </style>
-
-    <!-- Customized Button Style -->
-    <style name="Widget.Chat.Button" parent="Widget.MaterialComponents.Button">
-        <item name="backgroundTint">@color/md_theme_dark_accent</item>
-        <item name="cornerRadius">8dp</item>
-        <item name="android:textColor">@color/md_theme_dark_onSecondary</item>
+        <item name="checkboxStyle">@style/Widget.Chat.CheckBox</item>
+        <item name="popupMenuStyle">@style/Widget.Chat.PopupMenu.Overflow</item>
+        <item name="textAppearanceLargePopupMenu">@style/TextAppearance.Chat.PopupMenu</item>
+        <item name="textAppearanceSmallPopupMenu">@style/TextAppearance.Chat.PopupMenu</item>
     </style>
 </resources>

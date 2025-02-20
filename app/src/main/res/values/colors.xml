@@ -26,6 +26,12 @@
     <color name="md_theme_dark_accent">#8BE9FD</color>
     <color name="md_theme_dark_button">#6272A4</color>
 
+    <!-- Text colors -->
+    <color name="standard_text_color">#FFFFFF</color>
+    <color name="standard_text_color_secondary">#B3B3B3</color>
+    <color name="standard_text_color_tertiary">#808080</color>
+    <color name="standard_text_color_hint">#4D4D4D</color>
+
     <!-- Basic Black & White -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
