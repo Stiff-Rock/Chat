@@ -21,19 +21,16 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
-import com.stiffrock.chat.dto.CreateChatDTO;
+import com.stiffrock.chat.dto.PrivateChatDTO;
 import com.stiffrock.chat.fragments.home.AddGroupFragment;
 import com.stiffrock.chat.fragments.home.ContactsFragment;
-import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.model.PrivateChat;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.network.WebSocketClient;
 import com.stiffrock.chat.utils.FragmentContainerActivity;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -105,8 +102,8 @@ public class HomeActivity extends FragmentContainerActivity {
             @Override
             public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.d(TAG, "YES");
-                    addContact(response.body());
+                    User user = response.body();
+                    addContact(user);
                 } else {
                     Toast.makeText(HomeActivity.this, "El usuario introducido no existe", Toast.LENGTH_SHORT).show();
                 }
@@ -121,20 +118,21 @@ public class HomeActivity extends FragmentContainerActivity {
     }
 
     private void addContact(User user) {
-        Set<Long> participants = new HashSet<>();
-        participants.add(CurrentUser.getCurrentUser().getId());
-        participants.add(user.getId());
+        Long userId1 = CurrentUser.getCurrentUser().getId();
+        Long userId2 = user.getId();
 
-        CreateChatDTO ccd = new CreateChatDTO(user.getUsername(), false, participants);
+        PrivateChatDTO ccd = new PrivateChatDTO(userId1, userId2);
 
-        Call<GroupChat> call = apiService.addContact(ccd);
-        call.enqueue(new Callback<GroupChat>() {
+        Call<PrivateChat> call = apiService.addContact(ccd);
+        call.enqueue(new Callback<PrivateChat>() {
             @Override
-            public void onResponse(@NonNull Call<GroupChat> call, @NonNull Response<GroupChat> response) {
+            public void onResponse(@NonNull Call<PrivateChat> call, @NonNull Response<PrivateChat> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    PrivateChat chat = response.body();
+                    Log.w(TAG, "PRIVATE CHAT RECIEVED: " + chat);
                     Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
                     if (currentFragment != null)
-                        ((ContactsFragment) currentFragment).addContact(response.body());
+                        ((ContactsFragment) currentFragment).addContact(chat);
                     Toast.makeText(HomeActivity.this, "Contacto añadido", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(HomeActivity.this, "Error añadiendo contacto", Toast.LENGTH_SHORT).show();
@@ -142,7 +140,7 @@ public class HomeActivity extends FragmentContainerActivity {
             }
 
             @Override
-            public void onFailure(@NonNull Call<GroupChat> call, @NonNull Throwable throwable) {
+            public void onFailure(@NonNull Call<PrivateChat> call, @NonNull Throwable throwable) {
                 Log.e(TAG, "GetUserByUsername request failed: " + throwable.getMessage());
                 Toast.makeText(HomeActivity.this, "Error de conexión", Toast.LENGTH_SHORT).show();
             }

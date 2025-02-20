@@ -20,8 +20,9 @@ import com.stiffrock.chat.R;
 import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemChatCard;
-import com.stiffrock.chat.model.GroupChat;
+import com.stiffrock.chat.model.BaseChat;
 import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.network.WebSocketClient;
@@ -40,7 +41,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     private ApiService apiService;
     private RecyclerView recyclerView;
     private MyAdapter adapter;
-    private final List<Item> chats = new ArrayList<>();
+    private List<Item> chats;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -54,20 +55,22 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
+        //TODO: ITEMS WHERE STACKING UP
+        chats = new ArrayList<>();
+
         apiGetChatList();
 
         return view;
     }
 
     private void apiGetChatList() {
-        Call<List<GroupChat>> call = apiService.getUserChats(CurrentUser.getCurrentUser().getId());
-        call.enqueue(new Callback<List<GroupChat>>() {
+        Call<List<BaseChat>> call = apiService.getUserChats(CurrentUser.getCurrentUser().getId());
+        call.enqueue(new Callback<List<BaseChat>>() {
             @Override
-            public void onResponse(@NonNull Call<List<GroupChat>> call, @NonNull Response<List<GroupChat>> response) {
+            public void onResponse(@NonNull Call<List<BaseChat>> call, @NonNull Response<List<BaseChat>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    for (GroupChat groupChat : response.body()) {
-                        //TODO: MAKE SEPPARATE CONTACT AND GROUP CLASSES
-                        chats.add(new ItemChatCard(groupChat));
+                    for (BaseChat chat : response.body()) {
+                        chats.add(new ItemChatCard(chat));
                     }
                 } else {
                     Toast.makeText(requireContext(), "No se han encontrado contactos", Toast.LENGTH_SHORT).show();
@@ -78,7 +81,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<GroupChat>> call, @NonNull Throwable throwable) {
+            public void onFailure(@NonNull Call<List<BaseChat>> call, @NonNull Throwable throwable) {
                 Log.e(TAG, "GetUserChats request failed: " + throwable.getMessage());
                 Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
 
@@ -88,8 +91,8 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         });
     }
 
-    public void addContact(GroupChat groupChat) {
-        chats.add(new ItemChatCard(groupChat));
+    public void addContact(BaseChat chat) {
+        chats.add(new ItemChatCard(chat));
         adapter.notifyItemInserted(chats.size() - 1);
     }
 
@@ -100,14 +103,14 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     }
 
     private void apiGetChat(Long chatId) {
-        Call<GroupChat> call = apiService.getChat(chatId);
-        call.enqueue(new Callback<GroupChat>() {
+        Call<BaseChat> call = apiService.getChat(chatId);
+        call.enqueue(new Callback<BaseChat>() {
             @Override
-            public void onResponse(@NonNull Call<GroupChat> call, @NonNull Response<GroupChat> response) {
+            public void onResponse(@NonNull Call<BaseChat> call, @NonNull Response<BaseChat> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    GroupChat groupChat = response.body();
-                    Log.d(TAG, "CHAT RECIEVED: " + groupChat);
-                    chats.add(new ItemChatCard(groupChat));
+                    BaseChat chat = response.body();
+                    Log.d(TAG, "CHAT RECIEVED: " + chat);
+                    chats.add(new ItemChatCard(chat));
                     adapter.notifyItemInserted(chats.size() - 1);
                     Toast.makeText(requireContext(), "Se ha añadido un nuevo chat", Toast.LENGTH_SHORT).show();
                 } else {
@@ -117,7 +120,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
             }
 
             @Override
-            public void onFailure(@NonNull Call<GroupChat> call, @NonNull Throwable throwable) {
+            public void onFailure(@NonNull Call<BaseChat> call, @NonNull Throwable throwable) {
                 Log.e(TAG, "GetChat request failed: " + throwable.getMessage());
                 Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }
@@ -125,9 +128,10 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     }
 
     private void apiDeleteChat(Long chatId) {
-
+        //TODO
     }
 
+    //TODO: CREATOR RECIEVES AGAIN THE CHAT
     @Override
     public void onNotificationReceived(String notification) {
         //TODO: LOOK FOR ANOTHER WAY TO DO THIS

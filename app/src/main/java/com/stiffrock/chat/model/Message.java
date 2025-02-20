@@ -5,16 +5,16 @@ import java.time.LocalDateTime;
 public class Message {
     private Long id;
     private User sender;
-    private GroupChat groupChat;
+    private BaseChat chat;
     private String messageContent;
     private LocalDateTime timestamp;
 
     public Message() {
     }
 
-    public Message(User sender, GroupChat groupChat, String messageContent, LocalDateTime timestamp) {
+    public Message(User sender, BaseChat chat, String messageContent, LocalDateTime timestamp) {
         this.sender = sender;
-        this.groupChat = groupChat;
+        this.chat = chat;
         this.messageContent = messageContent;
         this.timestamp = timestamp;
     }
@@ -35,12 +35,12 @@ public class Message {
         this.sender = sender;
     }
 
-    public GroupChat getChat() {
-        return groupChat;
+    public BaseChat getChat() {
+        return chat;
     }
 
-    public void setChat(GroupChat groupChat) {
-        this.groupChat = groupChat;
+    public void setChat(BaseChat groupChat) {
+        this.chat = groupChat;
     }
 
     public String getMessageContent() {
@@ -61,12 +61,6 @@ public class Message {
 
     @Override
     public String toString() {
-        return "Message{" +
-                "id=" + id +
-                ", sender=" + sender +
-                ", chat=" + groupChat +
-                ", messageContent='" + messageContent + '\'' +
-                ", timestamp=" + timestamp +
-                '}';
+        return "Message{" + "id=" + id + ", sender=" + sender + ", chat=" + chat + ", messageContent='" + messageContent + '\'' + ", timestamp=" + timestamp + '}';
     }
 }

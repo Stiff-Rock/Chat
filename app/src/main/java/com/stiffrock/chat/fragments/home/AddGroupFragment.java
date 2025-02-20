@@ -19,7 +19,7 @@ import com.stiffrock.chat.HomeActivity;
 import com.stiffrock.chat.R;
 import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.dto.ApiResponse;
-import com.stiffrock.chat.dto.CreateChatDTO;
+import com.stiffrock.chat.dto.GroupChatDTO;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemContactCard;
 import com.stiffrock.chat.model.CurrentUser;
@@ -122,16 +122,14 @@ public class AddGroupFragment extends Fragment {
             return;
         }
 
-        CreateChatDTO cgr = new CreateChatDTO(groupName, true, participants);
-
-        Log.w(TAG, "CREATE GROUP DTO: " + cgr);
+        GroupChatDTO gcd = new GroupChatDTO(groupName, participants);
 
         //TODO update recylcer? dataset?
-        Call<ApiResponse> call = apiService.createGroupChat(cgr);
+        Call<ApiResponse> call = apiService.createGroupChat(gcd);
         call.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(requireContext(), "Grupo creado correctamente", Toast.LENGTH_SHORT).show();
                     ((HomeActivity) requireActivity()).replaceFragment(new ContactsFragment());
                 } else {

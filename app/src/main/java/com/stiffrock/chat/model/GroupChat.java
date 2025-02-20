@@ -1,12 +1,7 @@
 package com.stiffrock.chat.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-
 import java.util.Set;
 
-@Entity
-@Table(name = "group_chats")
 public class GroupChat extends BaseChat {
     private String name;
 

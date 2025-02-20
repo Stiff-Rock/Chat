@@ -11,7 +11,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:id="@+id/fcv"
-            android:name="com.stiffrock.groupChat.fragments.main.LogInFragment"
+            android:name="com.stiffrock.chat.fragments.main.LogInFragment"
             tools:layout="@layout/fragment_log_in"
             android:layout_weight="1" />
 

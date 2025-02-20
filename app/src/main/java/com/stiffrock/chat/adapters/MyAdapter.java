@@ -1,5 +1,8 @@
 package com.stiffrock.chat.adapters;
 
+import static com.stiffrock.chat.utils.LogTag.TAG;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +19,9 @@ import com.stiffrock.chat.items.ItemChatCard;
 import com.stiffrock.chat.items.ItemContactCard;
 import com.stiffrock.chat.items.ItemMessageRecieved;
 import com.stiffrock.chat.items.ItemMessageSent;
+import com.stiffrock.chat.model.BaseChat;
+import com.stiffrock.chat.model.GroupChat;
+import com.stiffrock.chat.model.PrivateChat;
 import com.stiffrock.chat.utils.OnItemClickListener;
 
 import java.util.List;
@@ -76,9 +82,12 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             view.parentLayout.setOnClickListener(e -> listener.onItemClick(item));
 
-            if (item.getChat().isGroupChat())
+            BaseChat chat = item.getChat();
+            Log.w(TAG, "ADDING ITEM: " + chat);
+            if (chat instanceof GroupChat)
                 view.ivChatPhoto.setImageResource(R.drawable.default_group);
-            else view.ivChatPhoto.setImageResource(R.drawable.default_user);
+            else if (chat instanceof PrivateChat)
+                view.ivChatPhoto.setImageResource(R.drawable.default_user);
 
             view.tvChatName.setText(item.getChatName());
         } else {

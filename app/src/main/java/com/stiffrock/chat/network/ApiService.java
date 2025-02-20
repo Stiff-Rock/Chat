@@ -1,11 +1,14 @@
 package com.stiffrock.chat.network;
 
 import com.stiffrock.chat.dto.ApiResponse;
-import com.stiffrock.chat.dto.CreateChatDTO;
 import com.stiffrock.chat.dto.CredentialsDTO;
+import com.stiffrock.chat.dto.GroupChatDTO;
 import com.stiffrock.chat.dto.MessageDTO;
+import com.stiffrock.chat.dto.PrivateChatDTO;
+import com.stiffrock.chat.model.BaseChat;
 import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.Message;
+import com.stiffrock.chat.model.PrivateChat;
 import com.stiffrock.chat.model.User;
 
 import java.util.List;
@@ -40,18 +43,18 @@ public interface ApiService {
     Call<User> getUserByUsername(@Path("username") String username);
 
     @GET("users/user/{userId}/chats")
-    Call<List<GroupChat>> getUserChats(@Path("userId") Long userId);
+    Call<List<BaseChat>> getUserChats(@Path("userId") Long userId);
 
 
     // Endpoint de chats
-    @POST("chats/create")
-    Call<GroupChat> addContact(@Body CreateChatDTO createChatDTO);
+    @POST("chats/private/create")
+    Call<PrivateChat> addContact(@Body PrivateChatDTO privateChatDTO);
 
     @GET("chats/chat/{chatId}")
-    Call<GroupChat> getChat(@Path("chatId") Long chatId);
+    Call<BaseChat> getChat(@Path("chatId") Long chatId);
 
 
     // Endpoint de grupos
     @POST("groups/create")
-    Call<ApiResponse> createGroupChat(@Body CreateChatDTO createChatDTO);
+    Call<ApiResponse> createGroupChat(@Body GroupChatDTO groupChatDTO);
 }
