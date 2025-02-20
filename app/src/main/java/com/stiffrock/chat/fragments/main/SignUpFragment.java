@@ -75,6 +75,7 @@ public class SignUpFragment extends Fragment {
                             errorMessage = "Bad Request: Invalid input.";
                             break;
                         case 409:
+                            //TODO: QUE ES ESTE MENSAJE DE MIERDA
                             errorMessage = "Conflict: User already exists or password is empty.";
                             break;
                         case 422:

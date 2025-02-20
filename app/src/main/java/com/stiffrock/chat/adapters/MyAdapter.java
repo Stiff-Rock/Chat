@@ -83,7 +83,6 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             view.parentLayout.setOnClickListener(e -> listener.onItemClick(item));
 
             BaseChat chat = item.getChat();
-            Log.w(TAG, "ADDING ITEM: " + chat);
             if (chat instanceof GroupChat)
                 view.ivChatPhoto.setImageResource(R.drawable.default_group);
             else if (chat instanceof PrivateChat)
