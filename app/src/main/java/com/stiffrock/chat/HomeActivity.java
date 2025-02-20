@@ -74,6 +74,9 @@ public class HomeActivity extends FragmentContainerActivity {
         } else if (item.getItemId() == R.id.addGroup) {
             replaceFragment(new AddGroupFragment());
             return true;
+        } else if (item.getItemId() == R.id.showOnlineUsers) {
+            Toast.makeText(this, "IMPLEMENTAR", Toast.LENGTH_SHORT).show();
+            return true;
         } else if (item.getItemId() == R.id.logOut) {
             logOut();
             return true;

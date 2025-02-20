@@ -25,4 +25,5 @@
     <string name="foto_de_perfil">Foto de perfil</string>
     <string name="nombre_de_usuario">Nombre de usuario</string>
     <string name="cargando">Cargando...</string>
+    <string name="usuarios_en_l_nea">Usuarios en línea</string>
 </resources>

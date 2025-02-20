@@ -36,7 +36,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ChatActivity extends AppCompatActivity implements WebSocketNotificationListener {
-    private final List<Item> messagesList = new ArrayList<>();
+    private final List<Item> messagesList;
     private EditText etMensaje;
 
     private RecyclerView recyclerView;
@@ -67,7 +67,6 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
 
         apiService = RetrofitClient.getApiService();
 
-        //TODO: LOAD MESSAGES AT THE START
         WebSocketClient.getInstance().setOnNotificationReceivedListener(this);
     }
 
