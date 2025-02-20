@@ -1,9 +1,66 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Chat" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base Application Theme using Material3 Dark DayNight -->
+    <style name="Theme.Chat" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary Colors -->
+        <item name="colorPrimary">@color/md_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_dark_onPrimaryContainer</item>
+
+        <!-- Secondary Colors -->
+        <item name="colorSecondary">@color/md_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/md_theme_dark_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/md_theme_dark_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_dark_onSecondaryContainer</item>
+
+        <!-- Background & Surface -->
+        <item name="android:windowBackground">@color/md_theme_dark_background</item>
+        <item name="backgroundColor">@color/md_theme_dark_background</item>
+        <item name="colorOnBackground">@color/md_theme_dark_onBackground</item>
+        <item name="colorSurface">@color/md_theme_dark_surface</item>
+        <item name="colorOnSurface">@color/md_theme_dark_onSurface</item>
+
+        <!-- Error Colors -->
+        <item name="colorError">@color/md_theme_dark_error</item>
+        <item name="colorOnError">@color/md_theme_dark_onError</item>
+
+        <!-- Accent / Button Colors -->
+        <item name="colorAccent">@color/md_theme_dark_accent</item>
+        <item name="android:colorButtonNormal">@color/md_theme_dark_button</item>
+
+        <!-- Component Styles -->
+        <item name="toolbarStyle">@style/Widget.Chat.Toolbar</item>
+        <item name="materialButtonStyle">@style/Widget.Chat.Button</item>
+        <item name="editTextStyle">@style/Widget.Chat.EditText</item>
     </style>
 
-    <style name="Theme.Chat" parent="Base.Theme.Chat" />
+    <!-- Customized EditText Style -->
+    <style name="Widget.Chat.EditText" parent="Widget.AppCompat.EditText">
+        <!-- Ensure no underline and set custom background -->
+        <item name="android:background">@drawable/edit_text_background</item>
+
+        <!-- Set text color -->
+        <item name="android:textColor">@android:color/white</item>
+
+        <!-- Padding for text inside EditText -->
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+    </style>
+
+    <!-- Customized Toolbar Style -->
+    <style name="Widget.Chat.Toolbar" parent="Widget.MaterialComponents.Toolbar">
+        <item name="background">@color/md_theme_dark_primary</item>
+        <item name="titleTextColor">@color/md_theme_dark_onPrimary</item>
+        <item name="subtitleTextColor">@color/md_theme_dark_onPrimary</item>
+    </style>
+
+    <!-- Customized Button Style -->
+    <style name="Widget.Chat.Button" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/md_theme_dark_accent</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="android:textColor">@color/md_theme_dark_onSecondary</item>
+    </style>
 </resources>

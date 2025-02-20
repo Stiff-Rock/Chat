@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Optional, for special rounded EditText style -->
+    <style name="SpecialRoundedEditText" parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox">
+        <item name="android:background">@drawable/special_edittext_bg</item>
+        <item name="android:textColor">@color/md_theme_dark_onBackground</item>
+        <item name="android:padding">8dp</item>
+    </style>
+
+</resources>

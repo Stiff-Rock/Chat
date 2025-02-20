@@ -41,7 +41,9 @@
                 android:autofillHints=""
                 android:layout_weight="1"
                 android:textColorHint="#546E7A"
-                tools:ignore="VisualLintTextFieldSize" />
+                tools:ignore="VisualLintTextFieldSize"
+                style="@style/SpecialRoundedEditText"
+                android:layout_marginEnd="10dp"/>
 
         <Button
                 android:id="@+id/sendText"

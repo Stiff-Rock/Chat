@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Primary Colors -->
+    <color name="md_theme_dark_primary">#1E1E2E</color>
+    <color name="md_theme_dark_onPrimary">#FFFFFF</color>
+    <color name="md_theme_dark_primaryContainer">#282A36</color>
+    <color name="md_theme_dark_onPrimaryContainer">#FFFFFF</color>
+
+    <!-- Secondary Colors -->
+    <color name="md_theme_dark_secondary">#F8BD7F</color>
+    <color name="md_theme_dark_onSecondary">#1E1E2E</color>
+    <color name="md_theme_dark_secondaryContainer">#E06C75</color>
+    <color name="md_theme_dark_onSecondaryContainer">#FFFFFF</color>
+
+    <!-- Background and Surface Colors -->
+    <color name="md_theme_dark_background">#1A1B26</color>
+    <color name="md_theme_dark_onBackground">#F8F8F2</color>
+    <color name="md_theme_dark_surface">#222436</color>
+    <color name="md_theme_dark_onSurface">#A9B1D6</color>
+
+    <!-- Error Colors -->
+    <color name="md_theme_dark_error">#FF5555</color>
+    <color name="md_theme_dark_onError">#FFFFFF</color>
+
+    <!-- Accent / Additional Colors -->
+    <color name="md_theme_dark_accent">#8BE9FD</color>
+    <color name="md_theme_dark_button">#6272A4</color>
+
+    <!-- Basic Black & White -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>

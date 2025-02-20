@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background color -->
+    <solid android:color="@color/md_theme_dark_surface" />  <!-- You can adjust this to any color you want for the background -->
+
+    <!-- Border properties -->
+    <stroke
+            android:color="@color/md_theme_dark_onSurface"
+            android:width="2dp" />
+
+    <!-- Corner radius (optional) -->
+    <corners android:radius="8dp" />  <!-- Set the radius for rounded corners, if desired -->
+</shape>

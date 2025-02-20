@@ -13,7 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.stiffrock.chat.MainActivity;
+import com.stiffrock.chat.AuthActivity;
 import com.stiffrock.chat.R;
 import com.stiffrock.chat.dto.CredentialsDTO;
 import com.stiffrock.chat.dto.ApiResponse;
@@ -99,6 +99,6 @@ public class SignUpFragment extends Fragment {
     }
 
     private void redirectToLogIn() {
-        ((MainActivity) requireActivity()).replaceFragment(new LogInFragment());
+        ((AuthActivity) requireActivity()).replaceFragment(new LogInFragment());
     }
 }

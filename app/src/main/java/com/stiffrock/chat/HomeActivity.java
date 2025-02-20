@@ -156,7 +156,7 @@ public class HomeActivity extends FragmentContainerActivity {
         sp.edit().putString("storedUser", "").apply();
 
         Toast.makeText(this, "Sesión cerrada", Toast.LENGTH_SHORT).show();
-        navigateToActivity(MainActivity.class);
+        navigateToActivity(AuthActivity.class);
     }
 
     public void navigateToActivity(Class<?> targetActivity) {

@@ -17,7 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.google.gson.Gson;
-import com.stiffrock.chat.MainActivity;
+import com.stiffrock.chat.AuthActivity;
 import com.stiffrock.chat.R;
 import com.stiffrock.chat.dto.CredentialsDTO;
 import com.stiffrock.chat.dto.ApiResponse;
@@ -87,7 +87,7 @@ public class LogInFragment extends Fragment {
                     } else {
                         ss.saveUserCredentials(requireContext(), new CredentialsDTO());
                     }
-                    ((MainActivity) requireActivity()).navigateToHomeActivity();
+                    ((AuthActivity) requireActivity()).navigateToHomeActivity();
                 } else {
                     String errorMessage = "Login failed, please try again.";
                     try {
@@ -114,6 +114,6 @@ public class LogInFragment extends Fragment {
     }
 
     private void replaceFragment(Fragment fragment) {
-        ((MainActivity) requireActivity()).replaceFragment(fragment);
+        ((AuthActivity) requireActivity()).replaceFragment(fragment);
     }
 }
