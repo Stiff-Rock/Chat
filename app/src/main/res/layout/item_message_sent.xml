@@ -1,19 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="10dp"
-        android:gravity="end">
+        android:layout_margin="10dp">
 
-    <TextView
+    <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/text_sent"
-            android:textSize="20sp"
+            android:orientation="horizontal"
             android:background="@drawable/bubble_sent"
-            android:padding="10dp"
-            android:layout_marginEnd="10dp"
-            android:textColor="@color/black"/>
+            android:layout_gravity="end"
+            tools:ignore="UselessParent">
 
-</LinearLayout>
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/sender"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black" />
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textSent"
+                    android:textSize="14sp"
+                    android:maxWidth="250dp"
+                    android:textColor="@color/black" />
+        </LinearLayout>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/timeStamp"
+                android:textSize="12sp"
+                android:textColor="@color/black"
+                android:gravity="end"
+                android:layout_gravity="bottom"
+                android:layout_marginStart="10dp" />
+    </LinearLayout>
+</FrameLayout>

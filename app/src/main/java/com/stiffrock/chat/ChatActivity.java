@@ -34,6 +34,8 @@ import com.stiffrock.chat.network.WebSocketClient;
 import com.stiffrock.chat.network.WebSocketNotification;
 import com.stiffrock.chat.utils.WebSocketNotificationListener;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -101,7 +103,7 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
                             messages.add(msg);
                             User sender = msg.getSender();
                             int type = sender.equals(CurrentUser.getCurrentUser()) ? 1 : 2;
-                            addTextBubble(type, msg.getMessageContent());
+                            addTextBubble(type, sender.getUsername(), msg.getMessageContent(), formatDateTime(msg.getTimestamp()));
                         }
                     }
                 } else {
@@ -118,11 +120,13 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         });
     }
 
-    public void addTextBubble(int itemType, String text) {
+    public void addTextBubble(int itemType, String sender, String text, String timestamp) {
+        if (CurrentUser.getCurrentChat() instanceof PrivateChat) sender = "";
+
         if (itemType == 1) {
-            msgItems.add(new ItemMessageSent(text));
+            msgItems.add(new ItemMessageSent(sender, text, timestamp));
         } else if (itemType == 2) {
-            msgItems.add(new ItemMessageRecieved(text));
+            msgItems.add(new ItemMessageRecieved(sender, text, timestamp));
         }
 
         adapter.notifyItemInserted(msgItems.size() - 1);
@@ -132,11 +136,17 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
     private void sendMessage() {
         String text = etMensaje.getText().toString().trim();
         if (text.isBlank()) return;
+        User user = CurrentUser.getCurrentUser();
         etMensaje.setText("");
-        addTextBubble(1, text);
-        Long userId = CurrentUser.getCurrentUser().getId();
+        addTextBubble(1, user.getUsername(), text, formatDateTime(LocalDateTime.now()));
+        Long userId = user.getId();
         Long chatID = CurrentUser.getCurrentChat().getId();
         apiSendMessage(new MessageDTO(userId, chatID, text));
+    }
+
+    private String formatDateTime(LocalDateTime now) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        return now.format(formatter);
     }
 
     private void recieveMessage(Message msg) {
@@ -148,7 +158,10 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         Long chatId = msgChat.getId();
         Long currentChatId = currentChat.getId();
 
-        if (chatId.equals(currentChatId)) addTextBubble(2, msg.getMessageContent());
+        String sender = msg.getSender().getUsername();
+
+        if (chatId.equals(currentChatId))
+            addTextBubble(2, sender, msg.getMessageContent(), formatDateTime(msg.getTimestamp()));
         else showNotification(msg);
     }
 
@@ -198,6 +211,10 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
             case MESSAGE_RECEIVED:
                 Message msg = (Message) wsn.getContent();
                 recieveMessage(msg);
+                break;
+            case MESSAGE_READ:
+                break;
+            case MESSAGE_DELETED:
                 break;
             default:
                 break;

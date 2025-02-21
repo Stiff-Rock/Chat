@@ -1,8 +1,5 @@
 package com.stiffrock.chat.adapters;
 
-import static com.stiffrock.chat.utils.LogTag.TAG;
-
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,12 +67,22 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ViewHolderMessageRecieved view = (ViewHolderMessageRecieved) holder;
             ItemMessageRecieved item = (ItemMessageRecieved) datos.get(position);
 
-            view.textView.setText(item.getMessage());
+            String sender = item.getSender();
+            if (sender.isBlank()) view.sender.setVisibility(View.GONE);
+            else view.sender.setText(sender);
+
+            view.textRecieved.setText(item.getMessage());
+            view.timeStamp.setText(item.getTimestamp());
         } else if (holder instanceof ViewHolderMessageSent) {
             ViewHolderMessageSent view = (ViewHolderMessageSent) holder;
             ItemMessageSent item = (ItemMessageSent) datos.get(position);
 
-            view.textView.setText(item.getMessage());
+            String sender = item.getSender();
+            if (sender.isBlank()) view.sender.setVisibility(View.GONE);
+            else view.sender.setText(sender);
+
+            view.textSent.setText(item.getMessage());
+            view.timeStamp.setText(item.getTimestamp());
         } else if (holder instanceof ViewHolderChatCard) {
             ViewHolderChatCard view = (ViewHolderChatCard) holder;
             ItemChatCard item = (ItemChatCard) datos.get(position);
@@ -104,20 +111,28 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public static class ViewHolderMessageRecieved extends RecyclerView.ViewHolder {
-        private final TextView textView;
+        private final TextView sender;
+        private final TextView textRecieved;
+        private final TextView timeStamp;
 
         public ViewHolderMessageRecieved(@NonNull View itemView) {
             super(itemView);
-            textView = itemView.findViewById(R.id.text_recieved);
+            sender = itemView.findViewById(R.id.sender);
+            textRecieved = itemView.findViewById(R.id.textRecieved);
+            timeStamp = itemView.findViewById(R.id.timeStamp);
         }
     }
 
     public static class ViewHolderMessageSent extends RecyclerView.ViewHolder {
-        private final TextView textView;
+        private final TextView sender;
+        private final TextView textSent;
+        private final TextView timeStamp;
 
         public ViewHolderMessageSent(@NonNull View itemView) {
             super(itemView);
-            textView = itemView.findViewById(R.id.text_sent);
+            sender = itemView.findViewById(R.id.sender);
+            textSent = itemView.findViewById(R.id.textSent);
+            timeStamp = itemView.findViewById(R.id.timeStamp);
         }
     }
 

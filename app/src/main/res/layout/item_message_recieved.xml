@@ -1,19 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="10dp"
-        android:gravity="start">
+        android:layout_margin="10dp"
+        android:background="@drawable/bubble_recieved"
+        android:layout_gravity="start">
+
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginEnd="5dp">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/sender"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:text="Yago Pernas"
+
+                android:textColor="@color/black" />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textRecieved"
+                android:textSize="14sp"
+                android:maxWidth="250dp"
+                android:text="Esto es el mensaje que te esto enviando pedazo de subrnomal"
+                android:textColor="@color/black" />
+    </LinearLayout>
 
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/text_recieved"
-            android:textSize="20sp"
-            android:background="@drawable/bubble_recieved"
-            android:padding="10dp"
-            android:layout_marginEnd="10dp"
-            android:textColor="@color/black"/>
+            android:id="@+id/timeStamp"
+            android:textSize="12sp"
+            android:textColor="@color/black"
+            android:gravity="end"
+            android:text="22:15"
+
+            android:layout_gravity="bottom"
+            android:layout_marginStart="10dp" />
 
 </LinearLayout>

@@ -7,15 +7,37 @@
         android:layout_height="80dp"
         android:gravity="center"
         android:padding="10dp"
-        android:id="@+id/parentLayout">
+        android:id="@+id/parentLayout"
+        android:clipChildren="false">
 
-    <ImageView
+    <FrameLayout
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:contentDescription="@string/foto_de_perfil"
-            android:src="@drawable/default_user"
-            android:id="@+id/ivChatPhoto"
-            android:layout_weight="0" />
+            android:layout_marginEnd="10dp">
+
+        <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/disconnected_icon"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="-3dp"
+                android:elevation="3dp" />
+
+        <androidx.cardview.widget.CardView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                app:cardCornerRadius="30dp"
+                app:cardBackgroundColor="@color/md_theme_dark_surface">
+
+            <ImageView
+                    android:id="@+id/ivChatPhoto"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/default_user"
+                    android:contentDescription="@string/foto_de_perfil" />
+        </androidx.cardview.widget.CardView>
+    </FrameLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
