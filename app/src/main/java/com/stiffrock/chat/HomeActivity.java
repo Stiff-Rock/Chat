@@ -21,6 +21,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -29,6 +30,7 @@ import androidx.fragment.app.Fragment;
 import com.stiffrock.chat.dto.PrivateChatDTO;
 import com.stiffrock.chat.fragments.home.AddGroupFragment;
 import com.stiffrock.chat.fragments.home.ContactsFragment;
+import com.stiffrock.chat.fragments.home.OnlineUsersFragment;
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.PrivateChat;
 import com.stiffrock.chat.model.User;
@@ -43,6 +45,7 @@ import retrofit2.Response;
 
 public class HomeActivity extends FragmentContainerActivity {
     private ApiService apiService;
+    public Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,12 +60,14 @@ public class HomeActivity extends FragmentContainerActivity {
 
         apiService = RetrofitClient.getApiService();
 
-        setSupportActionBar(findViewById(R.id.toolbar));
+        toolbar = findViewById(R.id.toolbar);
+
+        setSupportActionBar(toolbar);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_toolbar, menu);
+        getMenuInflater().inflate(R.menu.home_menu, menu);
         return true;
     }
 
@@ -72,20 +77,33 @@ public class HomeActivity extends FragmentContainerActivity {
             addContactDialog();
             return true;
         } else if (item.getItemId() == R.id.addGroup) {
+            toggleHomeButton(true);
             replaceFragment(new AddGroupFragment());
             return true;
         } else if (item.getItemId() == R.id.showOnlineUsers) {
-            Toast.makeText(this, "IMPLEMENTAR", Toast.LENGTH_SHORT).show();
+            toggleHomeButton(true);
+            replaceFragment(new OnlineUsersFragment());
             return true;
         } else if (item.getItemId() == R.id.logOut) {
             logOut();
+            return true;
+        } else if (item.getItemId() == android.R.id.home) {
+            toggleHomeButton(false);
+            replaceFragment(new ContactsFragment());
             return true;
         } else {
             return super.onOptionsItemSelected(item);
         }
     }
 
-    //TODO: FIND A BETTER WAY
+    private void toggleHomeButton(boolean active) {
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(active);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.left_arrow);
+        }
+    }
+
+    //TODO: MAKE BETTER
     private void addContactDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LinearLayout layout = new LinearLayout(this);
@@ -147,7 +165,7 @@ public class HomeActivity extends FragmentContainerActivity {
         });
     }
 
-    private void addContact(User user) {
+    public void addContact(User user) {
         Long userId1 = CurrentUser.getCurrentUser().getId();
         Long userId2 = user.getId();
 
@@ -160,8 +178,13 @@ public class HomeActivity extends FragmentContainerActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     PrivateChat chat = response.body();
                     Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
-                    if (currentFragment != null)
-                        ((ContactsFragment) currentFragment).addContact(chat);
+                    if (currentFragment instanceof ContactsFragment) {
+                        ContactsFragment cf = (ContactsFragment) currentFragment;
+                        cf.addContact(chat);
+                    } else {
+                        toggleHomeButton(false);
+                        replaceFragment(new ContactsFragment());
+                    }
                     Toast.makeText(HomeActivity.this, "Contacto añadido", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(HomeActivity.this, "Error añadiendo contacto", Toast.LENGTH_SHORT).show();

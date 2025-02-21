@@ -2,8 +2,10 @@ package com.stiffrock.chat;
 
 import static com.stiffrock.chat.utils.LogTag.TAG;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -71,6 +73,10 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         BaseChat chat = CurrentUser.getCurrentChat();
         toolbar.setTitle(getChatName(chat));
         setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.left_arrow);
+        }
 
         apiService = RetrofitClient.getApiService();
 
@@ -89,6 +95,16 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
 
         WebSocketClient.getInstance().setOnNotificationReceivedListener(this);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            navigateToHomeActivity();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     private void getMessageHistory() {
         Long chatId = CurrentUser.getCurrentChat().getId();
@@ -213,11 +229,18 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
                 recieveMessage(msg);
                 break;
             case MESSAGE_READ:
+                // TODO
                 break;
             case MESSAGE_DELETED:
+                // TODO
                 break;
             default:
                 break;
         }
+    }
+
+    private void navigateToHomeActivity() {
+        Intent intent = new Intent(ChatActivity.this, HomeActivity.class);
+        startActivity(intent);
     }
 }

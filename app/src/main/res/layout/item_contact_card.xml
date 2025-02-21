@@ -1,35 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:gravity="center"
         android:padding="10dp"
-        android:id="@+id/parentLayout">
+        android:id="@+id/parentLayout"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:clipChildren="false">
 
-    <ImageView
+    <FrameLayout
             android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/foto_de_perfil"
-            android:src="@drawable/default_user"
-            android:id="@+id/ivContactPhoto"
-            android:layout_weight="0" />
+            android:layout_height="60dp"
+            android:layout_marginEnd="10dp">
 
+        <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@string/indicador_de_estado_de_usuario"
+                android:src="@drawable/connected_icon"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="-3dp"
+                android:elevation="3dp" />
+
+        <androidx.cardview.widget.CardView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                app:cardCornerRadius="30dp"
+                app:cardBackgroundColor="@color/md_theme_dark_surface">
+
+            <ImageView
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/foto_de_perfil"
+                    android:src="@drawable/default_user"
+                    android:id="@+id/ivContactPhoto"
+                    android:layout_weight="0" />
+        </androidx.cardview.widget.CardView>
+    </FrameLayout>
 
     <TextView
             android:id="@+id/tvContactName"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="60dp"
             android:textSize="20sp"
             android:textStyle="bold"
             android:padding="10dp"
             android:gravity="center_vertical"
             android:layout_weight="1" />
-
-
-    <Button
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:id="@+id/btnDeleteContact"
-            android:layout_weight="0"/>
 </LinearLayout>

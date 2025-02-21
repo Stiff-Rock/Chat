@@ -19,6 +19,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/disconnected_icon"
+                android:contentDescription="@string/indicador_de_estado_de_usuario"
                 android:layout_gravity="bottom|end"
                 android:layout_marginEnd="-3dp"
                 android:elevation="3dp" />

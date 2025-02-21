@@ -101,8 +101,8 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     }
 
     @Override
-    public void onItemClick(ItemChatCard itemChat) {
-        CurrentUser.setCurrentChat(itemChat.getChat());
+    public void onItemClick(Item item) {
+        CurrentUser.setCurrentChat(((ItemChatCard) item).getChat());
         ((HomeActivity) requireActivity()).navigateToActivity(ChatActivity.class);
     }
 

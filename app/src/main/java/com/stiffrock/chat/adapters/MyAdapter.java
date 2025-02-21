@@ -100,6 +100,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ViewHolderContactCard view = (ViewHolderContactCard) holder;
             ItemContactCard item = (ItemContactCard) datos.get(position);
 
+            view.parentLayout.setOnClickListener(e -> listener.onItemClick(item));
             view.ivContactPhoto.setImageResource(R.drawable.default_user);
             view.tvContactName.setText(item.getName());
         }

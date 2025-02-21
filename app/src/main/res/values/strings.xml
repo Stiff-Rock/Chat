@@ -26,4 +26,8 @@
     <string name="nombre_de_usuario">Nombre de usuario</string>
     <string name="cargando">Cargando...</string>
     <string name="usuarios_en_l_nea">Usuarios en línea</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="atr_s">Atrás</string>
+    <string name="indicador_de_estado_de_usuario">Indicador de estado de usuario</string>
 </resources>
