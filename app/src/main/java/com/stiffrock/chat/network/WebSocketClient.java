@@ -9,6 +9,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.utils.WebSocketNotificationListener;
 
 import okhttp3.OkHttpClient;
@@ -21,28 +22,29 @@ import okio.ByteString;
 public class WebSocketClient {
     private static WebSocketClient instance;
     private WebSocket webSocket;
-    private final OkHttpClient client;
-    private final String APP_WEB_SOCKET_URL;
-    private final String GROUP_CHAT_WEB_SOCKET_URL;
+    private OkHttpClient client;
+    private String APP_WEB_SOCKET_URL;
+    private String GROUP_CHAT_WEB_SOCKET_URL;
 
     private WebSocketNotificationListener listener;
 
     private WebSocketClient() {
-        client = new OkHttpClient();
-        String usernameQueryParameter = "?username=" + CurrentUser.getCurrentUser().getUsername();
-        APP_WEB_SOCKET_URL = "ws://" + ServerConfig.SOCKET_ADDR + "/chat" + usernameQueryParameter;
-        GROUP_CHAT_WEB_SOCKET_URL = "ws://" + ServerConfig.SOCKET_ADDR + "/chat/group/{groupId}";
+        User user = CurrentUser.getCurrentUser();
+        if (user != null) {
+            Log.d(TAG, "WebSocketClient created");
+            String username = user.getUsername();
+            String usernameQueryParameter = "?username=" + username;
+            APP_WEB_SOCKET_URL = "ws://" + ServerConfig.SOCKET_ADDR + "/chat" + usernameQueryParameter;
+            GROUP_CHAT_WEB_SOCKET_URL = "ws://" + ServerConfig.SOCKET_ADDR + "/chat/group/{groupId}";
+            client = new OkHttpClient();
+        } else {
+            Log.e(TAG, "Error creating WebSocketClient: Current user is null");
+        }
     }
 
     public static WebSocketClient getInstance() {
-        if (instance == null) {
-            instance = new WebSocketClient();
-        }
+        if (instance == null) instance = new WebSocketClient();
         return instance;
-    }
-
-    public void setOnNotificationReceivedListener(WebSocketNotificationListener listener) {
-        this.listener = listener;
     }
 
     //TODO: HANDLE FALIED CONNECTIONS
@@ -74,5 +76,9 @@ public class WebSocketClient {
         if (webSocket != null) {
             webSocket.close(1000, "Cierre normal");
         }
+    }
+
+    public void setOnNotificationReceivedListener(WebSocketNotificationListener listener) {
+        this.listener = listener;
     }
 }

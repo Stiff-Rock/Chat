@@ -1,5 +1,9 @@
 package com.stiffrock.chat.model;
 
+import static com.stiffrock.chat.utils.LogTag.TAG;
+
+import android.util.Log;
+
 public class CurrentUser {
     private static User currentUser;
     private static BaseChat currentGroupChat;
@@ -10,6 +14,7 @@ public class CurrentUser {
 
     public static void setCurrentUser(User currentUser) {
         CurrentUser.currentUser = currentUser;
+        Log.d(TAG, "CURRENT USER SET: " + CurrentUser.currentUser);
     }
 
     public static BaseChat getCurrentChat() {

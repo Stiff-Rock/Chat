@@ -61,6 +61,7 @@ public class LauncherActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     User user = response.body();
+                    Log.d(TAG, "USER LOGGED IN: " + user);
                     CurrentUser.setCurrentUser(user);
                     WebSocketClient.getInstance().connect();
                     Toast.makeText(LauncherActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();

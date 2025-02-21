@@ -1,6 +1,7 @@
 package com.stiffrock.chat.items;
 
 import com.stiffrock.chat.model.BaseChat;
+import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.PrivateChat;
 
@@ -10,7 +11,10 @@ public class ItemChatCard extends Item {
 
     public ItemChatCard(BaseChat chat) {
         if (chat instanceof PrivateChat) {
-            this.chatName = ((PrivateChat) chat).getName();
+            String name = ((PrivateChat) chat).getName();
+            String[] usernames = name.split("&");
+            String currentUsrName = CurrentUser.getCurrentUser().getUsername();
+            this.chatName = usernames[0].equals(currentUsrName) ? usernames[1] : usernames[0];
         } else if (chat instanceof GroupChat) {
             this.chatName = ((GroupChat) chat).getName();
         }

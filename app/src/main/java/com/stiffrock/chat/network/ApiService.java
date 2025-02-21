@@ -28,6 +28,8 @@ public interface ApiService {
     @GET("messages/recieve/{messageId}")
     Call<Message> recieveMessage(@Path("messageId") Long messageId);
 
+    @GET("messages/history/{chatId}")
+    Call<List<Message>> getMessageHistory(@Path("chatId") Long chatId);
 
     // Endpoint de usuarios
     @POST("users/register")

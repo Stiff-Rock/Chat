@@ -56,7 +56,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        Log.e(TAG, "LOADED");
+        Log.w(TAG, "LOADED");
         chats = new ArrayList<>();
         apiGetChatList();
 
@@ -70,7 +70,6 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
             public void onResponse(@NonNull Call<List<BaseChat>> call, @NonNull Response<List<BaseChat>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     for (BaseChat chat : response.body()) {
-                        Log.e(TAG, chat.getId().toString());
                         chats.add(new ItemChatCard(chat));
                     }
                 } else {
@@ -98,8 +97,8 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     }
 
     @Override
-    public void onItemClick(ItemChatCard chat) {
-        CurrentUser.setCurrentChat(chat.getChat());
+    public void onItemClick(ItemChatCard itemChat) {
+        CurrentUser.setCurrentChat(itemChat.getChat());
         ((HomeActivity) requireActivity()).navigateToActivity(ChatActivity.class);
     }
 
@@ -136,6 +135,8 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     //TODO: CREATOR RECIEVES AGAIN THE CHAT
     @Override
     public void onNotificationReceived(String notification) {
+        //TODO ESTANTARIZAR JSON PARA QUE NO DE ERRO CUANDO LLEGA UN MENASJE EN LA LISTA DE CONTACTOS
+        //TODO QUIZAS ENVIAR EL MENSAJE DIRACTAMENTE
         JsonObject json = JsonParser.parseString(notification).getAsJsonObject();
         String action = json.get("action").getAsString();
         Long chatId = json.get("chatId").getAsLong();

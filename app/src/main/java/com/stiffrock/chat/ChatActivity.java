@@ -10,22 +10,32 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fatboyindustrial.gsonjavatime.Converters;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.dto.MessageDTO;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemMessageRecieved;
 import com.stiffrock.chat.items.ItemMessageSent;
+import com.stiffrock.chat.model.BaseChat;
 import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.Message;
+import com.stiffrock.chat.model.PrivateChat;
+import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.network.WebSocketClient;
+import com.stiffrock.chat.utils.BaseChatTypeAdapter;
+import com.stiffrock.chat.utils.GsonManager;
 import com.stiffrock.chat.utils.WebSocketNotificationListener;
 
 import java.util.ArrayList;
@@ -59,6 +69,13 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
             return insets;
         });
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        BaseChat chat = CurrentUser.getCurrentChat();
+        toolbar.setTitle(getChatName(chat));
+        setSupportActionBar(toolbar);
+
+        apiService = RetrofitClient.getApiService();
+
         etMensaje = findViewById(R.id.etMensaje);
 
         findViewById(R.id.sendText).setOnClickListener(e -> sendMessage());
@@ -68,21 +85,41 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
 
         adapter = new MyAdapter(msgItems);
 
-        // Carga el historial de mensajes
-        List<Message> msgHistory = CurrentUser.getCurrentChat().getMessages();
-        for (Message msg : msgHistory) {
-            if (!messages.contains(msg)) {
-                messages.add(msg);
-                int type = msg.getSender().equals(CurrentUser.getCurrentUser()) ? 1 : 2;
-                addTextBubble(type, msg.getMessageContent());
-            }
-        }
+        getMessageHistory();
 
         recyclerView.setAdapter(adapter);
 
-        apiService = RetrofitClient.getApiService();
-
         WebSocketClient.getInstance().setOnNotificationReceivedListener(this);
+    }
+
+    private void getMessageHistory() {
+        Long chatId = CurrentUser.getCurrentChat().getId();
+        Call<List<Message>> call = apiService.getMessageHistory(chatId);
+        call.enqueue(new Callback<List<Message>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<Message>> call, @NonNull Response<List<Message>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Message> msgHistory = response.body();
+                    for (Message msg : msgHistory) {
+                        if (!messages.contains(msg)) {
+                            messages.add(msg);
+                            User sender = msg.getSender();
+                            int type = sender.equals(CurrentUser.getCurrentUser()) ? 1 : 2;
+                            addTextBubble(type, msg.getMessageContent());
+                        }
+                    }
+                } else {
+                    Log.e(TAG, "Error loading message history");
+                    Toast.makeText(ChatActivity.this, "Error cargando historial de mensajes", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<Message>> call, @NonNull Throwable throwable) {
+                Log.e(TAG, "GetMessageHistory request failed: " + throwable.getMessage());
+                Toast.makeText(ChatActivity.this, "Error de conexión", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     public void addTextBubble(int itemType, String text) {
@@ -104,6 +141,19 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         Long userId = CurrentUser.getCurrentUser().getId();
         Long chatID = CurrentUser.getCurrentChat().getId();
         apiSendMessage(new MessageDTO(userId, chatID, text));
+    }
+
+    private void recieveMessage(Message msg) {
+        messages.add(msg);
+
+        BaseChat currentChat = CurrentUser.getCurrentChat();
+        BaseChat msgChat = msg.getChat();
+
+        Long chatId = msgChat.getId();
+        Long currentChatId = currentChat.getId();
+
+        if (chatId.equals(currentChatId)) addTextBubble(2, msg.getMessageContent());
+        else showNotification(msg);
     }
 
     //TODO: HANDLE FALIED CONNECTIONS
@@ -130,38 +180,28 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         });
     }
 
-    private void apiGetMessage(Long messageId) {
-        Call<Message> call = apiService.recieveMessage(messageId);
-        call.enqueue(new Callback<Message>() {
-            @Override
-            public void onResponse(@NonNull Call<Message> call, @NonNull Response<Message> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Message msg = response.body();
-                    messages.add(msg);
-                    Long chatId = msg.getChat().getId();
-                    Long currentChatId = CurrentUser.getCurrentChat().getId();
-                    if (chatId.equals(currentChatId)) addTextBubble(2, msg.getMessageContent());
-                    else showNotification(msg);
-                } else {
-                    Log.e(TAG, "Error recieving message: " + response.code());
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<Message> call, @NonNull Throwable t) {
-                Log.e(TAG, "RecieveMessage request failed: " + t.getMessage());
-            }
-        });
+    //TODO: TEST
+    private void showNotification(Message msg) {
+        BaseChat chat = msg.getChat();
+        Toast.makeText(this, "Mensaje recibido de " + getChatName(chat), Toast.LENGTH_SHORT).show();
     }
 
-    private void showNotification(Message msg) {
-        Toast.makeText(this, "Mensaje recibido de " + msg.getSender(), Toast.LENGTH_SHORT).show();
+    private String getChatName(BaseChat chat) {
+        String name;
+        if (chat instanceof PrivateChat) name = ((PrivateChat) chat).getName();
+        else name = ((GroupChat) chat).getName();
+        String[] usernames = name.split("&");
+        String currentUsrName = CurrentUser.getCurrentUser().getUsername();
+        return usernames[0].equals(currentUsrName) ? usernames[1] : usernames[0];
     }
 
     //TODO: QUIZAS ESTO TAMBIEN EN EL CONTANCTFRAGMENT CON LA NOTIFICACION DE TOAST
     @Override
     public void onNotificationReceived(String notification) {
-        Long msgId = Long.valueOf(notification);
-        apiGetMessage(msgId);
+        Log.w(TAG, "WEBSOCKETMESSAGE: " + notification);
+        //TODO: ADAPTAR PARA QUE REIBA OTRO DIPO DE MENSAJES TAMBIEN
+        Message msg = GsonManager.gson.fromJson(notification, Message.class);
+        Log.w(TAG, "MSG: " + msg);
+        recieveMessage(msg);
     }
 }

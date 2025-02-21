@@ -1,10 +1,6 @@
 package com.stiffrock.chat.network;
 
-import com.fatboyindustrial.gsonjavatime.Converters;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.stiffrock.chat.model.BaseChat;
-import com.stiffrock.chat.utils.BaseChatTypeAdapter;
+import com.stiffrock.chat.utils.GsonManager;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -24,11 +20,9 @@ public class RetrofitClient {
                     .addInterceptor(logging)
                     .build();
 
-            Gson gson = Converters.registerLocalDateTime(new GsonBuilder()).registerTypeAdapter(BaseChat.class, new BaseChatTypeAdapter()).create();
-
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create(gson))
+                    .addConverterFactory(GsonConverterFactory.create(GsonManager.gson))
                     .client(client)
                     .build();
         }
