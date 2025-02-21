@@ -1,0 +1,14 @@
+package com.stiffrock.chat.model;
+
+public enum WebSocketAction {
+    ADD_CONTACT,
+    DELETE_CONTACT,
+    MESSAGE_RECEIVED,
+    MESSAGE_READ,
+    MESSAGE_DELETED,
+    USER_DISCONNECTED_FROM_GROUP,
+    USER_DISCONNECTED_FROM_APP,
+    USER_LEFT_GROUP,
+    USER_JOINED_GROUP,
+    ERROR;
+}

@@ -14,7 +14,6 @@ public class CurrentUser {
 
     public static void setCurrentUser(User currentUser) {
         CurrentUser.currentUser = currentUser;
-        Log.d(TAG, "CURRENT USER SET: " + CurrentUser.currentUser);
     }
 
     public static BaseChat getCurrentChat() {

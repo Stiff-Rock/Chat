@@ -26,6 +26,7 @@ import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
+import com.stiffrock.chat.network.WebSocketClient;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -122,9 +123,9 @@ public class AddGroupFragment extends Fragment {
             return;
         }
 
-        GroupChatDTO gcd = new GroupChatDTO(groupName, participants);
+        Long userId = CurrentUser.getCurrentUser().getId();
+        GroupChatDTO gcd = new GroupChatDTO(groupName, participants, userId);
 
-        //TODO update recylcer? dataset?
         Call<ApiResponse> call = apiService.createGroupChat(gcd);
         call.enqueue(new Callback<ApiResponse>() {
             @Override

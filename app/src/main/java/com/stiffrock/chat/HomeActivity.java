@@ -159,7 +159,6 @@ public class HomeActivity extends FragmentContainerActivity {
             public void onResponse(@NonNull Call<PrivateChat> call, @NonNull Response<PrivateChat> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     PrivateChat chat = response.body();
-                    Log.w(TAG, "PRIVATE CHAT RECIEVED: " + chat);
                     Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
                     if (currentFragment != null)
                         ((ContactsFragment) currentFragment).addContact(chat);

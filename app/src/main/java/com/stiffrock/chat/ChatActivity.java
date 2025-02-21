@@ -17,9 +17,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fatboyindustrial.gsonjavatime.Converters;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.dto.MessageDTO;
 import com.stiffrock.chat.items.Item;
@@ -34,8 +31,7 @@ import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.network.WebSocketClient;
-import com.stiffrock.chat.utils.BaseChatTypeAdapter;
-import com.stiffrock.chat.utils.GsonManager;
+import com.stiffrock.chat.network.WebSocketNotification;
 import com.stiffrock.chat.utils.WebSocketNotificationListener;
 
 import java.util.ArrayList;
@@ -165,7 +161,6 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
                 if (response.isSuccessful() && response.body() != null) {
                     Message msg = response.body();
                     messages.add(msg);
-                    Log.d(TAG, "Message sent: " + msg);
                 } else {
                     Log.e(TAG, "Error sending message: " + response.code());
                     Toast.makeText(ChatActivity.this, "Error enviado el mensaje", Toast.LENGTH_SHORT).show();
@@ -198,10 +193,14 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
     //TODO: QUIZAS ESTO TAMBIEN EN EL CONTANCTFRAGMENT CON LA NOTIFICACION DE TOAST
     @Override
     public void onNotificationReceived(String notification) {
-        Log.w(TAG, "WEBSOCKETMESSAGE: " + notification);
-        //TODO: ADAPTAR PARA QUE REIBA OTRO DIPO DE MENSAJES TAMBIEN
-        Message msg = GsonManager.gson.fromJson(notification, Message.class);
-        Log.w(TAG, "MSG: " + msg);
-        recieveMessage(msg);
+        WebSocketNotification wsn = WebSocketNotification.parse(notification);
+        switch (wsn.getAction()) {
+            case MESSAGE_RECEIVED:
+                Message msg = (Message) wsn.getContent();
+                recieveMessage(msg);
+                break;
+            default:
+                break;
+        }
     }
 }

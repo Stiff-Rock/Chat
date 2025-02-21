@@ -31,7 +31,6 @@ public class WebSocketClient {
     private WebSocketClient() {
         User user = CurrentUser.getCurrentUser();
         if (user != null) {
-            Log.d(TAG, "WebSocketClient created");
             String username = user.getUsername();
             String usernameQueryParameter = "?username=" + username;
             APP_WEB_SOCKET_URL = "ws://" + ServerConfig.SOCKET_ADDR + "/chat" + usernameQueryParameter;
