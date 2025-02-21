@@ -29,14 +29,18 @@ import com.stiffrock.chat.network.WebSocketClient;
 import com.stiffrock.chat.utils.WebSocketNotificationListener;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ChatActivity extends AppCompatActivity implements WebSocketNotificationListener {
-    private final List<Item> messagesList;
+    private final List<Item> msgItems = new ArrayList<>();
+    private final Set<Message> messages = new HashSet<>();
+
     private EditText etMensaje;
 
     private RecyclerView recyclerView;
@@ -62,7 +66,18 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter = new MyAdapter(messagesList);
+        adapter = new MyAdapter(msgItems);
+
+        // Carga el historial de mensajes
+        List<Message> msgHistory = CurrentUser.getCurrentChat().getMessages();
+        for (Message msg : msgHistory) {
+            if (!messages.contains(msg)) {
+                messages.add(msg);
+                int type = msg.getSender().equals(CurrentUser.getCurrentUser()) ? 1 : 2;
+                addTextBubble(type, msg.getMessageContent());
+            }
+        }
+
         recyclerView.setAdapter(adapter);
 
         apiService = RetrofitClient.getApiService();
@@ -72,13 +87,13 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
 
     public void addTextBubble(int itemType, String text) {
         if (itemType == 1) {
-            messagesList.add(new ItemMessageSent(text));
+            msgItems.add(new ItemMessageSent(text));
         } else if (itemType == 2) {
-            messagesList.add(new ItemMessageRecieved(text));
+            msgItems.add(new ItemMessageRecieved(text));
         }
 
-        adapter.notifyItemInserted(messagesList.size() - 1);
-        recyclerView.scrollToPosition(messagesList.size() - 1);
+        adapter.notifyItemInserted(msgItems.size() - 1);
+        recyclerView.scrollToPosition(msgItems.size() - 1);
     }
 
     private void sendMessage() {
@@ -87,7 +102,7 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         etMensaje.setText("");
         addTextBubble(1, text);
         Long userId = CurrentUser.getCurrentUser().getId();
-        Long chatID = CurrentUser.getCurrentChat().getChatId();
+        Long chatID = CurrentUser.getCurrentChat().getId();
         apiSendMessage(new MessageDTO(userId, chatID, text));
     }
 
@@ -98,7 +113,9 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
             @Override
             public void onResponse(@NonNull Call<Message> call, @NonNull Response<Message> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.d(TAG, "Message sent: " + response.body());
+                    Message msg = response.body();
+                    messages.add(msg);
+                    Log.d(TAG, "Message sent: " + msg);
                 } else {
                     Log.e(TAG, "Error sending message: " + response.code());
                     Toast.makeText(ChatActivity.this, "Error enviado el mensaje", Toast.LENGTH_SHORT).show();
@@ -119,8 +136,12 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
             @Override
             public void onResponse(@NonNull Call<Message> call, @NonNull Response<Message> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Message message = response.body();
-                    addTextBubble(2, message.getMessageContent());
+                    Message msg = response.body();
+                    messages.add(msg);
+                    Long chatId = msg.getChat().getId();
+                    Long currentChatId = CurrentUser.getCurrentChat().getId();
+                    if (chatId.equals(currentChatId)) addTextBubble(2, msg.getMessageContent());
+                    else showNotification(msg);
                 } else {
                     Log.e(TAG, "Error recieving message: " + response.code());
                 }
@@ -133,10 +154,14 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         });
     }
 
+    private void showNotification(Message msg) {
+        Toast.makeText(this, "Mensaje recibido de " + msg.getSender(), Toast.LENGTH_SHORT).show();
+    }
+
     //TODO: QUIZAS ESTO TAMBIEN EN EL CONTANCTFRAGMENT CON LA NOTIFICACION DE TOAST
     @Override
     public void onNotificationReceived(String notification) {
-        Log.d(TAG, "Message recieved: " + notification);
-        apiGetMessage(Long.valueOf(notification));
+        Long msgId = Long.valueOf(notification);
+        apiGetMessage(msgId);
     }
 }

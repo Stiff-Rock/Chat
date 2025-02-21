@@ -1,4 +1,4 @@
-package com.stiffrock.chat.fragments.main;
+package com.stiffrock.chat.fragments.auth;
 
 import static com.stiffrock.chat.utils.LogTag.TAG;
 
@@ -101,7 +101,6 @@ public class LogInFragment extends Fragment {
 
                     Log.e(TAG, "Login failed: " + response.code() + " - " + errorMessage);
                     Toast.makeText(requireContext(), "Error al iniciar sesión. Verifica tus credenciales.", Toast.LENGTH_SHORT).show();
-
                 }
             }
 

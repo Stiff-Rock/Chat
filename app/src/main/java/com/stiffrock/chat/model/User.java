@@ -34,8 +34,8 @@ public class User {
         return chats;
     }
 
-    public void setChats(Set<BaseChat> groupChats) {
-        this.chats = groupChats;
+    public void setChats(Set<BaseChat> chats) {
+        this.chats = chats;
     }
 
     @Override

@@ -60,16 +60,16 @@ public class LauncherActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    startActivity(HomeActivity.class);
                     User user = response.body();
                     CurrentUser.setCurrentUser(user);
                     WebSocketClient.getInstance().connect();
                     Toast.makeText(LauncherActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+                    startActivity(HomeActivity.class);
                 } else {
-                    startActivity(AuthActivity.class);
                     sp.edit().putBoolean("rememberLogIn", false).apply();
                     Log.e(TAG, "Error handling autologin: Server could not authenticate");
                     Toast.makeText(LauncherActivity.this, "No pudimos iniciar sesión, intenta nuevamente", Toast.LENGTH_SHORT).show();
+                    startActivity(AuthActivity.class);
                 }
             }
 

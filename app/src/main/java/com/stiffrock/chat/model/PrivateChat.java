@@ -45,6 +45,6 @@ public class PrivateChat extends BaseChat {
     @Override
     @NonNull
     public String toString() {
-        return "PrivateChat{" + "chatId=" + getChatId() + ", name='" + name + '\'' + '}';
+        return "PrivateChat{" + "chatId=" + getId() + ", name='" + name + '\'' + '}';
     }
 }

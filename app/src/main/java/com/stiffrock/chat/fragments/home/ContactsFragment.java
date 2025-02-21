@@ -14,6 +14,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.stiffrock.chat.ChatActivity;
 import com.stiffrock.chat.HomeActivity;
 import com.stiffrock.chat.R;
@@ -22,7 +24,6 @@ import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemChatCard;
 import com.stiffrock.chat.model.BaseChat;
 import com.stiffrock.chat.model.CurrentUser;
-import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.network.WebSocketClient;
@@ -55,9 +56,8 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        //TODO: ITEMS WHERE STACKING UP
+        Log.e(TAG, "LOADED");
         chats = new ArrayList<>();
-
         apiGetChatList();
 
         return view;
@@ -70,6 +70,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
             public void onResponse(@NonNull Call<List<BaseChat>> call, @NonNull Response<List<BaseChat>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     for (BaseChat chat : response.body()) {
+                        Log.e(TAG, chat.getId().toString());
                         chats.add(new ItemChatCard(chat));
                     }
                 } else {
@@ -129,18 +130,18 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
 
     private void apiDeleteChat(Long chatId) {
         //TODO
+        Log.w(TAG, "IMPLEMENT DELETING CHATS: " + chatId);
     }
 
     //TODO: CREATOR RECIEVES AGAIN THE CHAT
     @Override
     public void onNotificationReceived(String notification) {
-        //TODO: LOOK FOR ANOTHER WAY TO DO THIS
-        String[] query = notification.split(":");
-        String action = query[0];
-        Long chatId = Long.valueOf(query[1]);
+        JsonObject json = JsonParser.parseString(notification).getAsJsonObject();
+        String action = json.get("action").getAsString();
+        Long chatId = json.get("chatId").getAsLong();
         if (action.equals("ADD")) {
             apiGetChat(chatId);
-        } else {
+        } else if (action.equals("DELETE")) {
             apiDeleteChat(chatId);
         }
     }

@@ -1,4 +1,4 @@
-package com.stiffrock.chat.fragments.main;
+package com.stiffrock.chat.fragments.auth;
 
 import static com.stiffrock.chat.utils.LogTag.TAG;
 

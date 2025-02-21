@@ -1,6 +1,7 @@
 package com.stiffrock.chat.model;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class Message {
     private Long id;
@@ -57,6 +58,19 @@ public class Message {
 
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Message message = (Message) o;
+        return Objects.equals(id, message.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     @Override

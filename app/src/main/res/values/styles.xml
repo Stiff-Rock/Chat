@@ -39,6 +39,8 @@
 
     <!-- Customized Button Style -->
     <style name="Widget.Chat.Button" parent="Widget.MaterialComponents.Button">
+        <item name="android:padding">5dp</item>
+        <item name="android:textSize">12sp</item>
         <item name="backgroundTint">@color/md_theme_dark_accent</item>
         <item name="cornerRadius">8dp</item>
         <item name="android:textColor">@color/md_theme_dark_onSecondary</item>

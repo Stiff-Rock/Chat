@@ -24,6 +24,6 @@ public class GroupChat extends BaseChat {
 
     @Override
     public String toString() {
-        return "GroupChat{" + "chatId=" + getChatId() + ", name='" + name + '\'' + '}';
+        return "GroupChat{" + "chatId=" + getId() + ", name='" + name + '\'' + '}';
     }
 }

@@ -1,22 +1,23 @@
 package com.stiffrock.chat.model;
 
+import java.util.List;
 import java.util.Set;
 
 public abstract class BaseChat {
-    private long chatId;
-
+    private Long id;
     private Set<User> participants;
+    private List<Message> messages;
 
     public BaseChat() {
     }
 
     // Getters y setters comunes
-    public long getChatId() {
-        return chatId;
+    public Long getId() {
+        return id;
     }
 
-    public void setChatId(long chatId) {
-        this.chatId = chatId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Set<User> getParticipants() {
@@ -25,5 +26,13 @@ public abstract class BaseChat {
 
     public void setParticipants(Set<User> participants) {
         this.participants = participants;
+    }
+
+    public List<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
     }
 }

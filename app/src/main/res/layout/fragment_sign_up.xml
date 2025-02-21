@@ -3,7 +3,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".fragments.main.SignUpFragment"
+        tools:context=".fragments.auth.SignUpFragment"
         android:gravity="center"
         android:orientation="vertical"
         android:padding="50dp">
@@ -71,7 +71,6 @@
 
         <TextView
                 android:layout_marginStart="10sp"
-                android:focusable="true"
                 android:text="@string/iniciar_sesi_n"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -80,6 +79,7 @@
                 android:textSize="16sp"
                 android:textColor="@color/md_theme_dark_accent"
                 android:textAllCaps="false"
+                android:focusable="true"
                 android:clickable="true"
                 android:textStyle="bold"
                 tools:ignore="TouchTargetSizeCheck" />
