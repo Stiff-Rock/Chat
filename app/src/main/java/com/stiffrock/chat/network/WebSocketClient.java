@@ -8,6 +8,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.utils.WebSocketNotificationListener;
@@ -74,6 +76,14 @@ public class WebSocketClient {
     public void disconnect() {
         if (webSocket != null) {
             webSocket.close(1000, "Cierre normal");
+        }
+    }
+
+    public void sendMessage(String message) {
+        if (webSocket != null) {
+            webSocket.send(message);
+        } else {
+            Log.e(TAG, "WebSocket no está conectado.");
         }
     }
 

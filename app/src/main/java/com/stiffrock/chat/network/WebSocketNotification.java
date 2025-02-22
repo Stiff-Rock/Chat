@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.stiffrock.chat.model.BaseChat;
 import com.stiffrock.chat.model.Message;
+import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.model.WebSocketAction;
 import com.stiffrock.chat.utils.GsonManager;
 
@@ -52,24 +53,23 @@ public class WebSocketNotification {
                 case MESSAGE_DELETED:
                     // Handle MESSAGE_DELETED logic here
                     break;
+                    
+                case USER_CONNECTED:
+                case USER_DISCONNECTED:
+                    content = GsonManager.gson.fromJson(json.get("content").getAsString(), User.class);
+                    break;
 
-                case USER_DISCONNECTED_FROM_GROUP:
+                case USER_DISCONNECTED_FROM_GROUP_CHAT:
                     // Handle USER_DISCONNECTED_FROM_GROUP logic here
                     break;
 
-                case USER_DISCONNECTED_FROM_APP:
-                    // Handle USER_DISCONNECTED_FROM_APP logic here
-                    break;
 
-                case USER_LEFT_GROUP:
+                case USER_LEFT_GROUP_CHAT:
                     // Handle USER_LEFT_GROUP logic here
                     break;
 
-                case USER_JOINED_GROUP:
+                case USER_JOINED_GROUP_CHAT:
                     // Handle USER_JOINED_GROUP logic here
-                    break;
-
-                case ERROR:
                     break;
 
                 default:

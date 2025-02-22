@@ -90,10 +90,14 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             view.parentLayout.setOnClickListener(e -> listener.onItemClick(item));
 
             BaseChat chat = item.getChat();
-            if (chat instanceof GroupChat)
+            if (chat instanceof GroupChat) {
                 view.ivChatPhoto.setImageResource(R.drawable.default_group);
-            else if (chat instanceof PrivateChat)
+                view.ivOnlineStatus.setVisibility(View.GONE);
+            } else if (chat instanceof PrivateChat) {
                 view.ivChatPhoto.setImageResource(R.drawable.default_user);
+                int imgSrc = item.isOnline() ? R.drawable.connected_icon : R.drawable.disconnected_icon;
+                view.ivOnlineStatus.setImageResource(imgSrc);
+            }
 
             view.tvChatName.setText(item.getChatName());
         } else {
@@ -140,12 +144,14 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public static class ViewHolderChatCard extends RecyclerView.ViewHolder {
         private final LinearLayout parentLayout;
         private final ImageView ivChatPhoto;
+        private final ImageView ivOnlineStatus;
         private final TextView tvChatName;
 
         public ViewHolderChatCard(@NonNull View itemView) {
             super(itemView);
             parentLayout = itemView.findViewById(R.id.parentLayout);
             ivChatPhoto = itemView.findViewById(R.id.ivChatPhoto);
+            ivOnlineStatus = itemView.findViewById(R.id.ivOnlineStatus);
             tvChatName = itemView.findViewById(R.id.tvChatName);
         }
     }

@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.JsonObject;
 import com.stiffrock.chat.ChatActivity;
 import com.stiffrock.chat.HomeActivity;
 import com.stiffrock.chat.R;
@@ -25,15 +26,20 @@ import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.model.PrivateChat;
+import com.stiffrock.chat.model.User;
+import com.stiffrock.chat.model.WebSocketAction;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.network.WebSocketClient;
 import com.stiffrock.chat.network.WebSocketNotification;
+import com.stiffrock.chat.utils.GsonManager;
 import com.stiffrock.chat.utils.OnItemClickListener;
 import com.stiffrock.chat.utils.WebSocketNotificationListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -45,6 +51,9 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     private RecyclerView recyclerView;
     private MyAdapter adapter;
     private List<Item> chats;
+    private Map<User, ItemChatCard> userChatMap;
+
+    private WebSocketClient wsClient;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -55,6 +64,8 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
+        wsClient = WebSocketClient.getInstance();
+
         return view;
     }
 
@@ -62,20 +73,36 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     public void onResume() {
         super.onResume();
         CurrentUser.setCurrentChat(null);
-        WebSocketClient.getInstance().setOnNotificationReceivedListener(this);
+        wsClient.setOnNotificationReceivedListener(this);
         apiGetChatList();
     }
 
     private void apiGetChatList() {
         chats = new ArrayList<>();
+        userChatMap = new HashMap<>();
         Call<List<BaseChat>> call = apiService.getUserChats(CurrentUser.getCurrentUser().getId());
         call.enqueue(new Callback<List<BaseChat>>() {
             @Override
             public void onResponse(@NonNull Call<List<BaseChat>> call, @NonNull Response<List<BaseChat>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     for (BaseChat chat : response.body()) {
-                        chats.add(new ItemChatCard(chat));
+                        ItemChatCard icc = new ItemChatCard(chat);
+                        chats.add(icc);
+                        if (chat instanceof PrivateChat) {
+                            User contact = null;
+                            for (User user : chat.getParticipants()) {
+                                if (!user.equals(CurrentUser.getCurrentUser())) contact = user;
+                            }
+
+                            if (contact == null) {
+                                Log.d(TAG, "No other users found in chat: " + chat);
+                                continue;
+                            }
+
+                            userChatMap.put(contact, icc);
+                        }
                     }
+                    wsGetContactsStatus();
                 } else {
                     Toast.makeText(requireContext(), "No se han encontrado contactos", Toast.LENGTH_SHORT).show();
                 }
@@ -93,6 +120,14 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
                 recyclerView.setAdapter(adapter);
             }
         });
+    }
+
+    private void wsGetContactsStatus() {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("action", WebSocketAction.GET_CONTACTS_ONLINE_STATUS.name());
+        String currentUserJson = GsonManager.gson.toJson(CurrentUser.getCurrentUser());
+        jsonObject.add("content", GsonManager.gson.fromJson(currentUserJson, JsonObject.class));
+        wsClient.sendMessage(jsonObject.toString());
     }
 
     public void addContact(BaseChat chat) {
@@ -131,7 +166,17 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         return usernames[0].equals(currentUsrName) ? usernames[1] : usernames[0];
     }
 
-    //TODO: CREATOR RECIEVES AGAIN THE CHAT
+    private void updateContactOnlineStatus(boolean isOnline, User user) {
+        ItemChatCard icc = userChatMap.get(user);
+        if (icc == null) {
+            Log.e(TAG, "Could not retireve contact ChatCard");
+            return;
+        }
+        icc.setOnline(isOnline);
+        int index = chats.indexOf(icc);
+        adapter.notifyItemChanged(index);
+    }
+
     @Override
     public void onNotificationReceived(String notification) {
         WebSocketNotification wsn = WebSocketNotification.parse(notification);
@@ -147,6 +192,14 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
             case DELETE_CONTACT:
                 BaseChat deleteChat = (BaseChat) wsn.getContent();
                 deleteChat(deleteChat);
+                break;
+            case USER_CONNECTED:
+                User userConnected = (User) wsn.getContent();
+                updateContactOnlineStatus(true, userConnected);
+                break;
+            case USER_DISCONNECTED:
+                User userDisconnected = (User) wsn.getContent();
+                updateContactOnlineStatus(false, userDisconnected);
                 break;
             default:
                 break;

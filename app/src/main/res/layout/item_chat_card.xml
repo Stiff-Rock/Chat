@@ -22,7 +22,8 @@
                 android:contentDescription="@string/indicador_de_estado_de_usuario"
                 android:layout_gravity="bottom|end"
                 android:layout_marginEnd="-3dp"
-                android:elevation="3dp" />
+                android:elevation="3dp"
+                android:id="@+id/ivOnlineStatus"/>
 
         <androidx.cardview.widget.CardView
                 android:layout_width="60dp"

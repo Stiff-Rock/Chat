@@ -19,8 +19,6 @@
                 android:id="@+id/sender"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:text="Yago Pernas"
-
                 android:textColor="@color/black" />
 
         <TextView
@@ -29,7 +27,6 @@
                 android:id="@+id/textRecieved"
                 android:textSize="14sp"
                 android:maxWidth="250dp"
-                android:text="Esto es el mensaje que te esto enviando pedazo de subrnomal"
                 android:textColor="@color/black" />
     </LinearLayout>
 
@@ -40,8 +37,6 @@
             android:textSize="12sp"
             android:textColor="@color/black"
             android:gravity="end"
-            android:text="22:15"
-
             android:layout_gravity="bottom"
             android:layout_marginStart="10dp" />
 

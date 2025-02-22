@@ -8,6 +8,8 @@ import com.stiffrock.chat.model.PrivateChat;
 public class ItemChatCard extends Item {
     private String chatName;
     private BaseChat chat;
+    //TODO: COMPROBAR AL CREAR A TRAVES DE UN ENDPOINT
+    private boolean isOnline;
 
     public ItemChatCard(BaseChat chat) {
         if (chat instanceof PrivateChat) {
@@ -36,6 +38,14 @@ public class ItemChatCard extends Item {
 
     public void setChat(BaseChat groupChat) {
         this.chat = groupChat;
+    }
+
+    public boolean isOnline() {
+        return isOnline;
+    }
+
+    public void setOnline(boolean online) {
+        isOnline = online;
     }
 
     @Override
