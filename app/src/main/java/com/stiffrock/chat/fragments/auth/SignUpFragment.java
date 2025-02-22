@@ -15,8 +15,8 @@ import androidx.fragment.app.Fragment;
 
 import com.stiffrock.chat.AuthActivity;
 import com.stiffrock.chat.R;
-import com.stiffrock.chat.dto.CredentialsDTO;
 import com.stiffrock.chat.dto.ApiResponse;
+import com.stiffrock.chat.dto.CredentialsDTO;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
 
@@ -52,6 +52,8 @@ public class SignUpFragment extends Fragment {
         if (inputUsername.isBlank() || inputPassword1.isBlank() || inputPassword2.isBlank()) {
             Toast.makeText(requireContext(), "Debes rellenar todos los campos", Toast.LENGTH_SHORT).show();
             return;
+        } else if (inputUsername.length() < 3 || inputUsername.length() > 20) {
+            Toast.makeText(requireContext(), "El usuario debe contener entre 3 y 20 caracteres", Toast.LENGTH_SHORT).show();
         } else if (!inputPassword1.equals(inputPassword2)) {
             Toast.makeText(requireContext(), "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
             return;

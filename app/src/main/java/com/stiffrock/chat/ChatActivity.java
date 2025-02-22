@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.dto.MessageDTO;
 import com.stiffrock.chat.items.Item;
+import com.stiffrock.chat.items.ItemMessageNotification;
 import com.stiffrock.chat.items.ItemMessageRecieved;
 import com.stiffrock.chat.items.ItemMessageSent;
 import com.stiffrock.chat.model.BaseChat;
@@ -48,6 +49,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 //TODO: ORGANISE CONTACTS BY MOST RECENT CHAT in the contacts fragment
+//TODO: LEAVE/JOIN GROUPCHAT AND NOTIF
 public class ChatActivity extends AppCompatActivity implements WebSocketNotificationListener {
     private final List<Item> msgItems = new ArrayList<>();
     private final Set<Message> messages = new HashSet<>();
@@ -97,7 +99,20 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         recyclerView.setAdapter(adapter);
 
         wsClient = WebSocketClient.getInstance();
+
+        if (CurrentUser.getCurrentChat() instanceof GroupChat) {
+            wsClient.connectToGroupChat();
+        }
+
         wsClient.setOnNotificationReceivedListener(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (CurrentUser.getCurrentChat() instanceof GroupChat) {
+            wsClient.disconnectFromGroupChat();
+        }
     }
 
     @Override
@@ -108,7 +123,6 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         }
         return super.onOptionsItemSelected(item);
     }
-
 
     private void getMessageHistory() {
         Long chatId = CurrentUser.getCurrentChat().getId();
@@ -147,6 +161,8 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
             msgItems.add(new ItemMessageSent(sender, text, timestamp));
         } else if (itemType == 2) {
             msgItems.add(new ItemMessageRecieved(sender, text, timestamp));
+        } else if (itemType == 4) {
+            msgItems.add(new ItemMessageNotification(text));
         }
 
         adapter.notifyItemInserted(msgItems.size() - 1);
@@ -180,9 +196,12 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
 
         String sender = msg.getSender().getUsername();
 
-        if (chatId.equals(currentChatId))
-            addTextBubble(2, sender, msg.getMessageContent(), formatDateTime(msg.getTimestamp()));
-        else showNotification(msg);
+        int itemType = 2;
+        if (sender.equals("SYSTEM")) itemType = 4;
+
+        if (chatId.equals(currentChatId)) {
+            addTextBubble(itemType, sender, msg.getMessageContent(), formatDateTime(msg.getTimestamp()));
+        } else showNotification(msg);
     }
 
     //TODO: HANDLE FALIED CONNECTIONS
@@ -229,6 +248,8 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         WebSocketNotification wsn = WebSocketNotification.parse(notification);
         switch (wsn.getAction()) {
             case MESSAGE_RECEIVED:
+            case USER_CONNECTED_TO_GROUP_CHAT:
+            case USER_DISCONNECTED_FROM_GROUP_CHAT:
                 Message msg = (Message) wsn.getContent();
                 recieveMessage(msg);
                 break;

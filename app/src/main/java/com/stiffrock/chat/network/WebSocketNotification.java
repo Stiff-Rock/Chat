@@ -43,6 +43,8 @@ public class WebSocketNotification {
                     break;
 
                 case MESSAGE_RECEIVED:
+                case USER_CONNECTED_TO_GROUP_CHAT:
+                case USER_DISCONNECTED_FROM_GROUP_CHAT:
                     content = GsonManager.gson.fromJson(json.get("content").getAsString(), Message.class);
                     break;
 
@@ -53,16 +55,11 @@ public class WebSocketNotification {
                 case MESSAGE_DELETED:
                     // Handle MESSAGE_DELETED logic here
                     break;
-                    
+
                 case USER_CONNECTED:
                 case USER_DISCONNECTED:
                     content = GsonManager.gson.fromJson(json.get("content").getAsString(), User.class);
                     break;
-
-                case USER_DISCONNECTED_FROM_GROUP_CHAT:
-                    // Handle USER_DISCONNECTED_FROM_GROUP logic here
-                    break;
-
 
                 case USER_LEFT_GROUP_CHAT:
                     // Handle USER_LEFT_GROUP logic here

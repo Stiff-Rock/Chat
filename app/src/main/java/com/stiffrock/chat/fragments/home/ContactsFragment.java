@@ -46,8 +46,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-//TODO: ORGANISE CONTACTS BY MOST RECENT CHAT
 //TODO: STORE MESSAGE HISTORY AND CHATS LOCALLY
+//TODO: LEAVE/JOIN GROUPCHAT AND NOTIF
 public class ContactsFragment extends Fragment implements OnItemClickListener, WebSocketNotificationListener {
     private ApiService apiService;
     private RecyclerView recyclerView;
@@ -161,7 +161,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
 
         ItemChatCard icc = userChatMap.get(msg.getSender());
         int lastIndex = chats.indexOf(icc);
-        
+
         if (lastIndex == 0) return;
 
         boolean isDeleted = chats.remove(icc);

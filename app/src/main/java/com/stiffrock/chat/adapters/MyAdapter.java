@@ -14,6 +14,7 @@ import com.stiffrock.chat.R;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemChatCard;
 import com.stiffrock.chat.items.ItemContactCard;
+import com.stiffrock.chat.items.ItemMessageNotification;
 import com.stiffrock.chat.items.ItemMessageRecieved;
 import com.stiffrock.chat.items.ItemMessageSent;
 import com.stiffrock.chat.model.BaseChat;
@@ -55,9 +56,12 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (viewType == 2) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_card, parent, false);
             return new ViewHolderChatCard(view);
-        } else {
+        } else if (viewType == 3) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_contact_card, parent, false);
             return new ViewHolderContactCard(view);
+        } else {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message_notification, parent, false);
+            return new ViewHolderMessageNotification(view);
         }
     }
 
@@ -100,13 +104,18 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
 
             view.tvChatName.setText(item.getChatName());
-        } else {
+        } else if (holder instanceof ViewHolderContactCard) {
             ViewHolderContactCard view = (ViewHolderContactCard) holder;
             ItemContactCard item = (ItemContactCard) datos.get(position);
 
             view.parentLayout.setOnClickListener(e -> listener.onItemClick(item));
             view.ivContactPhoto.setImageResource(R.drawable.default_user);
             view.tvContactName.setText(item.getName());
+        } else {
+            ViewHolderMessageNotification view = (ViewHolderMessageNotification) holder;
+            ItemMessageNotification item = (ItemMessageNotification) datos.get(position);
+
+            view.textNotification.setText(item.getMessage());
         }
     }
 
@@ -138,6 +147,15 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             sender = itemView.findViewById(R.id.sender);
             textSent = itemView.findViewById(R.id.textSent);
             timeStamp = itemView.findViewById(R.id.timeStamp);
+        }
+    }
+
+    public static class ViewHolderMessageNotification extends RecyclerView.ViewHolder {
+        private final TextView textNotification;
+
+        public ViewHolderMessageNotification(@NonNull View itemView) {
+            super(itemView);
+            textNotification = itemView.findViewById(R.id.textNotification);
         }
     }
 

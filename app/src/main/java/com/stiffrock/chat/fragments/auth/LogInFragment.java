@@ -73,8 +73,6 @@ public class LogInFragment extends Fragment {
                     User user = response.body();
                     CurrentUser.setCurrentUser(user);
 
-                    WebSocketClient.getInstance().connect();
-
                     Log.d(TAG, "Login successful");
                     Toast.makeText(requireContext(), "Inicio de sesión correcto", Toast.LENGTH_SHORT).show();
 

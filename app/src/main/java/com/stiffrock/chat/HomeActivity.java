@@ -47,6 +47,8 @@ public class HomeActivity extends FragmentContainerActivity {
     private ApiService apiService;
     public Toolbar toolbar;
 
+    private WebSocketClient wsClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +59,7 @@ public class HomeActivity extends FragmentContainerActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        wsClient = WebSocketClient.getInstance();
 
         apiService = RetrofitClient.getApiService();
 
@@ -65,6 +68,18 @@ public class HomeActivity extends FragmentContainerActivity {
         setSupportActionBar(toolbar);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        wsClient.connect();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        wsClient.disconnect();
+    }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.home_menu, menu);

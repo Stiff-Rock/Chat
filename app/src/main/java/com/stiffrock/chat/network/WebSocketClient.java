@@ -8,8 +8,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.utils.WebSocketNotificationListener;
@@ -19,7 +17,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
-import okio.ByteString;
 
 public class WebSocketClient {
     private static WebSocketClient instance;
@@ -35,8 +32,8 @@ public class WebSocketClient {
         if (user != null) {
             String username = user.getUsername();
             String usernameQueryParameter = "?username=" + username;
-            APP_WEB_SOCKET_URL = "ws://" + ServerConfig.SOCKET_ADDR + "/chat" + usernameQueryParameter;
-            GROUP_CHAT_WEB_SOCKET_URL = "ws://" + ServerConfig.SOCKET_ADDR + "/chat/group/{groupId}";
+            APP_WEB_SOCKET_URL = "ws://" + ServerConfig.SOCKET_ADDR + "/app" + usernameQueryParameter;
+            GROUP_CHAT_WEB_SOCKET_URL = "ws://" + ServerConfig.SOCKET_ADDR + "/chat/group/{groupId}" + usernameQueryParameter;
             client = new OkHttpClient();
         } else {
             Log.e(TAG, "Error creating WebSocketClient: Current user is null");
@@ -53,17 +50,11 @@ public class WebSocketClient {
         Request request = new Request.Builder().url(APP_WEB_SOCKET_URL).build();
 
         webSocket = client.newWebSocket(request, new WebSocketListener() {
-
             @Override
             public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
                 if (listener != null) {
                     new Handler(Looper.getMainLooper()).post(() -> listener.onNotificationReceived(text));
                 }
-            }
-
-            @Override
-            public void onMessage(@NonNull WebSocket webSocket, @NonNull ByteString bytes) {
-                Log.d(TAG, "Mensaje binario recibido: " + bytes.hex());
             }
 
             @Override
@@ -74,6 +65,31 @@ public class WebSocketClient {
     }
 
     public void disconnect() {
+        if (webSocket != null) {
+            webSocket.close(1000, "Cierre normal");
+        }
+    }
+
+    public void connectToGroupChat() {
+        Long groupId = CurrentUser.getCurrentChat().getId();
+        String url = GROUP_CHAT_WEB_SOCKET_URL.replace("{groupId}", String.valueOf(groupId));
+        Request request = new Request.Builder().url(url).build();
+        webSocket = client.newWebSocket(request, new WebSocketListener() {
+            @Override
+            public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
+                if (listener != null) {
+                    new Handler(Looper.getMainLooper()).post(() -> listener.onNotificationReceived(text));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t, Response response) {
+                Log.d(TAG, "Error en GorupChatWebSocket: " + t.getMessage());
+            }
+        });
+    }
+
+    public void disconnectFromGroupChat() {
         if (webSocket != null) {
             webSocket.close(1000, "Cierre normal");
         }

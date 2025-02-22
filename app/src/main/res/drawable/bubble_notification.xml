@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/message_recieved_bubble_color" />
+    <solid android:color="@color/standard_text_color_tertiary" />
     <corners android:radius="16dp" />
     <padding
             android:left="12dp"

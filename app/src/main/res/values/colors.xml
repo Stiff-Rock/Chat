@@ -32,6 +32,9 @@
     <color name="standard_text_color_tertiary">#808080</color>
     <color name="standard_text_color_hint">#4D4D4D</color>
 
+    <color name="message_recieved_bubble_color">#F28B90</color>
+    <color name="message_sentbubble_color">#FFF2C2</color>
+
     <!-- Basic Black & White -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
