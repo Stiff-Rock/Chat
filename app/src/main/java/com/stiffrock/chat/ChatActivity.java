@@ -47,6 +47,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+//TODO: ORGANISE CONTACTS BY MOST RECENT CHAT in the contacts fragment
 public class ChatActivity extends AppCompatActivity implements WebSocketNotificationListener {
     private final List<Item> msgItems = new ArrayList<>();
     private final Set<Message> messages = new HashSet<>();
@@ -57,6 +58,8 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
     private MyAdapter adapter;
 
     private ApiService apiService;
+
+    private WebSocketClient wsClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +96,8 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
 
         recyclerView.setAdapter(adapter);
 
-        WebSocketClient.getInstance().setOnNotificationReceivedListener(this);
+        wsClient = WebSocketClient.getInstance();
+        wsClient.setOnNotificationReceivedListener(this);
     }
 
     @Override

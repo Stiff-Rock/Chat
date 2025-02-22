@@ -46,6 +46,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
+//TODO: ORGANISE CONTACTS BY MOST RECENT CHAT
+//TODO: STORE MESSAGE HISTORY AND CHATS LOCALLY
 public class ContactsFragment extends Fragment implements OnItemClickListener, WebSocketNotificationListener {
     private ApiService apiService;
     private RecyclerView recyclerView;
@@ -152,9 +154,23 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         Log.w(TAG, "IMPLEMENT DELETING CHATS: " + chat);
     }
 
+    //TODO: MAKE UNREAD MESSAGES BUBBLE
     private void showNotification(Message msg) {
         BaseChat chat = msg.getChat();
         Toast.makeText(requireContext(), "Mensaje recibido de " + getChatName(chat), Toast.LENGTH_SHORT).show();
+
+        ItemChatCard icc = userChatMap.get(msg.getSender());
+        int lastIndex = chats.indexOf(icc);
+        
+        if (lastIndex == 0) return;
+
+        boolean isDeleted = chats.remove(icc);
+        if (!isDeleted) {
+            Log.e(TAG, "Could not delete chatCard for user <" + msg.getSender().getUsername() + ">");
+            return;
+        }
+        chats.add(0, icc);
+        adapter.notifyItemMoved(lastIndex, 0);
     }
 
     private String getChatName(BaseChat chat) {
