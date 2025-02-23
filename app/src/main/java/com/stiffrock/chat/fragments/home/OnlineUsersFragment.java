@@ -76,12 +76,15 @@ public class OnlineUsersFragment extends Fragment implements OnItemClickListener
                     users = response.body();
                     for (User usr : users) {
                         if (!usr.equals(CurrentUser.getCurrentUser()))
-                            contactCards.add(new ItemContactCard(usr));
+                            contactCards.add(new ItemContactCard(usr, true, false));
                     }
                     adapter = new MyAdapter(contactCards, OnlineUsersFragment.this);
                     recyclerView.setAdapter(adapter);
                     recyclerView.setVisibility(View.VISIBLE);
                     loadingScreen.setVisibility(View.GONE);
+                    if(contactCards.isEmpty()) {
+                        Toast.makeText(requireContext(), "No hay usuarios en línea actualmente", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     loadingScreen.setVisibility(View.GONE);
                     Log.e(TAG, "Error while getting online users list");

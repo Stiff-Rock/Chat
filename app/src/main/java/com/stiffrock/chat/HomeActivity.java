@@ -39,6 +39,8 @@ import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.network.WebSocketClient;
 import com.stiffrock.chat.utils.FragmentContainerActivity;
 
+import java.util.ArrayList;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -65,21 +67,24 @@ public class HomeActivity extends FragmentContainerActivity {
 
         toolbar = findViewById(R.id.toolbar);
 
+        wsClient.connect();
+
         setSupportActionBar(toolbar);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        wsClient.connect();
+        //TODO REVISAR SI ES NECESARIO PONER AQUI         wsClient.connect();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        wsClient.disconnect();
+        //TODO REVISAR ESTO
+        if (isFinishing()) wsClient.disconnect();
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.home_menu, menu);
@@ -93,7 +98,11 @@ public class HomeActivity extends FragmentContainerActivity {
             return true;
         } else if (item.getItemId() == R.id.addGroup) {
             toggleHomeButton(true);
-            replaceFragment(new AddGroupFragment());
+            Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
+            if (currentFragment instanceof ContactsFragment) {
+                ContactsFragment cf = (ContactsFragment) currentFragment;
+                replaceFragment(new AddGroupFragment(new ArrayList<>(cf.userChatMap.keySet())));
+            }
             return true;
         } else if (item.getItemId() == R.id.showOnlineUsers) {
             toggleHomeButton(true);
@@ -195,7 +204,17 @@ public class HomeActivity extends FragmentContainerActivity {
                     Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
                     if (currentFragment instanceof ContactsFragment) {
                         ContactsFragment cf = (ContactsFragment) currentFragment;
-                        cf.addContact(chat);
+                        User recipient = null;
+                        for (User user : chat.getParticipants()) {
+                            if (!user.equals(CurrentUser.getCurrentUser())) recipient = user;
+                        }
+
+                        if (recipient == null) {
+                            Log.wtf(TAG, "Error: could not find the other participant of private chat");
+                            return;
+                        }
+
+                        cf.addContact(chat, recipient);
                     } else {
                         toggleHomeButton(false);
                         replaceFragment(new ContactsFragment());

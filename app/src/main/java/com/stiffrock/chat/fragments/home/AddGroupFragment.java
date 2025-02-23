@@ -26,7 +26,7 @@ import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
-import com.stiffrock.chat.network.WebSocketClient;
+import com.stiffrock.chat.utils.OnItemClickListener;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -37,14 +37,20 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AddGroupFragment extends Fragment {
-    private EditText etGroupName, etUser;
+public class AddGroupFragment extends Fragment implements OnItemClickListener {
+    private EditText etGroupName;
 
     private MyAdapter adapter;
+
     private List<Item> contactCardItems;
     private Set<Long> participants;
+    private final List<User> contacts;
 
     private ApiService apiService;
+
+    public AddGroupFragment(List<User> contacts) {
+        this.contacts = contacts;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -57,58 +63,19 @@ public class AddGroupFragment extends Fragment {
         participants = new HashSet<>();
         participants.add(CurrentUser.getCurrentUser().getId());
 
-        adapter = new MyAdapter(contactCardItems);
-        recyclerView.setAdapter(adapter);
-
         etGroupName = view.findViewById(R.id.etGroupName);
-        etUser = view.findViewById(R.id.etUser);
-        view.findViewById(R.id.btnAddUser).setOnClickListener(v -> addParticipant());
         view.findViewById(R.id.btnCreateGroup).setOnClickListener(v -> createGroup());
 
         apiService = RetrofitClient.getApiService();
 
+        for (User user : contacts) {
+            contactCardItems.add(new ItemContactCard(user, false, false));
+        }
+
+        adapter = new MyAdapter(contactCardItems, this);
+        recyclerView.setAdapter(adapter);
+
         return view;
-    }
-
-    private void addParticipant() {
-        String name = etUser.getText().toString().trim();
-
-        if (name.isBlank()) {
-            Toast.makeText(requireContext(), "Introduce un nombre de usuario", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (name.equals(CurrentUser.getCurrentUser().getUsername())) {
-            Toast.makeText(requireContext(), "No hace falta introducir tu propio usuario", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Comprueba si el usuario introducido existe en la base de datos
-        Call<User> call = apiService.getUserByUsername(name);
-        call.enqueue(new Callback<User>() {
-            @Override
-            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Long userId = response.body().getId();
-                    if (!participants.contains(userId)) {
-                        contactCardItems.add(new ItemContactCard(name));
-                        participants.add(userId);
-                        adapter.notifyItemInserted(contactCardItems.size() - 1);
-                        etUser.setText("");
-                    } else {
-                        Toast.makeText(requireContext(), "Usuario ya presente en el grupo", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(requireContext(), "El usuario introducido no existe", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
-                Log.e(TAG, "GetUserByUsername request failed: " + t.getMessage());
-                Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private void createGroup() {
@@ -144,5 +111,21 @@ public class AddGroupFragment extends Fragment {
                 Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onItemClick(Item item) {
+        ItemContactCard icc = (ItemContactCard) item;
+        String username = icc.getUser().getUsername();
+        Long userId = icc.getUser().getId();
+        if (participants.contains(userId)) {
+            participants.remove(userId);
+            icc.setSelected(false);
+        } else {
+            participants.add(userId);
+            icc.setSelected(true);
+        }
+        int index = contactCardItems.indexOf(item);
+        adapter.notifyItemChanged(index);
     }
 }

@@ -50,6 +50,7 @@ import retrofit2.Response;
 
 //TODO: ORGANISE CONTACTS BY MOST RECENT CHAT in the contacts fragment
 //TODO: LEAVE/JOIN GROUPCHAT AND NOTIF
+//TODO PONER UN SCROLLVIEW PAR ACUYANOD SE HABRE EL TECLADO
 public class ChatActivity extends AppCompatActivity implements WebSocketNotificationListener {
     private final List<Item> msgItems = new ArrayList<>();
     private final Set<Message> messages = new HashSet<>();

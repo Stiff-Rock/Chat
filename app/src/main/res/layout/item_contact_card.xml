@@ -7,8 +7,6 @@
         android:gravity="center"
         android:padding="10dp"
         android:id="@+id/parentLayout"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
         android:clipChildren="false">
 
     <FrameLayout
@@ -21,6 +19,7 @@
                 android:layout_height="24dp"
                 android:contentDescription="@string/indicador_de_estado_de_usuario"
                 android:src="@drawable/connected_icon"
+                android:id="@+id/ivUserStatus"
                 android:layout_gravity="bottom|end"
                 android:layout_marginEnd="-3dp"
                 android:elevation="3dp" />
@@ -50,4 +49,13 @@
             android:padding="10dp"
             android:gravity="center_vertical"
             android:layout_weight="1" />
+
+    <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:contentDescription="@string/n_mero_de_mensajes_nuevos"
+            android:src="@drawable/bubble_item_selected"
+            android:visibility="gone"
+            android:id="@+id/ivSelected"
+            android:layout_weight="0" />
 </LinearLayout>

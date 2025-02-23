@@ -6,7 +6,8 @@
         tools:context=".fragments.home.AddGroupFragment"
         android:orientation="vertical"
         android:gravity="center_horizontal"
-        android:padding="50dp">
+        android:padding="50dp"
+        android:descendantFocusability="blocksDescendants">
 
     <TextView
             android:layout_width="wrap_content"
@@ -34,32 +35,6 @@
             android:id="@+id/etGroupName"
             android:textColorHint="#546E7A"
             android:layout_marginBottom="30dp" />
-
-    <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_horizontal"
-            android:layout_marginBottom="30dp">
-
-        <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="60dp"
-                android:autofillHints=""
-                android:inputType="text"
-                android:hint="@string/elegir_usuario"
-                android:id="@+id/etUser"
-                android:textColorHint="#546E7A"
-                android:layout_marginEnd="20dp"
-                android:layout_weight="1" />
-
-        <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/a_adir"
-                android:id="@+id/btnAddUser"
-                android:layout_weight="0" />
-    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"

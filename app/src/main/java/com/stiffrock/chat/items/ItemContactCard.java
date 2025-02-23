@@ -5,14 +5,14 @@ import com.stiffrock.chat.model.User;
 public class ItemContactCard extends Item {
     private String name;
     private User user;
+    private boolean showOnlineStatus;
+    private boolean isSelected;
 
-    public ItemContactCard(String name) {
-        this.name = name;
-    }
-
-    public ItemContactCard(User user) {
+    public ItemContactCard(User user, boolean showOnlineStatus, boolean isSelected) {
         this.name = user.getUsername();
         this.user = user;
+        this.showOnlineStatus = showOnlineStatus;
+        this.isSelected = isSelected;
     }
 
     public String getName() {
@@ -29,6 +29,22 @@ public class ItemContactCard extends Item {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public boolean showOnlineStatus() {
+        return showOnlineStatus;
+    }
+
+    public void setShowOnlineStatus(boolean showOnlineStatus) {
+        this.showOnlineStatus = showOnlineStatus;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
     }
 
     @Override

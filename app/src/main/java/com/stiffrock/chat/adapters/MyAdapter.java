@@ -1,5 +1,6 @@
 package com.stiffrock.chat.adapters;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -98,6 +99,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 view.ivChatPhoto.setImageResource(R.drawable.default_group);
                 view.ivOnlineStatus.setVisibility(View.GONE);
             } else if (chat instanceof PrivateChat) {
+                //TODO PFPs
                 view.ivChatPhoto.setImageResource(R.drawable.default_user);
                 int imgSrc = item.isOnline() ? R.drawable.connected_icon : R.drawable.disconnected_icon;
                 view.ivOnlineStatus.setImageResource(imgSrc);
@@ -109,6 +111,18 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ItemContactCard item = (ItemContactCard) datos.get(position);
 
             view.parentLayout.setOnClickListener(e -> listener.onItemClick(item));
+
+            if (!item.showOnlineStatus()) view.ivUserStatus.setVisibility(View.GONE);
+
+            if (item.isSelected()) {
+                view.ivSelected.setVisibility(View.VISIBLE);
+                view.parentLayout.setBackgroundColor(Color.parseColor("#1E1E2E"));
+            } else {
+                view.ivSelected.setVisibility(View.GONE);
+                view.parentLayout.setBackgroundColor(Color.TRANSPARENT);
+            }
+
+            //TODO PFPs
             view.ivContactPhoto.setImageResource(R.drawable.default_user);
             view.tvContactName.setText(item.getName());
         } else {
@@ -177,12 +191,16 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public static class ViewHolderContactCard extends RecyclerView.ViewHolder {
         private final LinearLayout parentLayout;
         private final ImageView ivContactPhoto;
+        private final ImageView ivUserStatus;
+        private final ImageView ivSelected;
         private final TextView tvContactName;
 
         public ViewHolderContactCard(@NonNull View itemView) {
             super(itemView);
             parentLayout = itemView.findViewById(R.id.parentLayout);
             ivContactPhoto = itemView.findViewById(R.id.ivContactPhoto);
+            ivUserStatus = itemView.findViewById(R.id.ivUserStatus);
+            ivSelected = itemView.findViewById(R.id.ivSelected);
             tvContactName = itemView.findViewById(R.id.tvContactName);
         }
     }

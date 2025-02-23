@@ -1,0 +1,15 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <size
+                    android:width="24dp"
+                    android:height="24dp" />
+            <solid android:color="@color/md_theme_dark_button" />
+        </shape>
+    </item>
+
+    <item
+            android:drawable="@drawable/ic_tick"
+            android:width="24dp"
+            android:gravity="center" />
+</layer-list>

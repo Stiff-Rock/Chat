@@ -53,10 +53,11 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     private RecyclerView recyclerView;
     private MyAdapter adapter;
     private List<Item> chats;
-    private Map<User, ItemChatCard> userChatMap;
+    public Map<User, ItemChatCard> userChatMap;
 
     private WebSocketClient wsClient;
 
+    //TODO: si te deslogeas y te logeas como otro suario el anterior se queda conectado al websocket
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
@@ -79,6 +80,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         apiGetChatList();
     }
 
+    //TODO: ACTUALIZAR SOLO LOS QUE NO ESTEN??
     private void apiGetChatList() {
         chats = new ArrayList<>();
         userChatMap = new HashMap<>();
@@ -132,8 +134,10 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         wsClient.sendMessage(jsonObject.toString());
     }
 
-    public void addContact(BaseChat chat) {
-        chats.add(new ItemChatCard(chat));
+    public void addContact(BaseChat chat, User user) {
+        ItemChatCard icc = new ItemChatCard(chat);
+        chats.add(icc);
+        userChatMap.put(user, icc);
         adapter.notifyItemInserted(chats.size() - 1);
     }
 
