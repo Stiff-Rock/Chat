@@ -1,5 +1,9 @@
 package com.stiffrock.chat.model;
 
+import static com.stiffrock.chat.utils.LogTag.TAG;
+
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
@@ -40,6 +44,21 @@ public class PrivateChat extends BaseChat {
 
     public String getName() {
         return name;
+    }
+
+    // Método para obetener al usuario del set que no es el actual
+    public User getContact(User currentUser) {
+        User contact = null;
+        for (User user : getParticipants()) {
+            if (!user.equals(currentUser)) contact = user;
+        }
+
+        if (contact == null) {
+            Log.wtf(TAG, "Error: could not find the other participant of private chat");
+            return null;
+        }
+
+        return contact;
     }
 
     @Override

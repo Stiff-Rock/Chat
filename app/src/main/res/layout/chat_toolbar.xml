@@ -8,24 +8,27 @@
         android:minHeight="?attr/actionBarSize"
         android:id="@+id/toolbar"
         android:layout_weight="0"
+        android:elevation="5dp"
         android:descendantFocusability="blocksDescendants">
 
-    <LinearLayout
+    <ImageView
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/left_arrow"
+            android:layout_marginEnd="15dp"
+            android:id="@+id/btnHome" />
+
+    <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:contentDescription="@string/backtohomescreenbutton"
-            android:gravity="center"
-            android:clipChildren="false">
-
-        <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/left_arrow"
-                android:layout_marginEnd="15dp"
-                android:id="@+id/btnHome"/>
+            android:gravity="start"
+            android:clipChildren="false"
+            android:id="@+id/contactContainter"
+            android:foreground="?attr/selectableItemBackgroundBorderless">
 
         <FrameLayout
                 android:layout_width="48dp"
@@ -45,9 +48,7 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     app:cardCornerRadius="24dp"
-                    android:id="@+id/contactContainter"
                     app:cardBackgroundColor="@color/md_theme_dark_surface"
-                    android:foreground="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:focusable="true">
 

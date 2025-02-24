@@ -31,6 +31,9 @@ public interface ApiService {
     @GET("messages/history/{chatId}")
     Call<List<Message>> getMessageHistory(@Path("chatId") Long chatId);
 
+    @GET("messages/private/{userId}")
+    Call<List<Message>> getUserMessages(@Path("userId") Long userId); //TODO
+
     // Endpoint de usuarios
     @POST("users/register")
     Call<ApiResponse> registerUser(@Body CredentialsDTO credentials);

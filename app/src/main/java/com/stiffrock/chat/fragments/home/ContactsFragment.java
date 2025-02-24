@@ -93,17 +93,9 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
                         ItemChatCard icc = new ItemChatCard(chat);
                         chats.add(icc);
                         if (chat instanceof PrivateChat) {
-                            User contact = null;
-                            for (User user : chat.getParticipants()) {
-                                if (!user.equals(CurrentUser.getCurrentUser())) contact = user;
-                            }
-
-                            if (contact == null) {
-                                Log.d(TAG, "No other users found in chat: " + chat);
-                                continue;
-                            }
-
+                            User contact = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser());
                             userChatMap.put(contact, icc);
+                            CurrentUser.getContacts().add((PrivateChat) chat);
                         }
                     }
                     wsGetContactsStatus();

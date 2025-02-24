@@ -14,6 +14,7 @@
 
     <!-- Background and Surface Colors -->
     <color name="md_theme_dark_background">#1A1B26</color>
+    <color name="md_theme_darker_background">#0F101A</color>
     <color name="md_theme_dark_onBackground">#F8F8F2</color>
     <color name="md_theme_dark_surface">#222436</color>
     <color name="md_theme_dark_onSurface">#A9B1D6</color>

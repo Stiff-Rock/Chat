@@ -5,28 +5,31 @@ import static com.stiffrock.chat.utils.LogTag.TAG;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.JsonObject;
 import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.dto.MessageDTO;
+import com.stiffrock.chat.fragments.chat.ChatMessagesFragment;
+import com.stiffrock.chat.fragments.chat.GroupChatInfoFragment;
+import com.stiffrock.chat.fragments.chat.UserInfoFragment;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemMessageNotification;
 import com.stiffrock.chat.items.ItemMessageRecieved;
@@ -42,6 +45,7 @@ import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.network.WebSocketClient;
 import com.stiffrock.chat.network.WebSocketNotification;
+import com.stiffrock.chat.utils.FragmentContainerActivity;
 import com.stiffrock.chat.utils.GsonManager;
 import com.stiffrock.chat.utils.WebSocketNotificationListener;
 
@@ -59,12 +63,11 @@ import retrofit2.Response;
 //TODO: ORGANISE CONTACTS BY MOST RECENT CHAT in the contacts fragment
 //TODO: LEAVE/JOIN GROUPCHAT AND NOTIF
 //TODO PONER UN SCROLLVIEW PAR ACUYANOD SE HABRE EL TECLADO
-public class ChatActivity extends AppCompatActivity implements WebSocketNotificationListener {
+public class ChatActivity extends FragmentContainerActivity implements WebSocketNotificationListener {
     private final List<Item> msgItems = new ArrayList<>();
     private final Set<Message> messages = new HashSet<>();
 
     private ImageView onlineStatus;
-    private EditText etMensaje;
 
     private RecyclerView recyclerView;
     private MyAdapter adapter;
@@ -88,25 +91,26 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
 
         apiService = RetrofitClient.getApiService();
 
-        etMensaje = findViewById(R.id.etMensaje);
+        getSupportFragmentManager().registerFragmentLifecycleCallbacks(new FragmentManager.FragmentLifecycleCallbacks() {
+            @Override
+            public void onFragmentResumed(@NonNull FragmentManager fm, @NonNull Fragment f) {
+                if (!(f instanceof ChatMessagesFragment)) return;
 
-        findViewById(R.id.sendText).setOnClickListener(e -> sendMessage());
+                super.onFragmentResumed(fm, f);
+                recyclerView = ((ChatMessagesFragment) f).recyclerView;
+                recyclerView.setLayoutManager(new LinearLayoutManager(ChatActivity.this));
+                adapter = new MyAdapter(msgItems);
 
-        recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+                getMessageHistory();
 
-        adapter = new MyAdapter(msgItems);
-
-        getMessageHistory();
-
-        recyclerView.setAdapter(adapter);
+                recyclerView.setAdapter(adapter);
+            }
+        }, true);
 
         wsClient = WebSocketClient.getInstance();
-
         if (CurrentUser.getCurrentChat() instanceof GroupChat) {
             wsClient.connectToGroupChat();
         }
-
         wsClient.setOnNotificationReceivedListener(this);
     }
 
@@ -126,25 +130,25 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
 
         onlineStatus = toolbar.findViewById(R.id.ivOnlineStatus);
 
-        toolbar.findViewById(R.id.contactContainter).setOnClickListener(e -> {
-            Toast.makeText(ChatActivity.this, "IMPLEMENT", Toast.LENGTH_SHORT).show();
+        LinearLayout ll = toolbar.findViewById(R.id.contactContainter);
+        ll.setOnClickListener(e -> {
+            // Animacion personalizada al pulsar el LinearLayout del contacto
+            e.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_down));
+            e.postDelayed(() -> e.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_up)), 100);
+            // Abre la vista de informacion del contacto/grupo
+            BaseChat chat = CurrentUser.getCurrentChat();
+            if (chat instanceof PrivateChat) {
+                User contact = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser());
+                replaceFragment(new UserInfoFragment(contact));
+            } else if (chat instanceof GroupChat) {
+                replaceFragment(new GroupChatInfoFragment((GroupChat) chat));
+            }
         });
 
-        toolbar.findViewById(R.id.btnHome).setOnClickListener(e -> navigateToHomeActivity());
-
-        CardView contactContainer = toolbar.findViewById(R.id.contactContainter);
-
-        contactContainer.setOnClickListener(v -> {
-            v.startAnimation(AnimationUtils.loadAnimation(
-                    this,
-                    R.anim.scale_down
-            ));
-            v.postDelayed(() -> {
-                v.startAnimation(AnimationUtils.loadAnimation(
-                        this,
-                        R.anim.scale_up
-                ));
-            }, 100);
+        toolbar.findViewById(R.id.btnHome).setOnClickListener(e -> {
+            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
+            if (fragment instanceof ChatMessagesFragment) navigateToHomeActivity();
+            else replaceFragment(new ChatMessagesFragment());
         });
     }
 
@@ -215,7 +219,7 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         recyclerView.scrollToPosition(msgItems.size() - 1);
     }
 
-    private void sendMessage() {
+    public void sendMessage(EditText etMensaje) {
         String text = etMensaje.getText().toString().trim();
         if (text.isBlank()) return;
         User user = CurrentUser.getCurrentUser();

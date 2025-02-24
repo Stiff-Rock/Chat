@@ -204,16 +204,7 @@ public class HomeActivity extends FragmentContainerActivity {
                     Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
                     if (currentFragment instanceof ContactsFragment) {
                         ContactsFragment cf = (ContactsFragment) currentFragment;
-                        User recipient = null;
-                        for (User user : chat.getParticipants()) {
-                            if (!user.equals(CurrentUser.getCurrentUser())) recipient = user;
-                        }
-
-                        if (recipient == null) {
-                            Log.wtf(TAG, "Error: could not find the other participant of private chat");
-                            return;
-                        }
-
+                        User recipient = chat.getContact(CurrentUser.getCurrentUser());
                         cf.addContact(chat, recipient);
                     } else {
                         toggleHomeButton(false);
