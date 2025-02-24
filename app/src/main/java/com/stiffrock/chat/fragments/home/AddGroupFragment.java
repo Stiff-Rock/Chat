@@ -116,7 +116,6 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
     @Override
     public void onItemClick(Item item) {
         ItemContactCard icc = (ItemContactCard) item;
-        String username = icc.getUser().getUsername();
         Long userId = icc.getUser().getId();
         if (participants.contains(userId)) {
             participants.remove(userId);

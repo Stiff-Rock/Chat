@@ -5,20 +5,26 @@ import static com.stiffrock.chat.utils.LogTag.TAG;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.JsonObject;
 import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.dto.MessageDTO;
 import com.stiffrock.chat.items.Item;
@@ -31,10 +37,12 @@ import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.model.PrivateChat;
 import com.stiffrock.chat.model.User;
+import com.stiffrock.chat.model.WebSocketAction;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.network.WebSocketClient;
 import com.stiffrock.chat.network.WebSocketNotification;
+import com.stiffrock.chat.utils.GsonManager;
 import com.stiffrock.chat.utils.WebSocketNotificationListener;
 
 import java.time.LocalDateTime;
@@ -55,6 +63,7 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
     private final List<Item> msgItems = new ArrayList<>();
     private final Set<Message> messages = new HashSet<>();
 
+    private ImageView onlineStatus;
     private EditText etMensaje;
 
     private RecyclerView recyclerView;
@@ -75,14 +84,7 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
             return insets;
         });
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        BaseChat chat = CurrentUser.getCurrentChat();
-        toolbar.setTitle(getChatName(chat));
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.left_arrow);
-        }
+        initToolbarMenu();
 
         apiService = RetrofitClient.getApiService();
 
@@ -108,6 +110,50 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         wsClient.setOnNotificationReceivedListener(this);
     }
 
+    private void initToolbarMenu() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) actionBar.setDisplayShowTitleEnabled(false);
+
+
+//        TODO: PFP
+//        ImageView ivContactPhoto = toolbar.findViewById(R.id.ivContactPhoto);
+//        ivContactPhoto.setImageResource();
+
+        TextView tvContactName = toolbar.findViewById(R.id.tvContactName);
+        tvContactName.setText(getChatName(CurrentUser.getCurrentChat()));
+
+        onlineStatus = toolbar.findViewById(R.id.ivOnlineStatus);
+
+        toolbar.findViewById(R.id.contactContainter).setOnClickListener(e -> {
+            Toast.makeText(ChatActivity.this, "IMPLEMENT", Toast.LENGTH_SHORT).show();
+        });
+
+        toolbar.findViewById(R.id.btnHome).setOnClickListener(e -> navigateToHomeActivity());
+
+        CardView contactContainer = toolbar.findViewById(R.id.contactContainter);
+
+        contactContainer.setOnClickListener(v -> {
+            v.startAnimation(AnimationUtils.loadAnimation(
+                    this,
+                    R.anim.scale_down
+            ));
+            v.postDelayed(() -> {
+                v.startAnimation(AnimationUtils.loadAnimation(
+                        this,
+                        R.anim.scale_up
+                ));
+            }, 100);
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        wsGetContactsStatus();
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -116,13 +162,12 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            navigateToHomeActivity();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    private void wsGetContactsStatus() {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("action", WebSocketAction.GET_CONTACTS_ONLINE_STATUS.name());
+        String currentUserJson = GsonManager.gson.toJson(CurrentUser.getCurrentUser());
+        jsonObject.add("content", GsonManager.gson.fromJson(currentUserJson, JsonObject.class));
+        wsClient.sendMessage(jsonObject.toString());
     }
 
     private void getMessageHistory() {
@@ -253,6 +298,12 @@ public class ChatActivity extends AppCompatActivity implements WebSocketNotifica
             case USER_DISCONNECTED_FROM_GROUP_CHAT:
                 Message msg = (Message) wsn.getContent();
                 recieveMessage(msg);
+                break;
+            case USER_CONNECTED:
+                onlineStatus.setImageResource(R.drawable.connected_icon);
+                break;
+            case USER_DISCONNECTED:
+                onlineStatus.setImageResource(R.drawable.disconnected_icon);
                 break;
             case MESSAGE_READ:
                 // TODO

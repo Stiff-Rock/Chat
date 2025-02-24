@@ -61,13 +61,14 @@ public class HomeActivity extends FragmentContainerActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
         wsClient = WebSocketClient.getInstance();
 
         apiService = RetrofitClient.getApiService();
 
         toolbar = findViewById(R.id.toolbar);
 
-        wsClient.connect();
+        if (!wsClient.isConnected()) wsClient.connect();
 
         setSupportActionBar(toolbar);
     }
@@ -75,14 +76,13 @@ public class HomeActivity extends FragmentContainerActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //TODO REVISAR SI ES NECESARIO PONER AQUI         wsClient.connect();
+        if (!wsClient.isConnected()) wsClient.connect();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        //TODO REVISAR ESTO
-        if (isFinishing()) wsClient.disconnect();
+        if (isFinishing() && wsClient.isConnected()) wsClient.disconnect();
     }
 
     @Override

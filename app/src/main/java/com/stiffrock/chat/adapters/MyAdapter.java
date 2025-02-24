@@ -1,6 +1,9 @@
 package com.stiffrock.chat.adapters;
 
+import static com.stiffrock.chat.utils.LogTag.TAG;
+
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,7 +95,10 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ViewHolderChatCard view = (ViewHolderChatCard) holder;
             ItemChatCard item = (ItemChatCard) datos.get(position);
 
-            view.parentLayout.setOnClickListener(e -> listener.onItemClick(item));
+            view.parentLayout.setOnClickListener(e -> {
+                if (listener != null) listener.onItemClick(item);
+                else Log.wtf(TAG, "ItemChatCard onItemClick on null listener");
+            });
 
             BaseChat chat = item.getChat();
             if (chat instanceof GroupChat) {
@@ -110,7 +116,10 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ViewHolderContactCard view = (ViewHolderContactCard) holder;
             ItemContactCard item = (ItemContactCard) datos.get(position);
 
-            view.parentLayout.setOnClickListener(e -> listener.onItemClick(item));
+            view.parentLayout.setOnClickListener(e -> {
+                if (listener != null) listener.onItemClick(item);
+                else Log.wtf(TAG, "ItemContactCard onItemClick on null listener");
+            });
 
             if (!item.showOnlineStatus()) view.ivUserStatus.setVisibility(View.GONE);
 

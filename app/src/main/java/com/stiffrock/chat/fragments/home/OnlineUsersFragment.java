@@ -82,7 +82,7 @@ public class OnlineUsersFragment extends Fragment implements OnItemClickListener
                     recyclerView.setAdapter(adapter);
                     recyclerView.setVisibility(View.VISIBLE);
                     loadingScreen.setVisibility(View.GONE);
-                    if(contactCards.isEmpty()) {
+                    if (contactCards.isEmpty()) {
                         Toast.makeText(requireContext(), "No hay usuarios en línea actualmente", Toast.LENGTH_SHORT).show();
                     }
                 } else {
@@ -101,7 +101,7 @@ public class OnlineUsersFragment extends Fragment implements OnItemClickListener
         });
     }
 
-    private void addContactDialog(User user) {
+    private void addContactDialog(ItemContactCard icc, int index, User user) {
         Context context = requireContext();
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LinearLayout layout = new LinearLayout(context);
@@ -118,7 +118,13 @@ public class OnlineUsersFragment extends Fragment implements OnItemClickListener
         builder.setTitle(title).setView(layout).setPositiveButton("Aceptar", (dialog, which) -> {
             HomeActivity home = (HomeActivity) requireActivity();
             home.addContact(user);
-        }).setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss());
+            icc.setSelected(false);
+            adapter.notifyItemChanged(index);
+        }).setNegativeButton("Cancelar", (dialog, which) -> {
+            dialog.dismiss();
+            icc.setSelected(false);
+            adapter.notifyItemChanged(index);
+        });
 
         AlertDialog dialog = builder.create();
         dialog.show();
@@ -139,7 +145,11 @@ public class OnlineUsersFragment extends Fragment implements OnItemClickListener
 
     @Override
     public void onItemClick(Item item) {
-        User user = ((ItemContactCard) item).getUser();
-        addContactDialog(user);
+        ItemContactCard icc = (ItemContactCard) item;
+        User user = icc.getUser();
+        icc.setSelected(true);
+        int index = contactCards.indexOf(item);
+        adapter.notifyItemChanged(index);
+        addContactDialog(icc, index, user);
     }
 }

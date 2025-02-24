@@ -25,6 +25,8 @@ public class WebSocketClient {
     private String APP_WEB_SOCKET_URL;
     private String GROUP_CHAT_WEB_SOCKET_URL;
 
+    private boolean isConnected;
+
     private WebSocketNotificationListener listener;
 
     private WebSocketClient() {
@@ -62,11 +64,14 @@ public class WebSocketClient {
                 Log.d(TAG, "Error en WebSocket: " + t.getMessage());
             }
         });
+
+        isConnected = true;
     }
 
     public void disconnect() {
         if (webSocket != null) {
             webSocket.close(1000, "Cierre normal");
+            isConnected = false;
         }
     }
 
@@ -105,5 +110,9 @@ public class WebSocketClient {
 
     public void setOnNotificationReceivedListener(WebSocketNotificationListener listener) {
         this.listener = listener;
+    }
+
+    public boolean isConnected() {
+        return isConnected;
     }
 }
