@@ -69,12 +69,14 @@ public class UserInfoFragment extends Fragment {
 
         TextView tvIsContact = view.findViewById(R.id.tvIsContact);
         String isInContactsMsg = "No esta en tu lista de contactos";
-        for (PrivateChat pc : CurrentUser.getContacts()) {
-            if (pc.getContact(CurrentUser.getCurrentUser()).equals(user)) {
-                isInContactsMsg = "Está en tu lista de contactos";
-                break;
+        if (!user.equals(CurrentUser.getCurrentUser()))
+            for (PrivateChat pc : CurrentUser.getContacts()) {
+                if (pc.getContact(CurrentUser.getCurrentUser()).equals(user)) {
+                    isInContactsMsg = "Está en tu lista de contactos";
+                    break;
+                }
             }
-        }
+        else isInContactsMsg = "(Tú)";
         tvIsContact.setText(isInContactsMsg);
 
         return view;

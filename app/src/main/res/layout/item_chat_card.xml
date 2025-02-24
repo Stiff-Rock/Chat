@@ -8,7 +8,8 @@
         android:gravity="center"
         android:padding="10dp"
         android:id="@+id/parentLayout"
-        android:clipChildren="false">
+        android:clipChildren="false"
+        android:foreground="?attr/selectableItemBackgroundBorderless">
 
     <FrameLayout
             android:layout_width="60dp"
@@ -23,7 +24,7 @@
                 android:layout_gravity="bottom|end"
                 android:layout_marginEnd="-3dp"
                 android:elevation="3dp"
-                android:id="@+id/ivOnlineStatus"/>
+                android:id="@+id/ivOnlineStatus" />
 
         <androidx.cardview.widget.CardView
                 android:layout_width="60dp"
@@ -33,8 +34,8 @@
 
             <ImageView
                     android:id="@+id/ivChatPhoto"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:scaleType="centerCrop"
                     android:src="@drawable/default_user"
                     android:contentDescription="@string/foto_de_perfil" />
@@ -70,11 +71,18 @@
                 app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageView
-            android:layout_width="25dp"
+    <TextView
+            android:minWidth="25dp"
+            android:maxWidth="100dp"
+            android:paddingHorizontal="5dp"
+            android:layout_width="wrap_content"
             android:layout_height="25dp"
-            android:contentDescription="@string/n_mero_de_mensajes_nuevos"
+            android:background="@drawable/unread_msgs_icon"
+            android:textAlignment="center"
+            android:textSize="16sp"
+            android:textColor="@color/black"
             tools:srcCompat="@tools:sample/avatars"
-            android:id="@+id/ivChatNotification"
+            android:id="@+id/tvChatNotification"
+            android:visibility="gone"
             android:layout_weight="0" />
 </LinearLayout>

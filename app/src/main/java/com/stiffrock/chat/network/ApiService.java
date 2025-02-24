@@ -15,6 +15,7 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -24,9 +25,6 @@ public interface ApiService {
     // Endpoint de mensajes
     @POST("messages/send")
     Call<Message> sendMessage(@Body MessageDTO messageDTO);
-
-    @GET("messages/recieve/{messageId}")
-    Call<Message> recieveMessage(@Path("messageId") Long messageId);
 
     @GET("messages/history/{chatId}")
     Call<List<Message>> getMessageHistory(@Path("chatId") Long chatId);
@@ -62,4 +60,19 @@ public interface ApiService {
     // Endpoint de grupos
     @POST("groups/create")
     Call<ApiResponse> createGroupChat(@Body GroupChatDTO groupChatDTO);
+
+    @GET("groups/group/{groupId}")
+    Call<GroupChat> getGroupChat(@Path("groupId") Long groupId);
+
+    @POST("groups/{groupId}/members/{userId}")
+    Call<ApiResponse> addMember(@Path("groupId") Long groupId, @Path("userId") Long userId);
+
+    @DELETE("groups/{groupId}/members/{userId}")
+    Call<ApiResponse> removeMember(@Path("groupId") Long groupId, @Path("userId") Long userId);
+
+    @POST("groups/{groupId}/admins/{userId}")
+    Call<ApiResponse> addAdmin(@Path("groupId") Long groupId, @Path("userId") Long userId);
+
+    @DELETE("groups/{groupId}/admins/{userId}")
+    Call<ApiResponse> removeAdmin(@Path("groupId") Long groupId, @Path("userId") Long userId);
 }

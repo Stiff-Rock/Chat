@@ -13,7 +13,6 @@
     <string name="crear_cuenta">Crear cuenta</string>
     <string name="ya_tienes_cuenta">¿Ya tienes cuenta?</string>
     <string name="recu_rdame">Recuérdame</string>
-    <string name="n_mero_de_mensajes_nuevos">Número de mensajes nuevos</string>
     <string name="cerrar_sesi_n">Cerrar sesión</string>
     <string name="anadir_contacto">Añadir contacto</string>
     <string name="nuevo_grupo">Nuevo grupo</string>
@@ -31,4 +30,15 @@
     <string name="backtohomescreenbutton">BackToHomeScreenButton</string>
     <string name="mensajes_enviados">Mensajes enviados</string>
     <string name="participantes">Participantes</string>
+    <string name="opciones">Opciones</string>
+    <string name="hacer_administrador">Hacer administrador</string>
+    <string name="eliminar_administrador">Eliminar administrador</string>
+    <string name="expulsar_del_chat_grupal">Expulsar del grupo</string>
+    <string name="ver_informacion_de_usuario">Ver informacion de usuario</string>
+    <string name="a_adir_miembro">Añadir miembro</string>
+    <string name="abandonar_grupo">Abandonar grupo</string>
+    <string name="elige_un_contacto">Elige un contacto</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="search_message_button">Search message button</string>
+    <string name="back_button">Back button</string>
 </resources>

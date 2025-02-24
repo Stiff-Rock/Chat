@@ -1,5 +1,9 @@
 package com.stiffrock.chat.network;
 
+import static com.stiffrock.chat.utils.LogTag.TAG;
+
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.google.gson.JsonObject;
@@ -37,7 +41,7 @@ public class WebSocketNotification {
 
             // Manejar el parseo del contenido
             switch (action) {
-                case ADD_CONTACT:
+                case ADD_CHAT:
                 case DELETE_CONTACT:
                     content = GsonManager.gson.fromJson(json.get("content").getAsString(), BaseChat.class);
                     break;
@@ -56,26 +60,22 @@ public class WebSocketNotification {
                     // Handle MESSAGE_DELETED logic here
                     break;
 
+                case GROUP_CHAT_CHANGED:
+                case GROUP_CHAT_DELETION:
+                    content = json.getAsJsonObject("content");
+                    break;
+
                 case USER_CONNECTED:
                 case USER_DISCONNECTED:
                     content = GsonManager.gson.fromJson(json.get("content").getAsString(), User.class);
                     break;
-
-                case USER_LEFT_GROUP_CHAT:
-                    // Handle USER_LEFT_GROUP logic here
-                    break;
-
-                case USER_JOINED_GROUP_CHAT:
-                    // Handle USER_JOINED_GROUP logic here
-                    break;
-
                 default:
                     throw new Exception("Invalid WebSocketAction value");
             }
 
             return new WebSocketNotification(action, content);
         } catch (Exception e) {
-            System.err.println("Error parsing WebSocket notification: " + e.getMessage());
+            Log.e(TAG, "Error parsing WebSocket notification: " + e.getMessage());
             return new WebSocketNotification(WebSocketAction.ERROR, null);
         }
     }

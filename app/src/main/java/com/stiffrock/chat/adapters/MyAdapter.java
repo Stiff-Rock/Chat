@@ -95,9 +95,17 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ViewHolderChatCard view = (ViewHolderChatCard) holder;
             ItemChatCard item = (ItemChatCard) datos.get(position);
 
-            view.parentLayout.setOnClickListener(e -> {
-                if (listener != null) listener.onItemClick(item);
+            view.parentLayout.setOnClickListener(v -> {
+                if (listener != null) listener.onItemClick(v, item);
                 else Log.wtf(TAG, "ItemChatCard onItemClick on null listener");
+            });
+
+            view.parentLayout.setOnLongClickListener(v -> {
+                if (listener != null) {
+                    listener.onLongItemClick(v, item);
+                    notifyItemChanged(position);
+                }
+                return true;
             });
 
             BaseChat chat = item.getChat();
@@ -116,9 +124,14 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ViewHolderContactCard view = (ViewHolderContactCard) holder;
             ItemContactCard item = (ItemContactCard) datos.get(position);
 
-            view.parentLayout.setOnClickListener(e -> {
-                if (listener != null) listener.onItemClick(item);
+            view.parentLayout.setOnClickListener(v -> {
+                if (listener != null) listener.onItemClick(v, item);
                 else Log.wtf(TAG, "ItemContactCard onItemClick on null listener");
+            });
+
+            view.parentLayout.setOnLongClickListener(v -> {
+                if (listener != null) listener.onLongItemClick(v, item);
+                return true;
             });
 
             if (!item.showOnlineStatus()) view.ivUserStatus.setVisibility(View.GONE);

@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".fragments.home.AddGroupFragment"
         android:orientation="vertical"
         android:gravity="center_horizontal"
         android:padding="50dp"
-        android:descendantFocusability="blocksDescendants">
+        android:descendantFocusability="afterDescendants">
 
     <TextView
             android:layout_width="wrap_content"
@@ -18,12 +19,22 @@
             android:textAlignment="center"
             android:layout_marginBottom="30dp" />
 
-    <ImageView
+    <androidx.cardview.widget.CardView
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:contentDescription="@string/foto_del_grupo"
-            android:src="@drawable/default_group_large"
-            android:layout_marginBottom="30dp" />
+            app:cardCornerRadius="50dp"
+            app:cardBackgroundColor="@color/md_theme_dark_surface"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="30dp" >
+
+        <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/foto_del_grupo"
+                android:src="@drawable/default_group_large"/>
+    </androidx.cardview.widget.CardView>
 
 
     <EditText
@@ -36,18 +47,28 @@
             android:textColorHint="#546E7A"
             android:layout_marginBottom="30dp" />
 
-    <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+    <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            app:cardBackgroundColor="@color/md_theme_dark_surface"
+            app:cardCornerRadius="10dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/md_theme_darker_background"
+                android:padding="10dp"
+                android:scrollbars="vertical" />
+    </androidx.cardview.widget.CardView>
 
     <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/crear_grupo"
             android:id="@+id/btnCreateGroup"
-            android:layout_marginTop="10dp"
-            android:layout_weight="0"/>
+            android:layout_marginTop="20dp"
+            android:layout_weight="0" />
 
 </LinearLayout>

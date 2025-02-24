@@ -5,6 +5,7 @@ import static com.stiffrock.chat.utils.LogTag.TAG;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -68,6 +69,7 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
     private final Set<Message> messages = new HashSet<>();
 
     private ImageView onlineStatus;
+    private ImageView btnSearch;
 
     private RecyclerView recyclerView;
     private MyAdapter adapter;
@@ -107,6 +109,12 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
             }
         }, true);
 
+        getSupportFragmentManager().addOnBackStackChangedListener(() -> {
+            Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
+            int visibility = currentFragment instanceof ChatMessagesFragment ? View.VISIBLE : View.GONE;
+            btnSearch.setVisibility(visibility);
+        });
+
         wsClient = WebSocketClient.getInstance();
         if (CurrentUser.getCurrentChat() instanceof GroupChat) {
             wsClient.connectToGroupChat();
@@ -120,28 +128,37 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) actionBar.setDisplayShowTitleEnabled(false);
 
-
-//        TODO: PFP
-//        ImageView ivContactPhoto = toolbar.findViewById(R.id.ivContactPhoto);
-//        ivContactPhoto.setImageResource();
+        ImageView ivContactPhoto = toolbar.findViewById(R.id.ivContactPhoto);
 
         TextView tvContactName = toolbar.findViewById(R.id.tvContactName);
         tvContactName.setText(getChatName(CurrentUser.getCurrentChat()));
 
         onlineStatus = toolbar.findViewById(R.id.ivOnlineStatus);
 
+        btnSearch = toolbar.findViewById(R.id.btnSearch);
+
+        // TODO: PFP
+        if (CurrentUser.getCurrentChat() instanceof PrivateChat) {
+            onlineStatus.setVisibility(View.VISIBLE);
+            ivContactPhoto.setImageResource(R.drawable.default_user);
+        } else {
+            onlineStatus.setVisibility(View.GONE);
+            ivContactPhoto.setImageResource(R.drawable.default_group);
+        }
+
         LinearLayout ll = toolbar.findViewById(R.id.contactContainter);
         ll.setOnClickListener(e -> {
             // Animacion personalizada al pulsar el LinearLayout del contacto
             e.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_down));
             e.postDelayed(() -> e.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_up)), 100);
+
             // Abre la vista de informacion del contacto/grupo
             BaseChat chat = CurrentUser.getCurrentChat();
             if (chat instanceof PrivateChat) {
                 User contact = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser());
                 replaceFragment(new UserInfoFragment(contact));
             } else if (chat instanceof GroupChat) {
-                replaceFragment(new GroupChatInfoFragment((GroupChat) chat));
+                replaceFragment(new GroupChatInfoFragment());
             }
         });
 
@@ -186,7 +203,7 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
                         if (!messages.contains(msg)) {
                             messages.add(msg);
                             User sender = msg.getSender();
-                            int type = sender.equals(CurrentUser.getCurrentUser()) ? 1 : 2;
+                            int type = sender.equals(CurrentUser.getCurrentUser()) ? 1 : sender.getUsername().equals("SYSTEM") ? 4 : 2;
                             addTextBubble(type, sender.getUsername(), msg.getMessageContent(), formatDateTime(msg.getTimestamp()));
                         }
                     }
@@ -277,7 +294,6 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         });
     }
 
-    //TODO: TEST
     private void showNotification(Message msg) {
         BaseChat chat = msg.getChat();
         Toast.makeText(this, "Mensaje recibido de " + getChatName(chat), Toast.LENGTH_SHORT).show();
@@ -292,7 +308,7 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         return usernames[0].equals(currentUsrName) ? usernames[1] : usernames[0];
     }
 
-    //TODO: QUIZAS ESTO TAMBIEN EN EL CONTANCTFRAGMENT CON LA NOTIFICACION DE TOAST
+    //TODO: UPDATE CHAT FOR ADMIN RECIEVER/REMOVED
     @Override
     public void onNotificationReceived(String notification) {
         WebSocketNotification wsn = WebSocketNotification.parse(notification);
@@ -303,24 +319,53 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
                 Message msg = (Message) wsn.getContent();
                 recieveMessage(msg);
                 break;
+            case DELETE_CONTACT:
+                BaseChat deleteChat = (BaseChat) wsn.getContent();
+                if (!CurrentUser.getCurrentChat().equals(deleteChat)) return;
+                Toast.makeText(this, "El chat te ha eliminado/explusado", Toast.LENGTH_SHORT).show();
+                navigateToHomeActivity();
+                break;
             case USER_CONNECTED:
                 onlineStatus.setImageResource(R.drawable.connected_icon);
                 break;
             case USER_DISCONNECTED:
                 onlineStatus.setImageResource(R.drawable.disconnected_icon);
                 break;
-            case MESSAGE_READ:
-                // TODO
+            case GROUP_CHAT_CHANGED:
+                Fragment fragmentGCC = getSupportFragmentManager().findFragmentById(R.id.fcv);
+                if (fragmentGCC instanceof GroupChatInfoFragment) {
+                    JsonObject content = (JsonObject) wsn.getContent();
+                    JsonObject groupChatJson = content.getAsJsonObject("groupChat");
+                    JsonObject userJson = content.getAsJsonObject("user");
+                    GroupChat chat = GsonManager.gson.fromJson(groupChatJson, GroupChat.class);
+                    User user = GsonManager.gson.fromJson(userJson, User.class);
+                    ((GroupChatInfoFragment) fragmentGCC).updateChat(WebSocketAction.GROUP_CHAT_CHANGED, chat, user);
+                }
                 break;
-            case MESSAGE_DELETED:
-                // TODO
+            case GROUP_CHAT_DELETION:
+                Fragment fragmentGCD = getSupportFragmentManager().findFragmentById(R.id.fcv);
+                if (fragmentGCD instanceof GroupChatInfoFragment) {
+                    JsonObject content = (JsonObject) wsn.getContent();
+                    JsonObject groupChatJson = content.getAsJsonObject("groupChat");
+                    JsonObject userJson = content.getAsJsonObject("user");
+                    GroupChat chat = GsonManager.gson.fromJson(groupChatJson, GroupChat.class);
+                    User user = GsonManager.gson.fromJson(userJson, User.class);
+                    ((GroupChatInfoFragment) fragmentGCD).updateChat(WebSocketAction.GROUP_CHAT_DELETION, chat, user);
+                }
                 break;
             default:
                 break;
         }
     }
 
-    private void navigateToHomeActivity() {
+    @Override
+    public void replaceFragment(Fragment fragment) {
+        super.replaceFragment(fragment);
+        int visibility = fragment instanceof ChatMessagesFragment ? View.VISIBLE : View.GONE;
+        btnSearch.setVisibility(visibility);
+    }
+
+    public void navigateToHomeActivity() {
         Intent intent = new Intent(ChatActivity.this, HomeActivity.class);
         startActivity(intent);
     }

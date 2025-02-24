@@ -21,7 +21,7 @@
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:contentDescription="@string/foto_de_perfil"
-                android:src="@drawable/default_user"
+                android:src="@drawable/default_group"
                 android:id="@+id/ivContactPhoto"
                 android:scaleType="centerCrop" />
     </androidx.cardview.widget.CardView>
@@ -35,19 +35,52 @@
             android:layout_marginTop="10dp"
             android:id="@+id/tvChatName" />
 
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="16sp"
-            android:textAlignment="center"
-            android:id="@+id/tvIsContact" />
-
     <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:layout_marginTop="30dp"
+            android:layout_margin="20dp"
+            app:cardBackgroundColor="@color/md_theme_dark_surface"
+            app:cardCornerRadius="10dp">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:background="@color/md_theme_darker_background">
+
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="10dp"
+                    android:paddingHorizontal="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/opciones"
+                    android:textSize="24sp" />
+
+            <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:text="@string/a_adir_miembro"
+                    android:id="@+id/btnAddMember"/>
+
+            <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:text="@string/abandonar_grupo"
+                    android:id="@+id/btnLeaveGroup"
+                    style="@style/Widget.Chat.WarningButton"/>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
             android:layout_marginBottom="10dp"
             android:layout_margin="20dp"
             app:cardBackgroundColor="@color/md_theme_dark_surface"
@@ -72,7 +105,7 @@
                     android:id="@+id/recyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:padding="10dp"/>
+                    android:padding="10dp" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

@@ -7,7 +7,8 @@
         android:gravity="center"
         android:padding="10dp"
         android:id="@+id/parentLayout"
-        android:clipChildren="false">
+        android:clipChildren="false"
+        android:foreground="?attr/selectableItemBackgroundBorderless">
 
     <FrameLayout
             android:layout_width="60dp"
@@ -53,7 +54,6 @@
     <ImageView
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:contentDescription="@string/n_mero_de_mensajes_nuevos"
             android:src="@drawable/bubble_item_selected"
             android:visibility="gone"
             android:id="@+id/ivSelected"

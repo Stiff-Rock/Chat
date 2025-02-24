@@ -114,7 +114,7 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
     }
 
     @Override
-    public void onItemClick(Item item) {
+    public void onItemClick(View view, Item item) {
         ItemContactCard icc = (ItemContactCard) item;
         Long userId = icc.getUser().getId();
         if (participants.contains(userId)) {
@@ -126,5 +126,10 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
         }
         int index = contactCardItems.indexOf(item);
         adapter.notifyItemChanged(index);
+    }
+
+    @Override
+    public void onLongItemClick(View view, Item item) {
+
     }
 }

@@ -58,6 +58,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     private WebSocketClient wsClient;
 
     //TODO: si te deslogeas y te logeas como otro suario el anterior se queda conectado al websocket
+    //TODO: al añadir un contacto, no comprueba su estado de online
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
@@ -134,9 +135,14 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     }
 
     @Override
-    public void onItemClick(Item item) {
+    public void onItemClick(View view, Item item) {
         CurrentUser.setCurrentChat(((ItemChatCard) item).getChat());
         ((HomeActivity) requireActivity()).navigateToActivity(ChatActivity.class);
+    }
+
+    @Override
+    public void onLongItemClick(View view, Item item) {
+
     }
 
     private void addChat(BaseChat chat) {
@@ -152,6 +158,8 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
 
     //TODO: MAKE UNREAD MESSAGES BUBBLE
     private void showNotification(Message msg) {
+        if (msg.getSender().getUsername().equals("SYSTEM")) return;
+
         BaseChat chat = msg.getChat();
         Toast.makeText(requireContext(), "Mensaje recibido de " + getChatName(chat), Toast.LENGTH_SHORT).show();
 
@@ -189,6 +197,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         adapter.notifyItemChanged(index);
     }
 
+    //TODO: UPDATE CHAT FOR ADMIN RECIEVER/REMOVED
     @Override
     public void onNotificationReceived(String notification) {
         WebSocketNotification wsn = WebSocketNotification.parse(notification);
@@ -197,7 +206,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
                 Message msg = (Message) wsn.getContent();
                 showNotification(msg);
                 break;
-            case ADD_CONTACT:
+            case ADD_CHAT:
                 BaseChat addChat = (BaseChat) wsn.getContent();
                 addChat(addChat);
                 break;

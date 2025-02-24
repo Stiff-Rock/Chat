@@ -3,7 +3,7 @@
 
     <!-- Optional, for special rounded EditText style -->
     <style name="SpecialRoundedEditText" parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox">
-        <item name="android:background">@drawable/chat_edit_text_bg</item>
+        <item name="android:background">@drawable/outlined_background</item>
         <item name="android:textColor">@color/md_theme_dark_onBackground</item>
         <item name="android:padding">8dp</item>
     </style>
@@ -42,6 +42,15 @@
         <item name="android:padding">5dp</item>
         <item name="android:textSize">12sp</item>
         <item name="backgroundTint">@color/md_theme_dark_accent</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="android:textColor">@color/md_theme_dark_onSecondary</item>
+    </style>
+
+    <!-- Customized Red Button Style -->
+    <style name="Widget.Chat.WarningButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:padding">5dp</item>
+        <item name="android:textSize">12sp</item>
+        <item name="backgroundTint">@color/md_theme_dark_error</item>
         <item name="cornerRadius">8dp</item>
         <item name="android:textColor">@color/md_theme_dark_onSecondary</item>
     </style>

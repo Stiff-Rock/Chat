@@ -144,12 +144,17 @@ public class OnlineUsersFragment extends Fragment implements OnItemClickListener
     }
 
     @Override
-    public void onItemClick(Item item) {
+    public void onItemClick(View view, Item item) {
         ItemContactCard icc = (ItemContactCard) item;
         User user = icc.getUser();
         icc.setSelected(true);
         int index = contactCards.indexOf(item);
         adapter.notifyItemChanged(index);
         addContactDialog(icc, index, user);
+    }
+
+    @Override
+    public void onLongItemClick(View view, Item item) {
+
     }
 }

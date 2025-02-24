@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+            android:id="@+id/addAdmin"
+            android:title="@string/hacer_administrador" />
+    <item
+            android:id="@+id/removeAdmin"
+            android:title="@string/eliminar_administrador" />
+    <item
+            android:id="@+id/removeFromGroupChat"
+            android:title="@string/expulsar_del_chat_grupal" />
+
+    <item
+            android:id="@+id/showUserInfo"
+            android:title="@string/ver_informacion_de_usuario" />
+</menu>

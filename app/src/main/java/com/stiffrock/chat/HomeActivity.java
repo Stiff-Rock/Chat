@@ -127,7 +127,6 @@ public class HomeActivity extends FragmentContainerActivity {
         }
     }
 
-    //TODO: MAKE BETTER
     private void addContactDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LinearLayout layout = new LinearLayout(this);
