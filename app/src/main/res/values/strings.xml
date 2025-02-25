@@ -27,7 +27,7 @@
     <string name="usuarios_en_l_nea">Usuarios en línea</string>
     <string name="atr_s">Atrás</string>
     <string name="indicador_de_estado_de_usuario">Indicador de estado de usuario</string>
-    <string name="backtohomescreenbutton">BackToHomeScreenButton</string>
+    <string name="backtohomescreenbutton">Botón para volver a la pantalla de inicio</string>
     <string name="mensajes_enviados">Mensajes enviados</string>
     <string name="participantes">Participantes</string>
     <string name="opciones">Opciones</string>
@@ -39,6 +39,8 @@
     <string name="abandonar_grupo">Abandonar grupo</string>
     <string name="elige_un_contacto">Elige un contacto</string>
     <string name="cancelar">Cancelar</string>
-    <string name="search_message_button">Search message button</string>
-    <string name="back_button">Back button</string>
+    <string name="search_message_button">Botón para buscar mensajes</string>
+    <string name="texto_a_buscar">Texto a buscar</string>
+    <string name="btnUp">Botón para ir a la siguiente instancia encontrada de la búsqueda</string>
+    <string name="btnDown">Botón para ir a la anterior instancia encontrada de la búsqueda</string>
 </resources>

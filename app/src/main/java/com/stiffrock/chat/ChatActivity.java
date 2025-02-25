@@ -3,7 +3,10 @@ package com.stiffrock.chat;
 import static com.stiffrock.chat.utils.LogTag.TAG;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -17,6 +20,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -70,6 +74,7 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
 
     private ImageView onlineStatus;
     private ImageView btnSearch;
+    private boolean isSearching;
 
     private RecyclerView recyclerView;
     private MyAdapter adapter;
@@ -128,26 +133,8 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) actionBar.setDisplayShowTitleEnabled(false);
 
-        ImageView ivContactPhoto = toolbar.findViewById(R.id.ivContactPhoto);
-
-        TextView tvContactName = toolbar.findViewById(R.id.tvContactName);
-        tvContactName.setText(getChatName(CurrentUser.getCurrentChat()));
-
-        onlineStatus = toolbar.findViewById(R.id.ivOnlineStatus);
-
-        btnSearch = toolbar.findViewById(R.id.btnSearch);
-
-        // TODO: PFP
-        if (CurrentUser.getCurrentChat() instanceof PrivateChat) {
-            onlineStatus.setVisibility(View.VISIBLE);
-            ivContactPhoto.setImageResource(R.drawable.default_user);
-        } else {
-            onlineStatus.setVisibility(View.GONE);
-            ivContactPhoto.setImageResource(R.drawable.default_group);
-        }
-
-        LinearLayout ll = toolbar.findViewById(R.id.contactContainter);
-        ll.setOnClickListener(e -> {
+        LinearLayout contactContainter = toolbar.findViewById(R.id.contactContainter);
+        contactContainter.setOnClickListener(e -> {
             // Animacion personalizada al pulsar el LinearLayout del contacto
             e.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_down));
             e.postDelayed(() -> e.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_up)), 100);
@@ -161,6 +148,65 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
                 replaceFragment(new GroupChatInfoFragment());
             }
         });
+
+        ConstraintLayout searchBarContainer = toolbar.findViewById(R.id.searchBarContainer);
+
+        ImageView ivContactPhoto = toolbar.findViewById(R.id.ivContactPhoto);
+
+        TextView tvContactName = toolbar.findViewById(R.id.tvContactName);
+        tvContactName.setText(getChatName(CurrentUser.getCurrentChat()));
+
+        onlineStatus = toolbar.findViewById(R.id.ivOnlineStatus);
+
+        EditText etSearchText = toolbar.findViewById(R.id.etSearchText);
+        etSearchText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.setSearchQuery(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        toolbar.findViewById(R.id.btnUp).setOnClickListener(v -> {
+
+        });
+
+        toolbar.findViewById(R.id.btnDown).setOnClickListener(v -> {
+
+        });
+
+        isSearching = false;
+        btnSearch = toolbar.findViewById(R.id.btnSearch);
+        btnSearch.setOnClickListener(v -> {
+            isSearching = !isSearching;
+            int color;
+            if (isSearching) {
+                color = getColor(R.color.md_theme_dark_background);
+                contactContainter.setVisibility(View.GONE);
+                searchBarContainer.setVisibility(View.VISIBLE);
+            } else {
+                color = Color.TRANSPARENT;
+                contactContainter.setVisibility(View.VISIBLE);
+                searchBarContainer.setVisibility(View.GONE);
+            }
+            etSearchText.setText("");
+            adapter.setSearchQuery("");
+            btnSearch.setBackgroundColor(color);
+        });
+
+        // TODO: PFP
+        if (CurrentUser.getCurrentChat() instanceof PrivateChat) {
+            onlineStatus.setVisibility(View.VISIBLE);
+            ivContactPhoto.setImageResource(R.drawable.default_user);
+        } else {
+            onlineStatus.setVisibility(View.GONE);
+            ivContactPhoto.setImageResource(R.drawable.default_group);
+        }
 
         toolbar.findViewById(R.id.btnHome).setOnClickListener(e -> {
             Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fcv);

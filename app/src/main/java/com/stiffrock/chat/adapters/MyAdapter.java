@@ -3,6 +3,9 @@ package com.stiffrock.chat.adapters;
 import static com.stiffrock.chat.utils.LogTag.TAG;
 
 import android.graphics.Color;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,25 +29,29 @@ import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.PrivateChat;
 import com.stiffrock.chat.utils.OnItemClickListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private final List<Item> datos;
+    private final List<Item> items;
+    private final List<Integer> matches = new ArrayList<>();
+
+    private String currentQuery = "";
 
     private OnItemClickListener listener;
 
-    public MyAdapter(List<Item> datos) {
-        this.datos = datos;
+    public MyAdapter(List<Item> items) {
+        this.items = items;
     }
 
-    public MyAdapter(List<Item> datos, OnItemClickListener listener) {
-        this.datos = datos;
+    public MyAdapter(List<Item> items, OnItemClickListener listener) {
+        this.items = items;
         this.listener = listener;
     }
 
     @Override
     public int getItemViewType(int position) {
-        return datos.get(position).getType();
+        return items.get(position).getType();
     }
 
     @NonNull
@@ -73,17 +80,22 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof ViewHolderMessageRecieved) {
             ViewHolderMessageRecieved view = (ViewHolderMessageRecieved) holder;
-            ItemMessageRecieved item = (ItemMessageRecieved) datos.get(position);
+            ItemMessageRecieved item = (ItemMessageRecieved) items.get(position);
 
             String sender = item.getSender();
             if (sender.isBlank()) view.sender.setVisibility(View.GONE);
             else view.sender.setText(sender);
 
-            view.textRecieved.setText(item.getMessage());
             view.timeStamp.setText(item.getTimestamp());
+
+            if (matches.contains(position)) {
+                view.textRecieved.setText(highlightText(item.getMessage()));
+            } else {
+                view.textRecieved.setText(item.getMessage());
+            }
         } else if (holder instanceof ViewHolderMessageSent) {
             ViewHolderMessageSent view = (ViewHolderMessageSent) holder;
-            ItemMessageSent item = (ItemMessageSent) datos.get(position);
+            ItemMessageSent item = (ItemMessageSent) items.get(position);
 
             String sender = item.getSender();
             if (sender.isBlank()) view.sender.setVisibility(View.GONE);
@@ -91,9 +103,15 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             view.textSent.setText(item.getMessage());
             view.timeStamp.setText(item.getTimestamp());
+
+            if (matches.contains(position)) {
+                view.textSent.setText(highlightText(item.getMessage()));
+            } else {
+                view.textSent.setText(item.getMessage());
+            }
         } else if (holder instanceof ViewHolderChatCard) {
             ViewHolderChatCard view = (ViewHolderChatCard) holder;
-            ItemChatCard item = (ItemChatCard) datos.get(position);
+            ItemChatCard item = (ItemChatCard) items.get(position);
 
             view.parentLayout.setOnClickListener(v -> {
                 if (listener != null) listener.onItemClick(v, item);
@@ -122,7 +140,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             view.tvChatName.setText(item.getChatName());
         } else if (holder instanceof ViewHolderContactCard) {
             ViewHolderContactCard view = (ViewHolderContactCard) holder;
-            ItemContactCard item = (ItemContactCard) datos.get(position);
+            ItemContactCard item = (ItemContactCard) items.get(position);
 
             view.parentLayout.setOnClickListener(v -> {
                 if (listener != null) listener.onItemClick(v, item);
@@ -149,15 +167,57 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             view.tvContactName.setText(item.getName());
         } else {
             ViewHolderMessageNotification view = (ViewHolderMessageNotification) holder;
-            ItemMessageNotification item = (ItemMessageNotification) datos.get(position);
+            ItemMessageNotification item = (ItemMessageNotification) items.get(position);
 
             view.textNotification.setText(item.getMessage());
         }
     }
 
+    private SpannableString highlightText(String message) {
+        SpannableString spannable = new SpannableString(message);
+        int startIndex = message.toLowerCase().indexOf(currentQuery);
+
+        while (startIndex >= 0) {
+            int endIndex = startIndex + currentQuery.length();
+            spannable.setSpan(new BackgroundColorSpan(Color.YELLOW), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            startIndex = message.toLowerCase().indexOf(currentQuery, endIndex);
+        }
+
+        return spannable;
+    }
+
     @Override
     public int getItemCount() {
-        return datos.size();
+        return items.size();
+    }
+
+    public void setSearchQuery(String query) {
+        currentQuery = query.toLowerCase();
+        findMatches();
+    }
+
+    private void findMatches() {
+        int[] prevIndexes = matches.stream().mapToInt(i -> i).toArray();
+        matches.clear();
+
+        for (int i : prevIndexes) {
+            notifyItemChanged(i);
+        }
+
+        if (!currentQuery.isEmpty()) for (Item item : items) {
+            String text;
+            if (item instanceof ItemMessageRecieved) {
+                text = ((ItemMessageRecieved) item).getMessage();
+            } else if (item instanceof ItemMessageSent) {
+                text = ((ItemMessageSent) item).getMessage();
+            } else return;
+
+            if (text.toLowerCase().contains(currentQuery)) matches.add(items.indexOf(item));
+        }
+
+        for (int i : matches) {
+            notifyItemChanged(i);
+        }
     }
 
     public static class ViewHolderMessageRecieved extends RecyclerView.ViewHolder {
