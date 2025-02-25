@@ -2,6 +2,7 @@ package com.stiffrock.chat;
 
 import static com.stiffrock.chat.utils.LogTag.TAG;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -59,6 +61,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import retrofit2.Call;
@@ -75,6 +78,7 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
     private ImageView onlineStatus;
     private ImageView btnSearch;
     private boolean isSearching;
+    private int currentMatchIndex = -1;
 
     private RecyclerView recyclerView;
     private MyAdapter adapter;
@@ -161,7 +165,8 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         EditText etSearchText = toolbar.findViewById(R.id.etSearchText);
         etSearchText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -169,16 +174,34 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         toolbar.findViewById(R.id.btnUp).setOnClickListener(v -> {
-
+            int totalMatches = adapter.getMatchesCount();
+            if (totalMatches > 0) {
+                currentMatchIndex = (currentMatchIndex - 1 + totalMatches) % totalMatches;
+                int targetPosition = adapter.getMatchAt(currentMatchIndex);
+                if (targetPosition != -1) {
+                    recyclerView.smoothScrollToPosition(targetPosition);
+                }
+            }
         });
 
         toolbar.findViewById(R.id.btnDown).setOnClickListener(v -> {
-
+            int totalMatches = adapter.getMatchesCount();
+            if (totalMatches > 0) {
+                currentMatchIndex = (currentMatchIndex + 1) % totalMatches;
+                int targetPosition = adapter.getMatchAt(currentMatchIndex);
+                if (targetPosition != -1) {
+                    recyclerView.smoothScrollToPosition(targetPosition);
+                }
+            }
         });
+
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        Objects.requireNonNull(imm);
 
         isSearching = false;
         btnSearch = toolbar.findViewById(R.id.btnSearch);
@@ -189,10 +212,13 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
                 color = getColor(R.color.md_theme_dark_background);
                 contactContainter.setVisibility(View.GONE);
                 searchBarContainer.setVisibility(View.VISIBLE);
+                etSearchText.requestFocus();
+                imm.showSoftInput(etSearchText, InputMethodManager.SHOW_IMPLICIT);
             } else {
                 color = Color.TRANSPARENT;
                 contactContainter.setVisibility(View.VISIBLE);
                 searchBarContainer.setVisibility(View.GONE);
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
             etSearchText.setText("");
             adapter.setSearchQuery("");
@@ -208,10 +234,19 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
             ivContactPhoto.setImageResource(R.drawable.default_group);
         }
 
-        toolbar.findViewById(R.id.btnHome).setOnClickListener(e -> {
-            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
-            if (fragment instanceof ChatMessagesFragment) navigateToHomeActivity();
-            else replaceFragment(new ChatMessagesFragment());
+        toolbar.findViewById(R.id.btnHome).setOnClickListener(v -> {
+            if (!isSearching) {
+                Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
+                if (fragment instanceof ChatMessagesFragment) navigateToHomeActivity();
+                else replaceFragment(new ChatMessagesFragment());
+            } else {
+                contactContainter.setVisibility(View.VISIBLE);
+                searchBarContainer.setVisibility(View.GONE);
+                etSearchText.setText("");
+                adapter.setSearchQuery("");
+                btnSearch.setBackgroundColor(Color.TRANSPARENT);
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+            }
         });
     }
 

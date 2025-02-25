@@ -37,6 +37,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final List<Integer> matches = new ArrayList<>();
 
     private String currentQuery = "";
+    private int currentSelectedMatch = -1;
 
     private OnItemClickListener listener;
 
@@ -87,9 +88,10 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             else view.sender.setText(sender);
 
             view.timeStamp.setText(item.getTimestamp());
+            view.itemView.setBackgroundColor(Color.TRANSPARENT);
 
             if (matches.contains(position)) {
-                view.textRecieved.setText(highlightText(item.getMessage()));
+                view.textRecieved.setText(highlightText(item.getMessage(), position, view.itemView));
             } else {
                 view.textRecieved.setText(item.getMessage());
             }
@@ -103,9 +105,10 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             view.textSent.setText(item.getMessage());
             view.timeStamp.setText(item.getTimestamp());
+            view.itemView.setBackgroundColor(Color.TRANSPARENT);
 
             if (matches.contains(position)) {
-                view.textSent.setText(highlightText(item.getMessage()));
+                view.textSent.setText(highlightText(item.getMessage(), position, view.itemView));
             } else {
                 view.textSent.setText(item.getMessage());
             }
@@ -173,7 +176,11 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    private SpannableString highlightText(String message) {
+    private SpannableString highlightText(String message, int pos, View itemView) {
+        if (currentSelectedMatch == pos) {
+            itemView.setBackgroundColor(Color.parseColor("#80ffffff"));
+        }
+
         SpannableString spannable = new SpannableString(message);
         int startIndex = message.toLowerCase().indexOf(currentQuery);
 
@@ -184,6 +191,21 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         return spannable;
+    }
+
+    public int getMatchesCount() {
+        return matches.size();
+    }
+
+    public int getMatchAt(int index) {
+        if (currentSelectedMatch != -1) notifyItemChanged(currentSelectedMatch);
+
+        if (index >= 0 && index < matches.size()) {
+            currentSelectedMatch = matches.get(index);
+            notifyItemChanged(currentSelectedMatch);
+        } else currentSelectedMatch = -1;
+
+        return currentSelectedMatch;
     }
 
     @Override
@@ -204,7 +226,9 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             notifyItemChanged(i);
         }
 
-        if (!currentQuery.isEmpty()) for (Item item : items) {
+        if (currentQuery.isBlank()) return;
+
+        for (Item item : items) {
             String text;
             if (item instanceof ItemMessageRecieved) {
                 text = ((ItemMessageRecieved) item).getMessage();
