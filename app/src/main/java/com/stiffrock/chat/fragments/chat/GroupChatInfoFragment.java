@@ -50,10 +50,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-//TODO: Show onlinestatus of members
-//TODO: ADD YOUTSELF TO MEMBERS
-//TODO: INDICATE ADMINS
-//TODO: UPDATE CHAT FOR ADMIN RECIEVER/REMOVED
 public class GroupChatInfoFragment extends Fragment implements OnItemClickListener {
     private GroupChat chat;
 
@@ -145,8 +141,8 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         isRecyclerLoaded = true;
     }
 
-    public void showOptionsMenu(ItemContactCard item, View view) {
-        PopupMenu popupMenu = new PopupMenu(requireContext(), view);
+    public void showOptionsMenu(ItemContactCard item, View view, int postion) {
+        PopupMenu popupMenu = new PopupMenu(view.getContext(), view);
         MenuInflater inflater = popupMenu.getMenuInflater();
         inflater.inflate(R.menu.group_chat_context_menu, popupMenu.getMenu());
         Menu menu = popupMenu.getMenu();
@@ -176,8 +172,7 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
             }
 
             item.setSelected(false);
-            int index = contactItems.indexOf(item);
-            adapter.notifyItemChanged(index);
+            adapter.notifyItemChanged(postion);
             return true;
         });
 
@@ -206,14 +201,14 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         }
         MyAdapter adapter = new MyAdapter(contactItems, new OnItemClickListener() {
             @Override
-            public void onItemClick(View view, Item item) {
+            public void onItemClick(View view, Item item, int postion) {
                 ItemContactCard icc = (ItemContactCard) item;
                 apiAddMember(icc.getUser());
                 dialog.dismiss();
             }
 
             @Override
-            public void onLongItemClick(View view, Item item) {
+            public void onLongItemClick(View view, Item item, int postion) {
             }
         });
         recyclerView.setAdapter(adapter);
@@ -377,17 +372,17 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
     }
 
     @Override
-    public void onItemClick(View view, Item item) {
+    public void onItemClick(View view, Item item, int postion) {
         ItemContactCard icc = (ItemContactCard) item;
         navigateToUserInfoFragment(icc.getUser());
     }
 
     @Override
-    public void onLongItemClick(View view, Item item) {
+    public void onLongItemClick(View view, Item item, int postion) {
         ItemContactCard icc = (ItemContactCard) item;
         if (!icc.getUser().equals(CurrentUser.getCurrentUser())) {
             icc.setSelected(true);
-            showOptionsMenu(icc, view);
+            showOptionsMenu(icc, view, postion);
         }
     }
 }

@@ -37,7 +37,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-//TODO GESTIONAR ONLINE STATUS
 public class UserInfoFragment extends Fragment {
     private final User user;
 

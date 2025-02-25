@@ -2,7 +2,7 @@ package com.stiffrock.chat.items;
 
 public class ItemMessageSent extends Item{
     private final String sender;
-    private final String message;
+    private String message;
     private final String timestamp;
 
     public ItemMessageSent(String sender, String message, String timestamp) {
@@ -21,6 +21,10 @@ public class ItemMessageSent extends Item{
 
     public String getTimestamp() {
         return timestamp;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     @Override

@@ -49,15 +49,9 @@ public class WebSocketNotification {
                 case MESSAGE_RECEIVED:
                 case USER_CONNECTED_TO_GROUP_CHAT:
                 case USER_DISCONNECTED_FROM_GROUP_CHAT:
-                    content = GsonManager.gson.fromJson(json.get("content").getAsString(), Message.class);
-                    break;
-
-                case MESSAGE_READ:
-                    // Handle MESSAGE_READ logic here
-                    break;
-
                 case MESSAGE_DELETED:
-                    // Handle MESSAGE_DELETED logic here
+                case MESSAGE_READ:
+                    content = GsonManager.gson.fromJson(json.get("content").getAsString(), Message.class);
                     break;
 
                 case GROUP_CHAT_CHANGED:

@@ -9,6 +9,7 @@ public class Message {
     private BaseChat chat;
     private String messageContent;
     private LocalDateTime timestamp;
+    private boolean deleted = false;
 
     public Message() {
     }
@@ -58,6 +59,14 @@ public class Message {
 
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 
     @Override

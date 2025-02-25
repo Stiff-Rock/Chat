@@ -90,10 +90,12 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             view.timeStamp.setText(item.getTimestamp());
             view.itemView.setBackgroundColor(Color.TRANSPARENT);
 
-            if (matches.contains(position)) {
-                view.textRecieved.setText(highlightText(item.getMessage(), position, view.itemView));
+            String message = item.getMessage();
+            if (message.equals("Mensaje eliminado")) {
+                view.textRecieved.setTextColor(view.itemView.getContext().getColor(R.color.standard_text_color_tertiary));
+                view.textRecieved.setText(message);
             } else {
-                view.textRecieved.setText(item.getMessage());
+                view.textRecieved.setText(matches.contains(position) ? highlightText(message, position, view.itemView) : message);
             }
         } else if (holder instanceof ViewHolderMessageSent) {
             ViewHolderMessageSent view = (ViewHolderMessageSent) holder;
@@ -103,27 +105,34 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (sender.isBlank()) view.sender.setVisibility(View.GONE);
             else view.sender.setText(sender);
 
+            view.parentLayout.setOnLongClickListener(v -> {
+                if (listener != null) listener.onLongItemClick(v, item, position);
+                return true;
+            });
+
             view.textSent.setText(item.getMessage());
             view.timeStamp.setText(item.getTimestamp());
             view.itemView.setBackgroundColor(Color.TRANSPARENT);
 
-            if (matches.contains(position)) {
-                view.textSent.setText(highlightText(item.getMessage(), position, view.itemView));
+            String message = item.getMessage();
+            if (message.equals("Mensaje eliminado")) {
+                view.textSent.setTextColor(view.itemView.getContext().getColor(R.color.standard_text_color_tertiary));
+                view.textSent.setText(message);
             } else {
-                view.textSent.setText(item.getMessage());
+                view.textSent.setText(matches.contains(position) ? highlightText(message, position, view.itemView) : message);
             }
         } else if (holder instanceof ViewHolderChatCard) {
             ViewHolderChatCard view = (ViewHolderChatCard) holder;
             ItemChatCard item = (ItemChatCard) items.get(position);
 
             view.parentLayout.setOnClickListener(v -> {
-                if (listener != null) listener.onItemClick(v, item);
+                if (listener != null) listener.onItemClick(v, item, position);
                 else Log.wtf(TAG, "ItemChatCard onItemClick on null listener");
             });
 
             view.parentLayout.setOnLongClickListener(v -> {
                 if (listener != null) {
-                    listener.onLongItemClick(v, item);
+                    listener.onLongItemClick(v, item, position);
                     notifyItemChanged(position);
                 }
                 return true;
@@ -146,12 +155,12 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ItemContactCard item = (ItemContactCard) items.get(position);
 
             view.parentLayout.setOnClickListener(v -> {
-                if (listener != null) listener.onItemClick(v, item);
+                if (listener != null) listener.onItemClick(v, item, position);
                 else Log.wtf(TAG, "ItemContactCard onItemClick on null listener");
             });
 
             view.parentLayout.setOnLongClickListener(v -> {
-                if (listener != null) listener.onLongItemClick(v, item);
+                if (listener != null) listener.onLongItemClick(v, item, position);
                 return true;
             });
 
@@ -258,12 +267,14 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public static class ViewHolderMessageSent extends RecyclerView.ViewHolder {
+        private final LinearLayout parentLayout;
         private final TextView sender;
         private final TextView textSent;
         private final TextView timeStamp;
 
         public ViewHolderMessageSent(@NonNull View itemView) {
             super(itemView);
+            parentLayout = itemView.findViewById(R.id.parentLayout);
             sender = itemView.findViewById(R.id.sender);
             textSent = itemView.findViewById(R.id.textSent);
             timeStamp = itemView.findViewById(R.id.timeStamp);

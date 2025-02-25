@@ -18,6 +18,7 @@ import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface ApiService {
@@ -30,7 +31,10 @@ public interface ApiService {
     Call<List<Message>> getMessageHistory(@Path("chatId") Long chatId);
 
     @GET("messages/private/{userId}")
-    Call<List<Message>> getUserMessages(@Path("userId") Long userId); //TODO
+    Call<List<Message>> getUserMessages(@Path("userId") Long userId);
+
+    @PUT("messages/message/{messageId}")
+    Call<ApiResponse> deleteMessage(@Path("messageId") Long messageId);
 
     // Endpoint de usuarios
     @POST("users/register")
@@ -52,7 +56,7 @@ public interface ApiService {
     // Endpoint de chats
     @POST("chats/private/create")
     Call<PrivateChat> addContact(@Body PrivateChatDTO privateChatDTO);
-
+    //TODO USELESS?
     @GET("chats/chat/{chatId}")
     Call<BaseChat> getChat(@Path("chatId") Long chatId);
 

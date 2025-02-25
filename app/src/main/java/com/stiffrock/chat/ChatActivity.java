@@ -59,8 +59,10 @@ import com.stiffrock.chat.utils.WebSocketNotificationListener;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -68,11 +70,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-//TODO: ORGANISE CONTACTS BY MOST RECENT CHAT in the contacts fragment
-//TODO: LEAVE/JOIN GROUPCHAT AND NOTIF
-//TODO PONER UN SCROLLVIEW PAR ACUYANOD SE HABRE EL TECLADO
 public class ChatActivity extends FragmentContainerActivity implements WebSocketNotificationListener {
     private final List<Item> msgItems = new ArrayList<>();
+    private final Map<Item, Message> itemMessageMap = new HashMap<>();
+    private final Map<Message, Item> messageItemMap = new HashMap<>();
     private final Set<Message> messages = new HashSet<>();
 
     private ImageView onlineStatus;
@@ -106,11 +107,12 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
             @Override
             public void onFragmentResumed(@NonNull FragmentManager fm, @NonNull Fragment f) {
                 if (!(f instanceof ChatMessagesFragment)) return;
-
                 super.onFragmentResumed(fm, f);
-                recyclerView = ((ChatMessagesFragment) f).recyclerView;
+
+                recyclerView = ((ChatMessagesFragment) f).getRecyclerView();
                 recyclerView.setLayoutManager(new LinearLayoutManager(ChatActivity.this));
-                adapter = new MyAdapter(msgItems);
+                adapter = ((ChatMessagesFragment) f).initAdapter(msgItems);
+                ((ChatMessagesFragment) f).setMap(itemMessageMap);
 
                 getMessageHistory();
 
@@ -285,7 +287,7 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
                             messages.add(msg);
                             User sender = msg.getSender();
                             int type = sender.equals(CurrentUser.getCurrentUser()) ? 1 : sender.getUsername().equals("SYSTEM") ? 4 : 2;
-                            addTextBubble(type, sender.getUsername(), msg.getMessageContent(), formatDateTime(msg.getTimestamp()));
+                            addTextBubble(type, msg);
                         }
                     }
                 } else {
@@ -302,16 +304,27 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         });
     }
 
-    public void addTextBubble(int itemType, String sender, String text, String timestamp) {
+    public void addTextBubble(int itemType, Message msg) {
+        String sender = msg.getSender().getUsername();
+        String text = msg.getMessageContent();
+        String timestamp = formatDateTime(msg.getTimestamp());
+
         if (CurrentUser.getCurrentChat() instanceof PrivateChat) sender = "";
 
+        Item item;
         if (itemType == 1) {
-            msgItems.add(new ItemMessageSent(sender, text, timestamp));
+            item = new ItemMessageSent(sender, text, timestamp);
+            msgItems.add(item);
         } else if (itemType == 2) {
-            msgItems.add(new ItemMessageRecieved(sender, text, timestamp));
+            item = new ItemMessageRecieved(sender, text, timestamp);
+            msgItems.add(item);
         } else if (itemType == 4) {
-            msgItems.add(new ItemMessageNotification(text));
-        }
+            item = new ItemMessageNotification(text);
+            msgItems.add(item);
+        } else return;
+
+        itemMessageMap.put(item, msg);
+        messageItemMap.put(msg, item);
 
         adapter.notifyItemInserted(msgItems.size() - 1);
         recyclerView.scrollToPosition(msgItems.size() - 1);
@@ -322,9 +335,16 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         if (text.isBlank()) return;
         User user = CurrentUser.getCurrentUser();
         etMensaje.setText("");
-        addTextBubble(1, user.getUsername(), text, formatDateTime(LocalDateTime.now()));
+
+        Message msg = new Message();
+        msg.setSender(CurrentUser.getCurrentUser());
+        msg.setMessageContent(text);
+        msg.setTimestamp(LocalDateTime.now());
+        addTextBubble(1, msg);
+
         Long userId = user.getId();
         Long chatID = CurrentUser.getCurrentChat().getId();
+
         apiSendMessage(new MessageDTO(userId, chatID, text));
     }
 
@@ -348,8 +368,21 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         if (sender.equals("SYSTEM")) itemType = 4;
 
         if (chatId.equals(currentChatId)) {
-            addTextBubble(itemType, sender, msg.getMessageContent(), formatDateTime(msg.getTimestamp()));
+            addTextBubble(itemType, msg);
         } else showNotification(msg);
+    }
+
+    private void updateMessage(Message msg) {
+        Item item = messageItemMap.get(msg);
+        int index = msgItems.indexOf(item);
+
+        if (item instanceof ItemMessageSent) {
+            ((ItemMessageSent) item).setMessage(msg.getMessageContent());
+        } else if (item instanceof ItemMessageRecieved) {
+            ((ItemMessageRecieved) item).setMessage(msg.getMessageContent());
+        }
+
+        adapter.notifyItemChanged(index);
     }
 
     //TODO: HANDLE FALIED CONNECTIONS
@@ -389,7 +422,6 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         return usernames[0].equals(currentUsrName) ? usernames[1] : usernames[0];
     }
 
-    //TODO: UPDATE CHAT FOR ADMIN RECIEVER/REMOVED
     @Override
     public void onNotificationReceived(String notification) {
         WebSocketNotification wsn = WebSocketNotification.parse(notification);
@@ -399,6 +431,16 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
             case USER_DISCONNECTED_FROM_GROUP_CHAT:
                 Message msg = (Message) wsn.getContent();
                 recieveMessage(msg);
+                break;
+            case MESSAGE_DELETED:
+                Message deletedMsg = (Message) wsn.getContent();
+                updateMessage(deletedMsg);
+                break;
+            case MESSAGE_READ:
+                Message readMsg = (Message) wsn.getContent();
+                if (readMsg.getSender().equals(CurrentUser.getCurrentUser())) {
+                    updateMessage(readMsg);
+                }
                 break;
             case DELETE_CONTACT:
                 BaseChat deleteChat = (BaseChat) wsn.getContent();

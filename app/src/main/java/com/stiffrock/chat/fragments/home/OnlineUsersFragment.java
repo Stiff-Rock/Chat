@@ -144,7 +144,7 @@ public class OnlineUsersFragment extends Fragment implements OnItemClickListener
     }
 
     @Override
-    public void onItemClick(View view, Item item) {
+    public void onItemClick(View view, Item item, int postion) {
         ItemContactCard icc = (ItemContactCard) item;
         User user = icc.getUser();
         icc.setSelected(true);
@@ -154,7 +154,7 @@ public class OnlineUsersFragment extends Fragment implements OnItemClickListener
     }
 
     @Override
-    public void onLongItemClick(View view, Item item) {
+    public void onLongItemClick(View view, Item item, int postion) {
 
     }
 }

@@ -43,4 +43,5 @@
     <string name="texto_a_buscar">Texto a buscar</string>
     <string name="btnUp">Botón para ir a la siguiente instancia encontrada de la búsqueda</string>
     <string name="btnDown">Botón para ir a la anterior instancia encontrada de la búsqueda</string>
+    <string name="borrar_mensaje">Borrar mensaje</string>
 </resources>

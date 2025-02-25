@@ -1,20 +1,46 @@
 package com.stiffrock.chat.fragments.chat;
 
+import static com.stiffrock.chat.utils.LogTag.TAG;
+
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stiffrock.chat.ChatActivity;
 import com.stiffrock.chat.R;
+import com.stiffrock.chat.adapters.MyAdapter;
+import com.stiffrock.chat.dto.ApiResponse;
+import com.stiffrock.chat.items.Item;
+import com.stiffrock.chat.items.ItemMessageSent;
+import com.stiffrock.chat.model.Message;
+import com.stiffrock.chat.network.ApiService;
+import com.stiffrock.chat.network.RetrofitClient;
+import com.stiffrock.chat.utils.OnItemClickListener;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
-public class ChatMessagesFragment extends Fragment {
-    public RecyclerView recyclerView;
+public class ChatMessagesFragment extends Fragment implements OnItemClickListener {
+    private RecyclerView recyclerView;
+    private Map<Item, Message> itemMessageMap;
+
+    private ApiService apiService;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -22,6 +48,67 @@ public class ChatMessagesFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerView);
         EditText etMensaje = view.findViewById(R.id.etMensaje);
         view.findViewById(R.id.sendText).setOnClickListener(e -> ((ChatActivity) requireActivity()).sendMessage(etMensaje));
+        apiService = RetrofitClient.getApiService();
         return view;
+    }
+
+    private void apiDeleteMessage(Long msgId) {
+        Call<ApiResponse> call = apiService.deleteMessage(msgId);
+        call.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
+                if (!response.isSuccessful() && response.body() == null) {
+                    Log.e(TAG, "Error deleting message");
+                    Toast.makeText(requireContext(), "Error borrando el mensaje", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable throwable) {
+                Log.e(TAG, "DeleteMessage request failed: " + throwable.getMessage());
+                Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    //TODO NOT OPENING
+    private void openMsgPopup(View view, ItemMessageSent item) {
+        PopupMenu popupMenu = new PopupMenu(view.getContext(), view);
+        MenuInflater inflater = popupMenu.getMenuInflater();
+        inflater.inflate(R.menu.chat_context_menu, popupMenu.getMenu());
+
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            if (menuItem.getItemId() == R.id.deleteMsg) {
+                Long id = Objects.requireNonNull(itemMessageMap.get(item)).getId();
+                apiDeleteMessage(id);
+            }
+            return true;
+        });
+
+        popupMenu.show();
+    }
+
+    @Override
+    public void onItemClick(View view, Item item, int postion) {
+    }
+
+    @Override
+    public void onLongItemClick(View view, Item item, int postion) {
+        if (item instanceof ItemMessageSent) {
+            ItemMessageSent ims = (ItemMessageSent) item;
+            openMsgPopup(view, ims);
+        }
+    }
+
+    public MyAdapter initAdapter(List<Item> msgItems) {
+        return new MyAdapter(msgItems, this);
+    }
+
+    public void setMap(Map<Item, Message> itemMessageMap) {
+        this.itemMessageMap = itemMessageMap;
+    }
+
+    public RecyclerView getRecyclerView() {
+        return recyclerView;
     }
 }

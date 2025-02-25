@@ -45,9 +45,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
-//TODO: STORE MESSAGE HISTORY AND CHATS LOCALLY
-//TODO: LEAVE/JOIN GROUPCHAT AND NOTIF
 public class ContactsFragment extends Fragment implements OnItemClickListener, WebSocketNotificationListener {
     private ApiService apiService;
     private RecyclerView recyclerView;
@@ -57,8 +54,6 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
 
     private WebSocketClient wsClient;
 
-    //TODO: si te deslogeas y te logeas como otro suario el anterior se queda conectado al websocket
-    //TODO: al añadir un contacto, no comprueba su estado de online
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
@@ -132,27 +127,18 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         chats.add(icc);
         userChatMap.put(user, icc);
         adapter.notifyItemInserted(chats.size() - 1);
-    }
-
-    @Override
-    public void onItemClick(View view, Item item) {
-        CurrentUser.setCurrentChat(((ItemChatCard) item).getChat());
-        ((HomeActivity) requireActivity()).navigateToActivity(ChatActivity.class);
-    }
-
-    @Override
-    public void onLongItemClick(View view, Item item) {
-
+        wsGetContactsStatus();
     }
 
     private void addChat(BaseChat chat) {
         chats.add(new ItemChatCard(chat));
         adapter.notifyItemInserted(chats.size() - 1);
         Toast.makeText(requireContext(), "Se ha añadido un nuevo chat", Toast.LENGTH_SHORT).show();
+        if (chat instanceof PrivateChat) wsGetContactsStatus();
     }
 
     private void deleteChat(BaseChat chat) {
-        //TODO
+        //TODO Delete chat
         Log.w(TAG, "IMPLEMENT DELETING CHATS: " + chat);
     }
 
@@ -197,7 +183,16 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         adapter.notifyItemChanged(index);
     }
 
-    //TODO: UPDATE CHAT FOR ADMIN RECIEVER/REMOVED
+    @Override
+    public void onItemClick(View view, Item item, int postion) {
+        CurrentUser.setCurrentChat(((ItemChatCard) item).getChat());
+        ((HomeActivity) requireActivity()).navigateToActivity(ChatActivity.class);
+    }
+
+    @Override
+    public void onLongItemClick(View view, Item item, int postion) {
+    }
+
     @Override
     public void onNotificationReceived(String notification) {
         WebSocketNotification wsn = WebSocketNotification.parse(notification);
