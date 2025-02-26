@@ -14,7 +14,7 @@ public class Message {
     private String messageContent;
     private LocalDateTime timestamp;
     private MessageState messageState;
-
+    private Set<User> readBy = new HashSet<>();
     private boolean deleted = false;
 
     public Message() {
@@ -76,7 +76,17 @@ public class Message {
         this.messageState = messageState;
     }
 
+    public Set<User> getReadBy() {
+        return readBy;
+    }
 
+    public void setReadBy(Set<User> readBy) {
+        this.readBy = readBy;
+    }
+
+    public void markMsgReadByUser(User user) {
+        readBy.add(user);
+    }
 
     public boolean isDeleted() {
         return deleted;

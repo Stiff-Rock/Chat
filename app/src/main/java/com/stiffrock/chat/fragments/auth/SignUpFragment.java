@@ -54,6 +54,7 @@ public class SignUpFragment extends Fragment {
             return;
         } else if (inputUsername.length() < 3 || inputUsername.length() > 20) {
             Toast.makeText(requireContext(), "El usuario debe contener entre 3 y 20 caracteres", Toast.LENGTH_SHORT).show();
+            return;
         } else if (!inputPassword1.equals(inputPassword2)) {
             Toast.makeText(requireContext(), "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
             return;
