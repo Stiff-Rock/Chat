@@ -5,11 +5,13 @@ import static com.stiffrock.chat.utils.LogTag.TAG;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +21,7 @@ import com.stiffrock.chat.ChatActivity;
 import com.stiffrock.chat.HomeActivity;
 import com.stiffrock.chat.R;
 import com.stiffrock.chat.adapters.MyAdapter;
+import com.stiffrock.chat.dto.ApiResponse;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemChatCard;
 import com.stiffrock.chat.model.BaseChat;
@@ -76,7 +79,6 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         apiGetChatList();
     }
 
-    //TODO: ACTUALIZAR SOLO LOS QUE NO ESTEN??
     private void apiGetChatList() {
         chats = new ArrayList<>();
         userChatMap = new HashMap<>();
@@ -122,13 +124,20 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         wsClient.sendMessage(jsonObject.toString());
     }
 
+    private void wsGetUserStatus(User user) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("action", WebSocketAction.GET_USER_ONLINE_STATUS.name());
+        String userToCheck = GsonManager.gson.toJson(user);
+        jsonObject.add("content", GsonManager.gson.fromJson(userToCheck, JsonObject.class));
+        wsClient.sendMessage(jsonObject.toString());
+    }
+
     public void addContact(BaseChat chat, User user) {
         ItemChatCard icc = new ItemChatCard(chat);
         chats.add(icc);
         userChatMap.put(user, icc);
         adapter.notifyItemInserted(chats.size() - 1);
-        //TODO GET SINGLE CONTACT STATUS NOT ALL
-        wsGetContactsStatus();
+        wsGetUserStatus(user);
     }
 
     private void addChat(BaseChat chat) {
@@ -138,12 +147,54 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         if (chat instanceof PrivateChat) wsGetContactsStatus();
     }
 
-    private void deleteChat(BaseChat chat) {
-        //TODO Delete chat
-        Log.w(TAG, "IMPLEMENT DELETING CHATS: " + chat);
+    //TODO: MANEJAR CUANDO PASA ESTO EN OTROS FRAGMENTS DE CHAT
+    private void deleteContact(User contact) {
+        Log.w(TAG, "DELETE CHATS OF USER: " + contact);
+        ItemChatCard icc = userChatMap.get(contact);
+        Log.w(TAG, "icc: " + icc);
+        int index = chats.indexOf(icc);
+        Log.w(TAG, "index: " + index);
+        chats.remove(icc);
+        userChatMap.remove(contact);
+        adapter.notifyItemRemoved(index);
     }
 
-    //TODO: MAKE UNREAD MESSAGES BUBBLE
+    private void apiDeleteContact(Long chatId) {
+        Call<ApiResponse> call = apiService.deleteContact(chatId);
+        call.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
+                if (!response.isSuccessful() && response.body() == null) {
+                    Log.e(TAG, "Error deleting contact: " + response.code());
+                    Toast.makeText(requireContext(), "Error eliminando el contacto", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable throwable) {
+                Log.e(TAG, "DeleteContact request failed: " + throwable.getMessage());
+                Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void openContactPopup(View view, ItemChatCard item) {
+        PopupMenu popupMenu = new PopupMenu(view.getContext(), view);
+        MenuInflater inflater = popupMenu.getMenuInflater();
+        inflater.inflate(R.menu.contact_context_menu, popupMenu.getMenu());
+
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            if (menuItem.getItemId() == R.id.deleteContact) {
+                BaseChat chat = item.getChat();
+                apiDeleteContact(chat.getId());
+            }
+            return true;
+        });
+
+        popupMenu.show();
+    }
+
+    //TODO PUSH NOTIFS
     private void showNotification(Message msg) {
         if (msg.getSender().getUsername().equals("SYSTEM")) return;
 
@@ -153,11 +204,11 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         ItemChatCard icc = userChatMap.get(msg.getSender());
         int lastIndex = chats.indexOf(icc);
 
-        if (lastIndex == 0) return;
+        if (lastIndex == -1) return;
 
         boolean isDeleted = chats.remove(icc);
         if (!isDeleted) {
-            Log.e(TAG, "Could not delete chatCard for user <" + msg.getSender().getUsername() + ">");
+            Log.e(TAG, "Could not delete chatCard for user while triying to move it to the top <" + msg.getSender().getUsername() + ">");
             return;
         }
         chats.add(0, icc);
@@ -192,6 +243,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
 
     @Override
     public void onLongItemClick(View view, Item item, int postion) {
+        openContactPopup(view, (ItemChatCard) item);
     }
 
     @Override
@@ -203,12 +255,13 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
                 showNotification(msg);
                 break;
             case ADD_CHAT:
+                Log.d(TAG, "NEW CHAT");
                 BaseChat addChat = (BaseChat) wsn.getContent();
                 addChat(addChat);
                 break;
             case DELETE_CONTACT:
-                BaseChat deleteChat = (BaseChat) wsn.getContent();
-                deleteChat(deleteChat);
+                User userDeleted = (User) wsn.getContent();
+                deleteContact(userDeleted);
                 break;
             case USER_CONNECTED:
                 User userConnected = (User) wsn.getContent();

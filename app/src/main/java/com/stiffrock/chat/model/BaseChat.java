@@ -1,13 +1,15 @@
 package com.stiffrock.chat.model;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 public abstract class BaseChat {
     private Long id;
-    private Set<User> participants;
-    private List<Message> messages;
+    private Set<User> participants = new HashSet<>();
+    private List<Message> messages = new ArrayList<>();
 
     public BaseChat() {
     }

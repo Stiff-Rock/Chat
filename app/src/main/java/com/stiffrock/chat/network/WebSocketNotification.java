@@ -37,12 +37,11 @@ public class WebSocketNotification {
             JsonObject json = JsonParser.parseString(notification).getAsJsonObject();
             WebSocketAction action = WebSocketAction.valueOf(json.get("action").getAsString());
 
-            Object content = null;
+            Object content;
 
             // Manejar el parseo del contenido
             switch (action) {
                 case ADD_CHAT:
-                case DELETE_CONTACT:
                     content = GsonManager.gson.fromJson(json.get("content").getAsString(), BaseChat.class);
                     break;
 
@@ -59,6 +58,7 @@ public class WebSocketNotification {
                     content = json.getAsJsonObject("content");
                     break;
 
+                case DELETE_CONTACT:
                 case USER_CONNECTED:
                 case USER_DISCONNECTED:
                     content = GsonManager.gson.fromJson(json.get("content").getAsString(), User.class);

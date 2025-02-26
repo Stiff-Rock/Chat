@@ -61,10 +61,9 @@ public interface ApiService {
     // Endpoint de chats
     @POST("chats/private/create")
     Call<PrivateChat> addContact(@Body PrivateChatDTO privateChatDTO);
-    //TODO USELESS?
-    @GET("chats/chat/{chatId}")
-    Call<BaseChat> getChat(@Path("chatId") Long chatId);
 
+    @DELETE("chats/private/delete/{chatId}")
+    Call<ApiResponse> deleteContact(@Path("chatId") Long chatId);
 
     // Endpoint de grupos
     @POST("groups/create")

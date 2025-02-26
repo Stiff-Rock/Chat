@@ -60,7 +60,6 @@ public class LauncherActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     User user = response.body();
-                    Log.w(TAG, "AUTOLOGGED: " + user);
                     CurrentUser.setCurrentUser(user);
                     Toast.makeText(LauncherActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
                     startActivity(HomeActivity.class);
