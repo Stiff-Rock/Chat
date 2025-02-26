@@ -28,7 +28,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.JsonObject;
@@ -110,7 +109,6 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
                 super.onFragmentResumed(fm, f);
 
                 recyclerView = ((ChatMessagesFragment) f).getRecyclerView();
-                recyclerView.setLayoutManager(new LinearLayoutManager(ChatActivity.this));
                 adapter = ((ChatMessagesFragment) f).initAdapter(msgItems);
                 ((ChatMessagesFragment) f).setMap(itemMessageMap);
 
@@ -313,7 +311,7 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
 
         Item item;
         if (itemType == 1) {
-            item = new ItemMessageSent(sender, text, timestamp);
+            item = new ItemMessageSent(sender, text, timestamp, msg.getMessageState());
             msgItems.add(item);
         } else if (itemType == 2) {
             item = new ItemMessageRecieved(sender, text, timestamp);
@@ -378,6 +376,7 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
 
         if (item instanceof ItemMessageSent) {
             ((ItemMessageSent) item).setMessage(msg.getMessageContent());
+            ((ItemMessageSent) item).setMessageState(msg.getMessageState());
         } else if (item instanceof ItemMessageRecieved) {
             ((ItemMessageRecieved) item).setMessage(msg.getMessageContent());
         }
@@ -385,7 +384,7 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         adapter.notifyItemChanged(index);
     }
 
-    //TODO: HANDLE FALIED CONNECTIONS
+    //TODO: HANDLE TRYING RE-SEND
     private void apiSendMessage(MessageDTO messageDTO) {
         Call<Message> call = apiService.sendMessage(messageDTO);
         call.enqueue(new Callback<Message>() {
@@ -394,6 +393,12 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
                 if (response.isSuccessful() && response.body() != null) {
                     Message msg = response.body();
                     messages.add(msg);
+
+                    Item item = messageItemMap.remove(new Message());
+                    itemMessageMap.put(item, msg);
+                    messageItemMap.put(msg, item);
+
+                    updateMessage(msg);
                 } else {
                     Log.e(TAG, "Error sending message: " + response.code());
                     Toast.makeText(ChatActivity.this, "Error enviado el mensaje", Toast.LENGTH_SHORT).show();

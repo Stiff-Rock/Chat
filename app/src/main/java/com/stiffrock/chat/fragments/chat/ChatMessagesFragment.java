@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stiffrock.chat.ChatActivity;
@@ -21,6 +22,7 @@ import com.stiffrock.chat.R;
 import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.dto.ApiResponse;
 import com.stiffrock.chat.items.Item;
+import com.stiffrock.chat.items.ItemMessageRecieved;
 import com.stiffrock.chat.items.ItemMessageSent;
 import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.network.ApiService;
@@ -46,6 +48,15 @@ public class ChatMessagesFragment extends Fragment implements OnItemClickListene
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat_messages, container, false);
         recyclerView = view.findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                checkVisibleMessages();
+            }
+        });
+
         EditText etMensaje = view.findViewById(R.id.etMensaje);
         view.findViewById(R.id.sendText).setOnClickListener(e -> ((ChatActivity) requireActivity()).sendMessage(etMensaje));
         apiService = RetrofitClient.getApiService();
@@ -71,7 +82,25 @@ public class ChatMessagesFragment extends Fragment implements OnItemClickListene
         });
     }
 
-    //TODO NOT OPENING
+    private void checkVisibleMessages() {
+        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+        if (layoutManager instanceof LinearLayoutManager) {
+            LinearLayoutManager linearLayoutManager = (LinearLayoutManager) layoutManager;
+
+            int firstVisiblePos = linearLayoutManager.findFirstVisibleItemPosition();
+            int lastVisiblePos = linearLayoutManager.findLastVisibleItemPosition();
+
+            for (int i = firstVisiblePos; i <= lastVisiblePos; i++) {
+                View itemView = linearLayoutManager.findViewByPosition(i);
+                if (itemView != null) {
+                    ItemMessageRecieved imr = (ItemMessageRecieved) itemView.getTag();
+                    Message msg = itemMessageMap.get(imr);
+                    if (msg == null || msg.isDeleted()) return;
+                }
+            }
+        }
+    }
+
     private void openMsgPopup(View view, ItemMessageSent item) {
         PopupMenu popupMenu = new PopupMenu(view.getContext(), view);
         MenuInflater inflater = popupMenu.getMenuInflater();
@@ -88,18 +117,6 @@ public class ChatMessagesFragment extends Fragment implements OnItemClickListene
         popupMenu.show();
     }
 
-    @Override
-    public void onItemClick(View view, Item item, int postion) {
-    }
-
-    @Override
-    public void onLongItemClick(View view, Item item, int postion) {
-        if (item instanceof ItemMessageSent) {
-            ItemMessageSent ims = (ItemMessageSent) item;
-            openMsgPopup(view, ims);
-        }
-    }
-
     public MyAdapter initAdapter(List<Item> msgItems) {
         return new MyAdapter(msgItems, this);
     }
@@ -110,5 +127,17 @@ public class ChatMessagesFragment extends Fragment implements OnItemClickListene
 
     public RecyclerView getRecyclerView() {
         return recyclerView;
+    }
+
+    @Override
+    public void onItemClick(View view, Item item, int postion) {
+    }
+
+    @Override
+    public void onLongItemClick(View view, Item item, int postion) {
+        if (item instanceof ItemMessageSent) {
+            ItemMessageSent ims = (ItemMessageSent) item;
+            openMsgPopup(view, ims);
+        }
     }
 }

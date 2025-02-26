@@ -1,5 +1,7 @@
 package com.stiffrock.chat.model;
 
+import androidx.annotation.NonNull;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -9,6 +11,7 @@ public class Message {
     private BaseChat chat;
     private String messageContent;
     private LocalDateTime timestamp;
+    private MessageState messageState;
     private boolean deleted = false;
 
     public Message() {
@@ -19,6 +22,7 @@ public class Message {
         this.chat = chat;
         this.messageContent = messageContent;
         this.timestamp = timestamp;
+        messageState = MessageState.SENT;
     }
 
     public Long getId() {
@@ -61,6 +65,14 @@ public class Message {
         this.timestamp = timestamp;
     }
 
+    public MessageState getMessageState() {
+        return messageState;
+    }
+
+    public void setMessageState(MessageState messageState) {
+        this.messageState = messageState;
+    }
+
     public boolean isDeleted() {
         return deleted;
     }
@@ -82,8 +94,9 @@ public class Message {
         return Objects.hashCode(id);
     }
 
+    @NonNull
     @Override
     public String toString() {
-        return "Message{" + "id=" + id + ", sender=" + sender + ", chat=" + chat + ", messageContent='" + messageContent + '\'' + ", timestamp=" + timestamp + '}';
+        return "Message{" + "id=" + id + ", sender=" + sender + ", chat=" + chat + ", messageContent='" + messageContent + '\'' + ", timestamp=" + timestamp + ", messageState=" + messageState + ", deleted=" + deleted + '}';
     }
 }

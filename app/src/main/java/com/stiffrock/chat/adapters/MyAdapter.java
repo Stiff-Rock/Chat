@@ -83,6 +83,8 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ViewHolderMessageRecieved view = (ViewHolderMessageRecieved) holder;
             ItemMessageRecieved item = (ItemMessageRecieved) items.get(position);
 
+            holder.itemView.setTag(item);
+
             String sender = item.getSender();
             if (sender.isBlank()) view.sender.setVisibility(View.GONE);
             else view.sender.setText(sender);
@@ -118,8 +120,20 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (message.equals("Mensaje eliminado")) {
                 view.textSent.setTextColor(view.itemView.getContext().getColor(R.color.standard_text_color_tertiary));
                 view.textSent.setText(message);
+                view.msgStatus.setVisibility(View.GONE);
             } else {
                 view.textSent.setText(matches.contains(position) ? highlightText(message, position, view.itemView) : message);
+                if (item.getMessageState() != null) switch (item.getMessageState()) {
+                    case SENT:
+                        view.msgStatus.setImageResource(R.drawable.message_sent_to_server);
+                        break;
+                    case PARTIALLY_READ:
+                        view.msgStatus.setImageResource(R.drawable.message_partial_read);
+                        break;
+                    case READ:
+                        view.msgStatus.setImageResource(R.drawable.message_read);
+                        break;
+                }
             }
         } else if (holder instanceof ViewHolderChatCard) {
             ViewHolderChatCard view = (ViewHolderChatCard) holder;
@@ -271,6 +285,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private final TextView sender;
         private final TextView textSent;
         private final TextView timeStamp;
+        private final ImageView msgStatus;
 
         public ViewHolderMessageSent(@NonNull View itemView) {
             super(itemView);
@@ -278,6 +293,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             sender = itemView.findViewById(R.id.sender);
             textSent = itemView.findViewById(R.id.textSent);
             timeStamp = itemView.findViewById(R.id.timeStamp);
+            msgStatus = itemView.findViewById(R.id.msgStatus);
         }
     }
 
