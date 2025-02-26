@@ -92,31 +92,31 @@ public class ChatMessagesFragment extends Fragment implements OnItemClickListene
     }
 
     private void checkVisibleMessages() {
-//        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-//        if (layoutManager instanceof LinearLayoutManager) {
-//            LinearLayoutManager linearLayoutManager = (LinearLayoutManager) layoutManager;
-//            int firstVisiblePos = linearLayoutManager.findFirstVisibleItemPosition();
-//            int lastVisiblePos = linearLayoutManager.findLastVisibleItemPosition();
-//            for (int i = firstVisiblePos; i <= lastVisiblePos; i++) {
-//                View itemView = linearLayoutManager.findViewByPosition(i);
-//                if (itemView == null) continue;
-//
-//                Object tag = itemView.getTag();
-//
-//                if (!(tag instanceof ItemMessageRecieved)) continue;
-//
-//                ItemMessageRecieved imr = (ItemMessageRecieved) tag;
-//
-//                Message msg = itemMessageMap.get(imr);
-//                User currentUser = CurrentUser.getCurrentUser();
-//                if (msg == null || msg.isDeleted() || msg.getSender().equals(currentUser)) continue;
-//
-//                if (msg.getMessageState() != MessageState.READ || !msg.getReadBy().contains(currentUser)) {
-//                    msg.markAsReadByUser(CurrentUser.getCurrentUser());
-//                    wsSendMessageSatusChange(msg);
-//                }
-//            }
-//        }
+        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+        if (layoutManager instanceof LinearLayoutManager) {
+            LinearLayoutManager linearLayoutManager = (LinearLayoutManager) layoutManager;
+            int firstVisiblePos = linearLayoutManager.findFirstVisibleItemPosition();
+            int lastVisiblePos = linearLayoutManager.findLastVisibleItemPosition();
+            for (int i = firstVisiblePos; i <= lastVisiblePos; i++) {
+                View itemView = linearLayoutManager.findViewByPosition(i);
+                if (itemView == null) continue;
+
+                Object tag = itemView.getTag();
+
+                if (!(tag instanceof ItemMessageRecieved)) continue;
+
+                ItemMessageRecieved imr = (ItemMessageRecieved) tag;
+
+                Message msg = itemMessageMap.get(imr);
+                User currentUser = CurrentUser.getCurrentUser();
+                if (msg == null || msg.isDeleted() || msg.getSender().equals(currentUser)) continue;
+
+                if (msg.getMessageState() != MessageState.READ || !msg.getReadBy().contains(currentUser)) {
+                    msg.markMsgReadByUser(CurrentUser.getCurrentUser());
+                    wsSendMessageSatusChange(msg);
+                }
+            }
+        }
     }
 
     private void wsSendMessageSatusChange(Message msg) {
