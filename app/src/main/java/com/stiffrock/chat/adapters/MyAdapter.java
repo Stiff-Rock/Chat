@@ -79,11 +79,12 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        Item defaultItem = items.get(position);
+        holder.itemView.setTag(defaultItem);
+
         if (holder instanceof ViewHolderMessageRecieved) {
             ViewHolderMessageRecieved view = (ViewHolderMessageRecieved) holder;
-            ItemMessageRecieved item = (ItemMessageRecieved) items.get(position);
-
-            holder.itemView.setTag(item);
+            ItemMessageRecieved item = (ItemMessageRecieved) defaultItem;
 
             String sender = item.getSender();
             if (sender.isBlank()) view.sender.setVisibility(View.GONE);
@@ -101,7 +102,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
         } else if (holder instanceof ViewHolderMessageSent) {
             ViewHolderMessageSent view = (ViewHolderMessageSent) holder;
-            ItemMessageSent item = (ItemMessageSent) items.get(position);
+            ItemMessageSent item = (ItemMessageSent) defaultItem;
 
             String sender = item.getSender();
             if (sender.isBlank()) view.sender.setVisibility(View.GONE);
@@ -137,7 +138,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
         } else if (holder instanceof ViewHolderChatCard) {
             ViewHolderChatCard view = (ViewHolderChatCard) holder;
-            ItemChatCard item = (ItemChatCard) items.get(position);
+            ItemChatCard item = (ItemChatCard) defaultItem;
 
             view.parentLayout.setOnClickListener(v -> {
                 if (listener != null) listener.onItemClick(v, item, position);
@@ -166,7 +167,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             view.tvChatName.setText(item.getChatName());
         } else if (holder instanceof ViewHolderContactCard) {
             ViewHolderContactCard view = (ViewHolderContactCard) holder;
-            ItemContactCard item = (ItemContactCard) items.get(position);
+            ItemContactCard item = (ItemContactCard) defaultItem;
 
             view.parentLayout.setOnClickListener(v -> {
                 if (listener != null) listener.onItemClick(v, item, position);
@@ -193,8 +194,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             view.tvContactName.setText(item.getName());
         } else {
             ViewHolderMessageNotification view = (ViewHolderMessageNotification) holder;
-            ItemMessageNotification item = (ItemMessageNotification) items.get(position);
-
+            ItemMessageNotification item = (ItemMessageNotification) defaultItem;
             view.textNotification.setText(item.getMessage());
         }
     }

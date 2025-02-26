@@ -127,6 +127,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         chats.add(icc);
         userChatMap.put(user, icc);
         adapter.notifyItemInserted(chats.size() - 1);
+        //TODO GET SINGLE CONTACT STATUS NOT ALL
         wsGetContactsStatus();
     }
 
@@ -175,7 +176,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     private void updateContactOnlineStatus(boolean isOnline, User user) {
         ItemChatCard icc = userChatMap.get(user);
         if (icc == null) {
-            Log.e(TAG, "Could not retireve contact ChatCard");
+            Log.w(TAG, "Could not retireve contact ChatCard:\nUser: " + user);
             return;
         }
         icc.setOnline(isOnline);

@@ -3,7 +3,9 @@ package com.stiffrock.chat.model;
 import androidx.annotation.NonNull;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 public class Message {
     private Long id;
@@ -12,6 +14,7 @@ public class Message {
     private String messageContent;
     private LocalDateTime timestamp;
     private MessageState messageState;
+
     private boolean deleted = false;
 
     public Message() {
@@ -72,6 +75,8 @@ public class Message {
     public void setMessageState(MessageState messageState) {
         this.messageState = messageState;
     }
+
+
 
     public boolean isDeleted() {
         return deleted;

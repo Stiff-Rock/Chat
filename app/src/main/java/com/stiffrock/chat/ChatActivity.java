@@ -371,10 +371,12 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
     }
 
     private void updateMessage(Message msg) {
+        Log.e(TAG, "updateMessage: " + msg);
         Item item = messageItemMap.get(msg);
         int index = msgItems.indexOf(item);
 
         if (item instanceof ItemMessageSent) {
+            Log.e(TAG, "YEAH");
             ((ItemMessageSent) item).setMessage(msg.getMessageContent());
             ((ItemMessageSent) item).setMessageState(msg.getMessageState());
         } else if (item instanceof ItemMessageRecieved) {
@@ -442,6 +444,7 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
                 updateMessage(deletedMsg);
                 break;
             case MESSAGE_READ:
+                Log.e(TAG, "MESSAGE READ");
                 Message readMsg = (Message) wsn.getContent();
                 if (readMsg.getSender().equals(CurrentUser.getCurrentUser())) {
                     updateMessage(readMsg);
