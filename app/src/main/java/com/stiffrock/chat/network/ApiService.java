@@ -4,6 +4,7 @@ import com.stiffrock.chat.dto.ApiResponse;
 import com.stiffrock.chat.dto.CredentialsDTO;
 import com.stiffrock.chat.dto.GroupChatDTO;
 import com.stiffrock.chat.dto.MessageDTO;
+import com.stiffrock.chat.dto.MessageUpdateDto;
 import com.stiffrock.chat.dto.PrivateChatDTO;
 import com.stiffrock.chat.model.BaseChat;
 import com.stiffrock.chat.model.GroupChat;
@@ -17,6 +18,7 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
@@ -35,6 +37,9 @@ public interface ApiService {
 
     @PUT("messages/message/{messageId}")
     Call<ApiResponse> deleteMessage(@Path("messageId") Long messageId);
+
+    @PATCH("messages/message/update")
+    Call<ApiResponse> updateMessageStatus(@Body MessageUpdateDto mud);
 
     // Endpoint de usuarios
     @POST("users/register")

@@ -17,11 +17,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.gson.JsonObject;
 import com.stiffrock.chat.ChatActivity;
 import com.stiffrock.chat.R;
 import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.dto.ApiResponse;
+import com.stiffrock.chat.dto.MessageUpdateDto;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemMessageRecieved;
 import com.stiffrock.chat.items.ItemMessageSent;
@@ -29,11 +29,8 @@ import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.model.MessageState;
 import com.stiffrock.chat.model.User;
-import com.stiffrock.chat.model.WebSocketAction;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
-import com.stiffrock.chat.network.WebSocketClient;
-import com.stiffrock.chat.utils.GsonManager;
 import com.stiffrock.chat.utils.OnItemClickListener;
 
 import java.util.List;
@@ -50,7 +47,6 @@ public class ChatMessagesFragment extends Fragment implements OnItemClickListene
     private Map<Item, Message> itemMessageMap;
 
     private ApiService apiService;
-    private WebSocketClient wsClient;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -68,7 +64,6 @@ public class ChatMessagesFragment extends Fragment implements OnItemClickListene
         EditText etMensaje = view.findViewById(R.id.etMensaje);
         view.findViewById(R.id.sendText).setOnClickListener(e -> ((ChatActivity) requireActivity()).sendMessage(etMensaje));
         apiService = RetrofitClient.getApiService();
-        wsClient = WebSocketClient.getInstance();
         return view;
     }
 
@@ -112,19 +107,29 @@ public class ChatMessagesFragment extends Fragment implements OnItemClickListene
                 if (msg == null || msg.isDeleted() || msg.getSender().equals(currentUser)) continue;
 
                 if (msg.getMessageState() != MessageState.READ || !msg.getReadBy().contains(currentUser)) {
-                    msg.markMsgReadByUser(CurrentUser.getCurrentUser());
-                    wsSendMessageSatusChange(msg);
+                    MessageState state = msg.getMessageState();
+                    MessageUpdateDto mud = new MessageUpdateDto(currentUser, msg, state);
+                    sendMessageSatusChange(mud);
                 }
             }
         }
     }
 
-    private void wsSendMessageSatusChange(Message msg) {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("action", WebSocketAction.MESSAGE_READ.name());
-        String message = GsonManager.gson.toJson(msg);
-        jsonObject.add("content", GsonManager.gson.fromJson(message, JsonObject.class));
-        wsClient.sendMessage(jsonObject.toString());
+    private void sendMessageSatusChange(MessageUpdateDto mud) {
+        Call<ApiResponse> call = apiService.updateMessageStatus(mud);
+        call.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
+                if (!response.isSuccessful() && response.body() == null) {
+                    Log.e(TAG, "Error updating message status: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable throwable) {
+                Log.e(TAG, "SendMessageSatusChange request failed: " + throwable.getMessage());
+            }
+        });
     }
 
     private void openMsgPopup(View view, ItemMessageSent item) {
