@@ -101,7 +101,7 @@ public class HomeActivity extends FragmentContainerActivity {
             Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
             if (currentFragment instanceof ContactsFragment) {
                 ContactsFragment cf = (ContactsFragment) currentFragment;
-                replaceFragment(new AddGroupFragment(new ArrayList<>(cf.userChatMap.keySet())));
+                replaceFragment(new AddGroupFragment(new ArrayList<>(cf.privateChatsMap.keySet())));
             }
             return true;
         } else if (item.getItemId() == R.id.showOnlineUsers) {

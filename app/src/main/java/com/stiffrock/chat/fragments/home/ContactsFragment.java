@@ -53,7 +53,8 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     private RecyclerView recyclerView;
     private MyAdapter adapter;
     private List<Item> chats;
-    public Map<User, ItemChatCard> userChatMap;
+    public Map<User, ItemChatCard> privateChatsMap;
+    public Map<BaseChat, ItemChatCard> groupChatsMap;
 
     private WebSocketClient wsClient;
 
@@ -81,7 +82,8 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
 
     private void apiGetChatList() {
         chats = new ArrayList<>();
-        userChatMap = new HashMap<>();
+        privateChatsMap = new HashMap<>();
+        groupChatsMap = new HashMap<>();
         Call<List<BaseChat>> call = apiService.getUserChats(CurrentUser.getCurrentUser().getId());
         call.enqueue(new Callback<List<BaseChat>>() {
             @Override
@@ -92,8 +94,10 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
                         chats.add(icc);
                         if (chat instanceof PrivateChat) {
                             User contact = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser());
-                            userChatMap.put(contact, icc);
+                            privateChatsMap.put(contact, icc);
                             CurrentUser.getContacts().add((PrivateChat) chat);
+                        } else if (chat instanceof GroupChat) {
+                            groupChatsMap.put(chat, icc);
                         }
                     }
                     wsGetContactsStatus();
@@ -135,9 +139,13 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     public void addContact(BaseChat chat, User user) {
         ItemChatCard icc = new ItemChatCard(chat);
         chats.add(icc);
-        userChatMap.put(user, icc);
+        if (chat instanceof PrivateChat) {
+            privateChatsMap.put(user, icc);
+            wsGetUserStatus(user);
+        } else if (chat instanceof GroupChat) {
+            groupChatsMap.put(chat, icc);
+        }
         adapter.notifyItemInserted(chats.size() - 1);
-        wsGetUserStatus(user);
     }
 
     private void addChat(BaseChat chat) {
@@ -148,14 +156,22 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     }
 
     //TODO: MANEJAR CUANDO PASA ESTO EN OTROS FRAGMENTS DE CHAT
-    private void deleteContact(User contact) {
-        Log.w(TAG, "DELETE CHATS OF USER: " + contact);
-        ItemChatCard icc = userChatMap.get(contact);
-        Log.w(TAG, "icc: " + icc);
-        int index = chats.indexOf(icc);
-        Log.w(TAG, "index: " + index);
+    private void deleteContact(BaseChat chat) {
+        int index = -1;
+        ItemChatCard icc = null;
+        if (chat instanceof PrivateChat) {
+            User contact = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser());
+            icc = privateChatsMap.get(contact);
+            index = chats.indexOf(icc);
+            privateChatsMap.remove(contact);
+        } else if (chat instanceof GroupChat) {
+            icc = groupChatsMap.get(chat);
+            index = chats.indexOf(icc);
+            groupChatsMap.remove(chat);
+        } else {
+            Log.wtf(TAG, "Provided BaseChat is wrong type or null: " + chat);
+        }
         chats.remove(icc);
-        userChatMap.remove(contact);
         adapter.notifyItemRemoved(index);
     }
 
@@ -179,13 +195,15 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     }
 
     private void openContactPopup(View view, ItemChatCard item) {
+        BaseChat chat = item.getChat();
+        if (!(chat instanceof PrivateChat)) return;
+
         PopupMenu popupMenu = new PopupMenu(view.getContext(), view);
         MenuInflater inflater = popupMenu.getMenuInflater();
         inflater.inflate(R.menu.contact_context_menu, popupMenu.getMenu());
 
         popupMenu.setOnMenuItemClickListener(menuItem -> {
             if (menuItem.getItemId() == R.id.deleteContact) {
-                BaseChat chat = item.getChat();
                 apiDeleteContact(chat.getId());
             }
             return true;
@@ -201,7 +219,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         BaseChat chat = msg.getChat();
         Toast.makeText(requireContext(), "Mensaje recibido de " + getChatName(chat), Toast.LENGTH_SHORT).show();
 
-        ItemChatCard icc = userChatMap.get(msg.getSender());
+        ItemChatCard icc = privateChatsMap.get(msg.getSender());
         int lastIndex = chats.indexOf(icc);
 
         if (lastIndex == -1) return;
@@ -225,7 +243,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     }
 
     private void updateContactOnlineStatus(boolean isOnline, User user) {
-        ItemChatCard icc = userChatMap.get(user);
+        ItemChatCard icc = privateChatsMap.get(user);
         if (icc == null) {
             Log.w(TAG, "Could not retireve contact ChatCard:\nUser: " + user);
             return;
@@ -260,8 +278,11 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
                 addChat(addChat);
                 break;
             case DELETE_CONTACT:
-                User userDeleted = (User) wsn.getContent();
-                deleteContact(userDeleted);
+                BaseChat deletedChat = (BaseChat) wsn.getContent();
+                deleteContact(deletedChat);
+                break;
+            case DELETE_GROUP:
+                //TODO: THIS IS INCONSISTENT
                 break;
             case USER_CONNECTED:
                 User userConnected = (User) wsn.getContent();

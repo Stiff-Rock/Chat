@@ -3,6 +3,7 @@ package com.stiffrock.chat.model;
 public enum WebSocketAction {
     ADD_CHAT,
     DELETE_CONTACT,
+    DELETE_GROUP,
 
     MESSAGE_RECEIVED,
     MESSAGE_READ,
