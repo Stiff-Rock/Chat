@@ -78,7 +78,7 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         view.findViewById(R.id.btnAddMember).setOnClickListener(v -> addMemberDialog());
         //TODO: update chat item when updating admin or members
         view.findViewById(R.id.btnLeaveGroup).setOnClickListener(v -> {
-            if (chat.getAdmins().contains(CurrentUser.getCurrentUser()) && chat.getAdmins().size() == 1) {
+            if (chat.getAdmins().contains(CurrentUser.getCurrentUser()) && chat.getAdmins().size() > 1) {
                 Toast.makeText(requireContext(), "Designa otro admin antes de abandonar el grupo", Toast.LENGTH_SHORT).show();
                 return;
             }
