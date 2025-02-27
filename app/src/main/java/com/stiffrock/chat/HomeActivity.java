@@ -224,8 +224,8 @@ public class HomeActivity extends FragmentContainerActivity {
     }
 
     private void logOut() {
-        CurrentUser.setCurrentUser(null);
         WebSocketClient.getInstance().disconnect();
+        CurrentUser.setCurrentUser(null);
 
         SharedPreferences sp = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         sp.edit().putBoolean("rememberLogIn", false).apply();
