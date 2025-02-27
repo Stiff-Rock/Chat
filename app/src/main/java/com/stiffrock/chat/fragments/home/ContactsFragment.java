@@ -54,7 +54,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     private MyAdapter adapter;
     private List<Item> chats;
     public Map<User, ItemChatCard> privateChatsMap;
-    public Map<BaseChat, ItemChatCard> groupChatsMap;
+    public Map<BaseChat, ItemChatCard> allChatsMap;
 
     private WebSocketClient wsClient;
 
@@ -83,7 +83,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     private void apiGetChatList() {
         chats = new ArrayList<>();
         privateChatsMap = new HashMap<>();
-        groupChatsMap = new HashMap<>();
+        allChatsMap = new HashMap<>();
         Call<List<BaseChat>> call = apiService.getUserChats(CurrentUser.getCurrentUser().getId());
         call.enqueue(new Callback<List<BaseChat>>() {
             @Override
@@ -96,9 +96,9 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
                             User contact = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser());
                             privateChatsMap.put(contact, icc);
                             CurrentUser.getContacts().add((PrivateChat) chat);
-                        } else if (chat instanceof GroupChat) {
-                            groupChatsMap.put(chat, icc);
                         }
+
+                        allChatsMap.put(chat, icc);
                     }
                     wsGetContactsStatus();
                 } else {
@@ -142,37 +142,59 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         if (chat instanceof PrivateChat) {
             privateChatsMap.put(user, icc);
             wsGetUserStatus(user);
-        } else if (chat instanceof GroupChat) {
-            groupChatsMap.put(chat, icc);
         }
+
+        allChatsMap.put(chat, icc);
+
         adapter.notifyItemInserted(chats.size() - 1);
     }
 
     private void addChat(BaseChat chat) {
-        chats.add(new ItemChatCard(chat));
+        ItemChatCard icc = new ItemChatCard(chat);
+        chats.add(icc);
+        allChatsMap.put(chat, icc);
         adapter.notifyItemInserted(chats.size() - 1);
-        Toast.makeText(requireContext(), "Se ha añadido un nuevo chat", Toast.LENGTH_SHORT).show();
-        if (chat instanceof PrivateChat) wsGetContactsStatus();
+
+        String type = null;
+        if (chat instanceof PrivateChat) {
+            type = "contacto";
+            User contact = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser());
+            privateChatsMap.put(contact, icc);
+            wsGetContactsStatus();
+        } else if (chat instanceof GroupChat) {
+            type = "grupo";
+        }
+
+        Toast.makeText(requireContext(), "Se ha añadido un nuevo " + type, Toast.LENGTH_SHORT).show();
     }
 
     //TODO: MANEJAR CUANDO PASA ESTO EN OTROS FRAGMENTS DE CHAT
     private void deleteContact(BaseChat chat) {
-        int index = -1;
-        ItemChatCard icc = null;
+        int index;
+        ItemChatCard icc;
+        String chatName;
+        String type;
         if (chat instanceof PrivateChat) {
             User contact = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser());
             icc = privateChatsMap.get(contact);
             index = chats.indexOf(icc);
             privateChatsMap.remove(contact);
+            chatName = ((PrivateChat) chat).getName();
+            type = "contacto";
         } else if (chat instanceof GroupChat) {
-            icc = groupChatsMap.get(chat);
+            icc = allChatsMap.get(chat);
             index = chats.indexOf(icc);
-            groupChatsMap.remove(chat);
+            chatName = ((GroupChat) chat).getName();
+            type = "grupo";
         } else {
             Log.wtf(TAG, "Provided BaseChat is wrong type or null: " + chat);
+            return;
         }
+
+        allChatsMap.remove(chat);
         chats.remove(icc);
         adapter.notifyItemRemoved(index);
+        Toast.makeText(requireContext(), "Se ha eliminado el " + type + " \"" + chatName + "\"", Toast.LENGTH_SHORT).show();
     }
 
     private void apiDeleteContact(Long chatId) {
@@ -273,16 +295,13 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
                 showNotification(msg);
                 break;
             case ADD_CHAT:
-                Log.d(TAG, "NEW CHAT");
                 BaseChat addChat = (BaseChat) wsn.getContent();
                 addChat(addChat);
                 break;
             case DELETE_CONTACT:
+            case DELETE_GROUP:
                 BaseChat deletedChat = (BaseChat) wsn.getContent();
                 deleteContact(deletedChat);
-                break;
-            case DELETE_GROUP:
-                //TODO: THIS IS INCONSISTENT
                 break;
             case USER_CONNECTED:
                 User userConnected = (User) wsn.getContent();

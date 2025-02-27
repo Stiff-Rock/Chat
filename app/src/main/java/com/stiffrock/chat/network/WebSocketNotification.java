@@ -43,6 +43,7 @@ public class WebSocketNotification {
             switch (action) {
                 case ADD_CHAT:
                 case DELETE_CONTACT:
+                case DELETE_GROUP:
                     content = GsonManager.gson.fromJson(json.get("content").getAsString(), BaseChat.class);
                     break;
 
@@ -61,7 +62,6 @@ public class WebSocketNotification {
 
                 case USER_CONNECTED:
                 case USER_DISCONNECTED:
-                case DELETE_GROUP:
                     content = GsonManager.gson.fromJson(json.get("content").getAsString(), User.class);
                     break;
                 default:

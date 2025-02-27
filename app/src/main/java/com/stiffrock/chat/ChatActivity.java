@@ -448,16 +448,18 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
                 }
                 break;
             case DELETE_GROUP:
-                User deleteChat = (User) wsn.getContent();
-                if (CurrentUser.getCurrentChat().equals(deleteChat)) {
-
-                Toast.makeText(this, "El chat te ha eliminado/explusado", Toast.LENGTH_SHORT).show();
-                navigateToHomeActivity();
-                }
-                break;
             case DELETE_CONTACT:
-                BaseChat deletedContact = (BaseChat) wsn.getContent();
-                if(deletedContact.equals(CurrentUser.getCurrentChat()))
+                BaseChat deleteChat = (BaseChat) wsn.getContent();
+                if (CurrentUser.getCurrentChat().equals(deleteChat)) {
+                    String name = null;
+                    if (deleteChat instanceof PrivateChat) {
+                        name = ((PrivateChat) deleteChat).getName();
+                    } else if (deleteChat instanceof GroupChat) {
+                        name = ((GroupChat) deleteChat).getName();
+                    }
+                    Toast.makeText(this, "Ya no participas en el chat \"" + name + "\"", Toast.LENGTH_SHORT).show();
+                    navigateToHomeActivity();
+                }
                 break;
             case USER_CONNECTED:
                 onlineStatus.setImageResource(R.drawable.connected_icon);
