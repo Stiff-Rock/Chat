@@ -2,8 +2,13 @@ package com.stiffrock.chat.fragments.chat;
 
 import static com.stiffrock.chat.utils.LogTag.TAG;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -15,10 +20,13 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
@@ -39,10 +47,10 @@ import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.model.WebSocketAction;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
+import com.stiffrock.chat.utils.ImageManager;
 import com.stiffrock.chat.utils.OnItemClickListener;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +62,9 @@ import retrofit2.Response;
 
 public class GroupChatInfoFragment extends Fragment implements OnItemClickListener {
     private GroupChat chat;
+
+    private ImageView ivContactPhoto;
+    private ActivityResultLauncher<Intent> pickImageLauncher;
 
     private RecyclerView recyclerView;
     private MyAdapter adapter;
@@ -77,6 +88,24 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         TextView tvChatName = view.findViewById(R.id.tvChatName);
         tvChatName.setText(chat.getName());
 
+        ivContactPhoto = view.findViewById(R.id.ivContactPhoto);
+        byte[] photoBytes = chat.getChatPhoto();
+        if (photoBytes != null && photoBytes.length > 0) {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(photoBytes, 0, photoBytes.length);
+            ivContactPhoto.setImageBitmap(bitmap);
+        }
+
+        pickImageLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                Uri selectedImageUri = result.getData().getData();
+                if (ImageManager.isValidImage(requireActivity(), selectedImageUri)) {
+                    ivContactPhoto.setImageURI(selectedImageUri);
+                    apiSetChatPhoto();
+                }
+            }
+        });
+        ivContactPhoto.setOnClickListener(v -> ImageManager.openGallery(pickImageLauncher));
+
         view.findViewById(R.id.btnAddMember).setOnClickListener(v -> addMemberDialog());
         view.findViewById(R.id.btnLeaveGroup).setOnClickListener(v -> {
             boolean isAdmin = chat.getAdmins().contains(CurrentUser.getCurrentUser());
@@ -93,6 +122,9 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         return view;
+    }
+
+    private void apiSetChatPhoto() {
     }
 
     @Override

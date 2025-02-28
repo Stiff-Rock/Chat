@@ -2,14 +2,20 @@ package com.stiffrock.chat.fragments.home;
 
 import static com.stiffrock.chat.utils.LogTag.TAG;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -26,6 +32,7 @@ import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
+import com.stiffrock.chat.utils.ImageManager;
 import com.stiffrock.chat.utils.OnItemClickListener;
 
 import java.util.ArrayList;
@@ -39,12 +46,17 @@ import retrofit2.Response;
 
 public class AddGroupFragment extends Fragment implements OnItemClickListener {
     private EditText etGroupName;
+    private ImageView groupPfp;
+
+    private ActivityResultLauncher<Intent> pickImageLauncher;
 
     private MyAdapter adapter;
 
     private List<Item> contactCardItems;
     private Set<Long> participants;
     private final List<User> contacts;
+
+    private byte[] groupPhoto;
 
     private ApiService apiService;
 
@@ -65,6 +77,18 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
 
         etGroupName = view.findViewById(R.id.etGroupName);
         view.findViewById(R.id.btnCreateGroup).setOnClickListener(v -> createGroup());
+
+        groupPfp = view.findViewById(R.id.groupPfp);
+        pickImageLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                Uri selectedImageUri = result.getData().getData();
+                if (ImageManager.isValidImage(requireActivity(), selectedImageUri)) {
+                    groupPfp.setImageURI(selectedImageUri);
+                    groupPhoto = ImageManager.getBytesFromUri(requireActivity(), selectedImageUri);
+                }
+            }
+        });
+        groupPfp.setOnClickListener(v -> ImageManager.openGallery(pickImageLauncher));
 
         apiService = RetrofitClient.getApiService();
 
@@ -91,7 +115,7 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
         }
 
         Long userId = CurrentUser.getCurrentUser().getId();
-        GroupChatDTO gcd = new GroupChatDTO(groupName, participants, userId);
+        GroupChatDTO gcd = new GroupChatDTO(groupName, participants, userId, groupPhoto);
 
         Call<ApiResponse> call = apiService.createGroupChat(gcd);
         call.enqueue(new Callback<ApiResponse>() {

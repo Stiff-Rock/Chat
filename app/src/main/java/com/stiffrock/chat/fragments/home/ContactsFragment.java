@@ -180,7 +180,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
             icc = privateChatsMap.get(contact);
             index = chats.indexOf(icc);
             privateChatsMap.remove(contact);
-            chatName = ((PrivateChat) chat).getName();
+            chatName = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser()).getUsername();
             type = "contacto";
         } else if (chat instanceof GroupChat) {
             icc = allChatsMap.get(chat);

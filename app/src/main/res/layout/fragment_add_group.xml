@@ -27,15 +27,16 @@
             android:foreground="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"
-            android:layout_marginBottom="30dp" >
+            android:layout_marginBottom="30dp">
 
         <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:scaleType="centerCrop"
                 android:contentDescription="@string/foto_del_grupo"
-                android:src="@drawable/default_group_large"/>
+                android:src="@drawable/camera"
+                android:id="@+id/groupPfp"/>
     </androidx.cardview.widget.CardView>
-
 
     <EditText
             android:layout_width="match_parent"

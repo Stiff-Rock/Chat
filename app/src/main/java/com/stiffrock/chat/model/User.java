@@ -5,6 +5,7 @@ import java.util.Set;
 
 public class User {
     private Long id;
+    private byte[] profilePicture;
     private String username;
     private Set<BaseChat> chats;
 
@@ -21,6 +22,14 @@ public class User {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public byte[] getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(byte[] profilePicture) {
+        this.profilePicture = profilePicture;
     }
 
     public String getUsername() {

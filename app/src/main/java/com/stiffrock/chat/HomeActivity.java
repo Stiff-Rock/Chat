@@ -31,6 +31,7 @@ import com.stiffrock.chat.dto.PrivateChatDTO;
 import com.stiffrock.chat.fragments.home.AddGroupFragment;
 import com.stiffrock.chat.fragments.home.ContactsFragment;
 import com.stiffrock.chat.fragments.home.OnlineUsersFragment;
+import com.stiffrock.chat.fragments.home.UserProfileFragment;
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.PrivateChat;
 import com.stiffrock.chat.model.User;
@@ -93,7 +94,11 @@ public class HomeActivity extends FragmentContainerActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.addContact) {
+        if (item.getItemId() == R.id.userProfile) {
+            toggleHomeButton(true);
+            replaceFragment(new UserProfileFragment());
+            return true;
+        } else if (item.getItemId() == R.id.addContact) {
             addContactDialog();
             return true;
         } else if (item.getItemId() == R.id.addGroup) {

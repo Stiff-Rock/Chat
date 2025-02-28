@@ -45,4 +45,6 @@
     <string name="btnDown">Botón para ir a la anterior instancia encontrada de la búsqueda</string>
     <string name="borrar_mensaje">Borrar mensaje</string>
     <string name="eliminar_contacto">Eliminar contacto</string>
+    <string name="tu_perfil">Tu Perfil</string>
+    <string name="user_id">Id: %s</string>
 </resources>

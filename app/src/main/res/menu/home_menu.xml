@@ -3,6 +3,11 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+            android:id="@+id/userProfile"
+            android:title="@string/tu_perfil"
+            app:showAsAction="never"/>
+
+    <item
             android:id="@+id/addContact"
             android:title="@string/anadir_contacto"
             app:showAsAction="never"/>

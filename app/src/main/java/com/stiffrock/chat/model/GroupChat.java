@@ -1,10 +1,13 @@
 package com.stiffrock.chat.model;
 
+import androidx.annotation.NonNull;
+
 import java.util.Set;
 
 public class GroupChat extends BaseChat {
     private String name;
     private Set<User> admins;
+    private byte[] chatPhoto;
 
     public GroupChat() {
     }
@@ -32,6 +35,15 @@ public class GroupChat extends BaseChat {
         this.admins = admins;
     }
 
+    public byte[] getChatPhoto() {
+        return chatPhoto;
+    }
+
+    public void setChatPhoto(byte[] chatPhoto) {
+        this.chatPhoto = chatPhoto;
+    }
+
+    @NonNull
     @Override
     public String toString() {
         return "GroupChat{" + "id='" + getId() + '\'' + ", name=' " + name + '\'' + ", admins = " + admins + '}';
