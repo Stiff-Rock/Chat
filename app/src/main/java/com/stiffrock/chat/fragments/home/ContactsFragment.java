@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import com.stiffrock.chat.ChatActivity;
 import com.stiffrock.chat.HomeActivity;
 import com.stiffrock.chat.R;
@@ -39,7 +40,9 @@ import com.stiffrock.chat.utils.GsonManager;
 import com.stiffrock.chat.utils.OnItemClickListener;
 import com.stiffrock.chat.utils.WebSocketNotificationListener;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -178,38 +181,49 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
 
     private void apiGetAllChatsPhotos() {
         Long userId = CurrentUser.getCurrentUser().getId();
-        List<BaseChat> chats = new ArrayList<>(allChatsMap.keySet());
+        List<Long> chatIds = new ArrayList<>();
+        for (BaseChat chat : allChatsMap.keySet()) {
+            chatIds.add(chat.getId());
+        }
 
-        Call<Map<BaseChat, byte[]>> call = apiService.getAllChatsPhotos(chats, userId);
-        call.enqueue(new Callback<Map<BaseChat, byte[]>>() {
+        Call<String> call = apiService.getAllChatsPhotos(userId, chatIds);
+        call.enqueue(new Callback<String>() {
             @Override
-            public void onResponse(@NonNull Call<Map<BaseChat, byte[]>> call, @NonNull Response<Map<BaseChat, byte[]>> response) {
+            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Map<BaseChat, byte[]> map = response.body();
-                    setChatPhotos(map);
-                } else {
-                    Log.e(TAG, "Error getting chat photos: " + response.code());
-                    Toast.makeText(requireContext(), "Error obteniendo fotos de los chats", Toast.LENGTH_SHORT).show();
+                    try {
+                        Type mapType = new TypeToken<Map<Long, String>>() {
+                        }.getType();
+                        Map<Long, String> photoMap = GsonManager.gson.fromJson(response.body(), mapType);
+
+                        Map<Long, byte[]> decodedMap = new HashMap<>();
+                        for (Map.Entry<Long, String> entry : photoMap.entrySet()) {
+                            decodedMap.put(entry.getKey(), Base64.getDecoder().decode(entry.getValue()));
+                        }
+
+                        setChatPhotos(decodedMap);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error parsing photos: " + e.getMessage());
+                    }
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<Map<BaseChat, byte[]>> call, @NonNull Throwable throwable) {
-                Log.e(TAG, "GetAllChatsPhotos request failed: " + throwable.getMessage());
-                Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+            public void onFailure(@NonNull Call<String> call, @NonNull Throwable throwable) {
+                Log.e(TAG, "GetAllChatsPhotos failed: " + throwable.getMessage());
             }
         });
     }
 
-    private void setChatPhotos(Map<BaseChat, byte[]> chatPhotosMap) {
+    private void setChatPhotos(Map<Long, byte[]> chatPhotosMap) {
+        Log.w(TAG, "SETCHATPHOTOS");
         for (Map.Entry<BaseChat, ItemChatCard> entry : allChatsMap.entrySet()) {
             BaseChat chat = entry.getKey();
             ItemChatCard icc = entry.getValue();
             int index = chats.indexOf(icc);
 
-            if (!chatPhotosMap.containsKey(chat)) continue;
-            byte[] photoBytes = chatPhotosMap.get(chat);
-
+            if (!chatPhotosMap.containsKey(chat.getId())) continue;
+            byte[] photoBytes = chatPhotosMap.get(chat.getId());
             if (chat instanceof PrivateChat) {
                 ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser()).setProfilePicture(photoBytes);
             } else if (chat instanceof GroupChat) {

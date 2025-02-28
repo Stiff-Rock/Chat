@@ -13,7 +13,6 @@ import com.stiffrock.chat.model.PrivateChat;
 import com.stiffrock.chat.model.User;
 
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -23,6 +22,7 @@ import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface ApiService {
 
@@ -67,9 +67,8 @@ public interface ApiService {
     @DELETE("chats/private/delete/{chatId}")
     Call<ApiResponse> deleteContact(@Path("chatId") Long chatId);
 
-    @POST("chats/photos/{solicitorId}")
-    Call<Map<BaseChat, byte[]>> getAllChatsPhotos(@Body List<BaseChat> chats, @Path("solicitorId") Long userId);
-
+    @GET("chats/photos/{solicitorId}")
+    Call<String> getAllChatsPhotos(@Path("solicitorId") Long solicitorId, @Query("chats") List<Long> chats);
 
     // Endpoint de grupos
     @POST("groups/create")
