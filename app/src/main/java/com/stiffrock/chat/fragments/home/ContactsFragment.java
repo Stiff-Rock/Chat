@@ -95,6 +95,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
                         if (chat instanceof PrivateChat) {
                             User contact = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser());
                             privateChatsMap.put(contact, icc);
+                            CurrentUser.getContacts().clear();
                             CurrentUser.getContacts().add((PrivateChat) chat);
                         }
 

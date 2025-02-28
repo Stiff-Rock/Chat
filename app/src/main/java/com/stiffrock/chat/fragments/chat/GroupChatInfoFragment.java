@@ -42,9 +42,11 @@ import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.utils.OnItemClickListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -183,7 +185,7 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
 
     private void addMemberDialog() {
         if (!isRecyclerLoaded) return;
-        //TODO: AL SALIR Y ENTRAR DEL GRUPO SE STACKEAN ELEMENTOS
+
         Context context = requireContext();
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View view = LayoutInflater.from(context).inflate(R.layout.contacts_popup, null);
@@ -193,14 +195,19 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
 
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        List<PrivateChat> contacts = CurrentUser.getContacts();
+
+        // Filtrar contactos que no están en el grupo
+        List<PrivateChat> contacts = CurrentUser.getContacts().stream()
+                .filter(pc -> !chat.getParticipants().contains(pc.getContact(CurrentUser.getCurrentUser())))
+                .collect(Collectors.toList());
+
         List<Item> contactItems = new ArrayList<>();
         for (PrivateChat pc : contacts) {
             User user = pc.getContact(CurrentUser.getCurrentUser());
             ItemContactCard icc = new ItemContactCard(user, false, false);
             contactItems.add(icc);
-            userItemContactCardMap.put(user, icc);
         }
+
         MyAdapter adapter = new MyAdapter(contactItems, new OnItemClickListener() {
             @Override
             public void onItemClick(View view, Item item, int postion) {
@@ -213,10 +220,9 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
             public void onLongItemClick(View view, Item item, int postion) {
             }
         });
+
         recyclerView.setAdapter(adapter);
-
         view.findViewById(R.id.btnCancel).setOnClickListener(e -> dialog.dismiss());
-
         dialog.show();
     }
 
