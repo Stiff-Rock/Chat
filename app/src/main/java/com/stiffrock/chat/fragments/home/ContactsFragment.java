@@ -81,6 +81,10 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     }
 
     private void apiGetChatList() {
+        //TODO:
+        if (chats != null && privateChatsMap != null && allChatsMap != null)
+            if (!chats.isEmpty() && !privateChatsMap.isEmpty() && !allChatsMap.isEmpty()) return;
+
         chats = new ArrayList<>();
         privateChatsMap = new HashMap<>();
         allChatsMap = new HashMap<>();
@@ -101,13 +105,16 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
 
                         allChatsMap.put(chat, icc);
                     }
+
+                    adapter = new MyAdapter(chats, ContactsFragment.this);
+                    recyclerView.setAdapter(adapter);
+
+                    apiGetAllChatsPhotos();
                     wsGetContactsStatus();
                 } else {
                     Toast.makeText(requireContext(), "No se han encontrado contactos", Toast.LENGTH_SHORT).show();
                 }
-
-                adapter = new MyAdapter(chats, ContactsFragment.this);
-                recyclerView.setAdapter(adapter);
+                // Cuando ya ha cargado los chats, luego les pone las foto
             }
 
             @Override
@@ -167,6 +174,50 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         }
 
         Toast.makeText(requireContext(), "Se ha añadido un nuevo " + type, Toast.LENGTH_SHORT).show();
+    }
+
+    private void apiGetAllChatsPhotos() {
+        Long userId = CurrentUser.getCurrentUser().getId();
+        List<BaseChat> chats = new ArrayList<>(allChatsMap.keySet());
+
+        Call<Map<BaseChat, byte[]>> call = apiService.getAllChatsPhotos(chats, userId);
+        call.enqueue(new Callback<Map<BaseChat, byte[]>>() {
+            @Override
+            public void onResponse(@NonNull Call<Map<BaseChat, byte[]>> call, @NonNull Response<Map<BaseChat, byte[]>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Map<BaseChat, byte[]> map = response.body();
+                    setChatPhotos(map);
+                } else {
+                    Log.e(TAG, "Error getting chat photos: " + response.code());
+                    Toast.makeText(requireContext(), "Error obteniendo fotos de los chats", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Map<BaseChat, byte[]>> call, @NonNull Throwable throwable) {
+                Log.e(TAG, "GetAllChatsPhotos request failed: " + throwable.getMessage());
+                Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void setChatPhotos(Map<BaseChat, byte[]> chatPhotosMap) {
+        for (Map.Entry<BaseChat, ItemChatCard> entry : allChatsMap.entrySet()) {
+            BaseChat chat = entry.getKey();
+            ItemChatCard icc = entry.getValue();
+            int index = chats.indexOf(icc);
+
+            if (!chatPhotosMap.containsKey(chat)) continue;
+            byte[] photoBytes = chatPhotosMap.get(chat);
+
+            if (chat instanceof PrivateChat) {
+                ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser()).setProfilePicture(photoBytes);
+            } else if (chat instanceof GroupChat) {
+                ((GroupChat) chat).setChatPhoto(photoBytes);
+            } else continue;
+
+            adapter.notifyItemChanged(index);
+        }
     }
 
     //TODO: MANEJAR CUANDO PASA ESTO EN OTROS FRAGMENTS DE CHAT
@@ -235,7 +286,6 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         popupMenu.show();
     }
 
-    //TODO PUSH NOTIFS
     private void showNotification(Message msg) {
         if (msg.getSender().getUsername().equals("SYSTEM")) return;
 
@@ -266,6 +316,8 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     }
 
     private void updateContactOnlineStatus(boolean isOnline, User user) {
+        if (adapter == null) return;
+
         ItemChatCard icc = privateChatsMap.get(user);
         if (icc == null) {
             Log.w(TAG, "Could not retireve contact ChatCard:\nUser: " + user);

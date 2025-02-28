@@ -4,6 +4,7 @@ import static com.stiffrock.chat.utils.LogTag.TAG;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -83,8 +84,13 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
             if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                 Uri selectedImageUri = result.getData().getData();
                 if (ImageManager.isValidImage(requireActivity(), selectedImageUri)) {
-                    groupPfp.setImageURI(selectedImageUri);
-                    groupPhoto = ImageManager.getBytesFromUri(requireActivity(), selectedImageUri);
+                    Bitmap bitmap = ImageManager.uriToBitmap(requireContext(), selectedImageUri);
+                    if (bitmap != null) {
+                        groupPfp.setImageBitmap(bitmap);
+                        groupPhoto = ImageManager.getBytesFromBitmap(bitmap);
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to load image", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });

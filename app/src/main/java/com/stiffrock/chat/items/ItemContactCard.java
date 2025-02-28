@@ -3,16 +3,26 @@ package com.stiffrock.chat.items;
 import com.stiffrock.chat.model.User;
 
 public class ItemContactCard extends Item {
+    private byte[] photo;
     private String name;
     private User user;
     private boolean showOnlineStatus;
     private boolean isSelected;
 
     public ItemContactCard(User user, boolean showOnlineStatus, boolean isSelected) {
+        this.photo = user.getProfilePicture();
         this.name = user.getUsername();
         this.user = user;
         this.showOnlineStatus = showOnlineStatus;
         this.isSelected = isSelected;
+    }
+
+    public byte[] getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(byte[] photo) {
+        this.photo = photo;
     }
 
     public String getName() {
