@@ -1,5 +1,6 @@
 package com.stiffrock.chat.utils;
 
+import static com.stiffrock.chat.network.ServerConfig.SOCKET_ADDR;
 import static com.stiffrock.chat.utils.LogTag.TAG;
 
 import android.Manifest;
@@ -9,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -35,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -67,8 +70,21 @@ public class ImageManager {
     // Asegura que la imagen tenga un formato válido y cumpla el peso máximo
     public static boolean isValidImage(Activity activity, Uri uri) {
         try {
-            // Verificar tipo MIME
             ContentResolver resolver = activity.getContentResolver();
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            InputStream is = resolver.openInputStream(uri);
+            if (is == null) return false;
+            BitmapFactory.decodeStream(is, null, options);
+            is.close();
+
+            if (options.outWidth > 4096 || options.outHeight > 4096) {
+                Toast.makeText(activity, "La imagen es demasiado grande", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+
+            // Verificar tipo MIME
             String mimeType = resolver.getType(uri);
 
             if (mimeType == null) return false;
@@ -108,7 +124,7 @@ public class ImageManager {
             public void onResponse(@NonNull Call<UploadResponse> call, @NonNull Response<UploadResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     UploadResponse fotoUrl = response.body();
-                    uploadCallback.onUploaded(fotoUrl.getUrl());
+                    uploadCallback.onUploaded(fotoUrl.getUrl().replace("{ipAndPort}", SOCKET_ADDR));
                 } else {
                     Log.e(TAG, "Upload image failed: " + response.code());
                     Toast.makeText(context, "Error subiendo foto al servidor", Toast.LENGTH_SHORT).show();
@@ -138,7 +154,7 @@ public class ImageManager {
     }
 
     public static void setImageViewPhoto(Context context, ImageView imageView, String url, LoadCallback loadCallback) {
-        GlideApp.with(context).load(url).placeholder(R.drawable.loading).error(R.drawable.default_user).listener(new RequestListener<Drawable>() {
+        GlideApp.with(context).load(url).placeholder(R.drawable.loading).override(1024, 1024).error(R.drawable.default_user).listener(new RequestListener<Drawable>() {
             @Override
             public boolean onLoadFailed(@Nullable GlideException e, Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
                 Toast.makeText(context, "La subida de la foto ha fallado", Toast.LENGTH_SHORT).show();

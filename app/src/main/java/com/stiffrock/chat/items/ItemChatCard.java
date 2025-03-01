@@ -1,9 +1,14 @@
 package com.stiffrock.chat.items;
 
+import static com.stiffrock.chat.utils.LogTag.TAG;
+
+import android.util.Log;
+
 import com.stiffrock.chat.model.BaseChat;
 import com.stiffrock.chat.model.CurrentUser;
 import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.PrivateChat;
+import com.stiffrock.chat.model.User;
 
 public class ItemChatCard extends Item {
     private String photoUrl;
@@ -13,13 +18,12 @@ public class ItemChatCard extends Item {
 
     public ItemChatCard(BaseChat chat) {
         if (chat instanceof PrivateChat) {
-            photoUrl = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser()).getProfilePictureUrl();
-            String name = ((PrivateChat) chat).getName();
-            String[] usernames = name.split("&");
-            String currentUsrName = CurrentUser.getCurrentUser().getUsername();
-            this.chatName = usernames[0].equals(currentUsrName) ? usernames[1] : usernames[0];
+            User contact = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser());
+
+            this.photoUrl = contact.getProfilePictureUrl();
+            this.chatName = contact.getUsername();
         } else if (chat instanceof GroupChat) {
-//       TODO     photoUrl = ((GroupChat) chat).getChatPhoto();
+            this.photoUrl = ((GroupChat) chat).getChatPhotoUrl();
             this.chatName = ((GroupChat) chat).getName();
         }
 

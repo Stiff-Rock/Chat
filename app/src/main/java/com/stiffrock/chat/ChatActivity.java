@@ -35,7 +35,7 @@ import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.dto.MessageDTO;
 import com.stiffrock.chat.fragments.chat.ChatMessagesFragment;
 import com.stiffrock.chat.fragments.chat.GroupChatInfoFragment;
-import com.stiffrock.chat.fragments.chat.UserInfoFragment;
+import com.stiffrock.chat.fragments.chat.ContactInfoFragment;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemMessageNotification;
 import com.stiffrock.chat.items.ItemMessageRecieved;
@@ -148,7 +148,7 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
             BaseChat chat = CurrentUser.getCurrentChat();
             if (chat instanceof PrivateChat) {
                 User contact = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser());
-                replaceFragment(new UserInfoFragment(contact));
+                replaceFragment(new ContactInfoFragment(contact));
             } else if (chat instanceof GroupChat) {
                 replaceFragment(new GroupChatInfoFragment());
             }
@@ -226,7 +226,6 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
             btnSearch.setBackgroundColor(color);
         });
 
-        // TODO: PFP
         BaseChat chat = CurrentUser.getCurrentChat();
         if (chat instanceof PrivateChat) {
             User contact = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser());

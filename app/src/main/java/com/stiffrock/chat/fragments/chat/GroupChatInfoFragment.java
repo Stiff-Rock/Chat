@@ -1,6 +1,5 @@
 package com.stiffrock.chat.fragments.chat;
 
-import static com.stiffrock.chat.network.ServerConfig.SOCKET_ADDR;
 import static com.stiffrock.chat.utils.LogTag.TAG;
 
 import android.app.Activity;
@@ -99,13 +98,9 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
                 Toast.makeText(view.getContext(), "Imagen seleccionada, porfavor espere a que cargue...", Toast.LENGTH_SHORT).show();
                 Uri selectedImageUri = result.getData().getData();
                 if (ImageManager.isValidImage(requireActivity(), selectedImageUri)) {
-                    ImageManager.apiUploadImage(requireContext(), selectedImageUri, fotoUrl -> {
-                        fotoUrl = fotoUrl.replace("{ipAndPort}", SOCKET_ADDR);
-                        String finalFotoUrl = fotoUrl;
-                        ImageManager.setImageViewPhoto(view.getContext(), ivContactPhoto, fotoUrl, sucess -> {
-                            if (sucess) apiUpdateGroupChatPorfilePicture(finalFotoUrl);
-                        });
-                    });
+                    ImageManager.apiUploadImage(requireContext(), selectedImageUri, fotoUrl -> ImageManager.setImageViewPhoto(view.getContext(), ivContactPhoto, fotoUrl, sucess -> {
+                        if (sucess) apiUpdateGroupChatPorfilePicture(fotoUrl);
+                    }));
                 }
             }
         });
@@ -385,11 +380,12 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
 
     private void apiUpdateGroupChatPorfilePicture(String imageUrl) {
         Long chatId = chat.getId();
-        Call<ApiResponse> call = apiService.updateGroupChatPorfilePicture(chatId, imageUrl);
+        Call<ApiResponse> call = apiService.updateGroupChatPhoto(chatId, imageUrl);
         call.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    chat.setChatPhotoUrl(imageUrl);
                     Toast.makeText(requireContext(), "Foto del grupo actualizada!", Toast.LENGTH_SHORT).show();
                 } else {
                     Log.e(TAG, "Error updating gorup chat photo: " + response.code());
@@ -407,7 +403,7 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
 
     private void navigateToUserInfoFragment(User user) {
         ChatActivity ca = (ChatActivity) getActivity();
-        if (ca != null) ca.replaceFragment(new UserInfoFragment(user));
+        if (ca != null) ca.replaceFragment(new ContactInfoFragment(user));
     }
 
     public void updateChat(WebSocketAction action, GroupChat chat, User user) {

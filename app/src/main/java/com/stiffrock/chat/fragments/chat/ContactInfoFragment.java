@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +28,7 @@ import com.stiffrock.chat.model.PrivateChat;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
+import com.stiffrock.chat.utils.ImageManager;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -37,7 +39,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class UserInfoFragment extends Fragment {
+public class ContactInfoFragment extends Fragment {
     private final User user;
 
     private LinearLayout loadingScreen;
@@ -48,7 +50,7 @@ public class UserInfoFragment extends Fragment {
 
     private ApiService apiService;
 
-    public UserInfoFragment(User user) {
+    public ContactInfoFragment(User user) {
         this.user = user;
     }
 
@@ -77,6 +79,12 @@ public class UserInfoFragment extends Fragment {
             }
         else isInContactsMsg = "(Tú)";
         tvIsContact.setText(isInContactsMsg);
+
+        ImageView ivContactPhoto = view.findViewById(R.id.ivContactPhoto);
+        String photoUrl = user.getProfilePictureUrl();
+        if (photoUrl != null) {
+            ImageManager.setImageViewPhoto(view.getContext(), ivContactPhoto, photoUrl, null);
+        }
 
         return view;
     }
@@ -109,8 +117,6 @@ public class UserInfoFragment extends Fragment {
 
                     adapter = new MyAdapter(messageItems);
                     recyclerView.setAdapter(adapter);
-                    loadingScreen.setVisibility(View.GONE);
-                    recyclerView.setVisibility(View.VISIBLE);
                 } else {
                     messageItems = new ArrayList<>();
                     String notification = "No se han podido obtener los mensajes enviados por " + user.getUsername();
@@ -118,9 +124,10 @@ public class UserInfoFragment extends Fragment {
                     adapter = new MyAdapter(messageItems);
                     recyclerView.setAdapter(adapter);
                     Log.e(TAG, "Error sending message: " + response.code());
-                    loadingScreen.setVisibility(View.GONE);
-                    recyclerView.setVisibility(View.VISIBLE);
                 }
+
+                loadingScreen.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
             }
 
             @Override

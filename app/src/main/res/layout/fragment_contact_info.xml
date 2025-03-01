@@ -4,7 +4,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".fragments.chat.UserInfoFragment"
+        tools:context=".fragments.chat.ContactInfoFragment"
         android:orientation="vertical"
         android:padding="10dp"
         android:gravity="center_horizontal">

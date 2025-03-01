@@ -8,16 +8,16 @@ public class GroupChatDTO {
     private String chatName;
     private Set<Long> participants;
     private Long adminId;
-    private byte[] chatPhoto;
+    private String chatPhotoUrl;
 
     public GroupChatDTO() {
     }
 
-    public GroupChatDTO(String chatName, Set<Long> participants, Long adminId, byte[] chatPhoto) {
+    public GroupChatDTO(String chatName, Set<Long> participants, Long adminId, String chatPhotoUrl) {
         this.chatName = chatName;
         this.participants = participants;
         this.adminId = adminId;
-        this.chatPhoto = chatPhoto;
+        this.chatPhotoUrl = chatPhotoUrl;
     }
 
     public String getChatName() {
@@ -44,21 +44,18 @@ public class GroupChatDTO {
         this.adminId = adminId;
     }
 
-    public byte[] getChatPhoto() {
-        return chatPhoto;
+    public String getChatPhotoUrl() {
+        return chatPhotoUrl;
     }
 
-    public void setChatPhoto(byte[] chatPhoto) {
-        this.chatPhoto = chatPhoto;
+    public void setChatPhotoUrl(String chatPhotoUrl) {
+        this.chatPhotoUrl = chatPhotoUrl;
     }
+
 
     @NonNull
     @Override
     public String toString() {
-        return "GroupChatDTO{" +
-                "chatName='" + chatName + '\'' +
-                ", participants=" + participants +
-                ", adminId=" + adminId +
-                '}';
+        return "GroupChatDTO{" + "chatName='" + chatName + '\'' + ", participants=" + participants + ", adminId=" + adminId + ", chatPhotoUrl='" + chatPhotoUrl + '\'' + '}';
     }
 }

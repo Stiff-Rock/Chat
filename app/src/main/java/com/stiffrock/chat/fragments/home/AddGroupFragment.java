@@ -46,7 +46,9 @@ import retrofit2.Response;
 
 public class AddGroupFragment extends Fragment implements OnItemClickListener {
     private EditText etGroupName;
-    private ImageView groupPfp;
+
+    private ImageView groupPfp = null;
+    private Uri currentImageUri;
 
     private ActivityResultLauncher<Intent> pickImageLauncher;
 
@@ -79,8 +81,10 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
         groupPfp = view.findViewById(R.id.groupPfp);
         pickImageLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                Toast.makeText(view.getContext(), "Imagen seleccionada, porfavor espere a que cargue...", Toast.LENGTH_SHORT).show();
                 Uri selectedImageUri = result.getData().getData();
                 if (ImageManager.isValidImage(requireActivity(), selectedImageUri)) {
+                    currentImageUri = selectedImageUri;
                     groupPfp.setImageURI(selectedImageUri);
                 }
             }
@@ -120,9 +124,19 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
         }
 
         Long userId = CurrentUser.getCurrentUser().getId();
-        //TODO
-        GroupChatDTO gcd = new GroupChatDTO(groupName, participants, userId, null);
 
+        if (currentImageUri != null) {
+            ImageManager.apiUploadImage(requireContext(), currentImageUri, fotoUrl -> {
+                GroupChatDTO gcd = new GroupChatDTO(groupName, participants, userId, fotoUrl);
+                apiCreateGroup(gcd);
+            });
+        } else {
+            GroupChatDTO gcd = new GroupChatDTO(groupName, participants, userId, null);
+            apiCreateGroup(gcd);
+        }
+    }
+
+    private void apiCreateGroup(GroupChatDTO gcd) {
         Call<ApiResponse> call = apiService.createGroupChat(gcd);
         call.enqueue(new Callback<ApiResponse>() {
             @Override

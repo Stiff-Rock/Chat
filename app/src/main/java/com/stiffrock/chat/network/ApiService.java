@@ -95,7 +95,7 @@ public interface ApiService {
     Call<ApiResponse> removeAdmin(@Path("groupId") Long groupId, @Path("userId") Long userId);
 
     @POST("groups/{groupId}/photo")
-    Call<ApiResponse> updateGroupChatPorfilePicture(@Path("groupId") Long groupId, @Query("imageUrl") String imageUrl);
+    Call<ApiResponse> updateGroupChatPhoto(@Path("groupId") Long groupId, @Query("imageUrl") String imageUrl);
 
 
     // Enpoint de archivos
@@ -103,3 +103,4 @@ public interface ApiService {
     @POST("files/upload")
     Call<UploadResponse> uploadImage(@Part MultipartBody.Part file);
 }
+

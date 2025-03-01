@@ -157,6 +157,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             BaseChat chat = item.getChat();
             if (chat instanceof GroupChat) {
                 view.ivOnlineStatus.setVisibility(View.GONE);
+                view.ivChatPhoto.setImageResource(R.drawable.default_group);
             } else if (chat instanceof PrivateChat) {
                 int imgSrc = item.isOnline() ? R.drawable.connected_icon : R.drawable.disconnected_icon;
                 view.ivOnlineStatus.setImageResource(imgSrc);

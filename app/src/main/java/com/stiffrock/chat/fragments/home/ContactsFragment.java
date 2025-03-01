@@ -171,7 +171,6 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         Toast.makeText(requireContext(), "Se ha añadido un nuevo " + type, Toast.LENGTH_SHORT).show();
     }
 
-    //TODO: MANEJAR CUANDO PASA ESTO EN OTROS FRAGMENTS DE CHAT
     private void deleteContact(BaseChat chat) {
         int index;
         ItemChatCard icc;

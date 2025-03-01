@@ -1,6 +1,5 @@
 package com.stiffrock.chat.fragments.home;
 
-import static com.stiffrock.chat.network.ServerConfig.SOCKET_ADDR;
 import static com.stiffrock.chat.utils.LogTag.TAG;
 
 import android.app.Activity;
@@ -53,13 +52,9 @@ public class UserProfileFragment extends Fragment {
                 Toast.makeText(view.getContext(), "Imagen seleccionada, porfavor espere a que cargue...", Toast.LENGTH_SHORT).show();
                 Uri selectedImageUri = result.getData().getData();
                 if (ImageManager.isValidImage(requireActivity(), selectedImageUri)) {
-                    ImageManager.apiUploadImage(requireContext(), selectedImageUri, fotoUrl -> {
-                        fotoUrl = fotoUrl.replace("{ipAndPort}", SOCKET_ADDR);
-                        String finalFotoUrl = fotoUrl;
-                        ImageManager.setImageViewPhoto(view.getContext(), ivUserPfp, fotoUrl, sucess -> {
-                            if (sucess) apiUpdateUserPorfilePicture(finalFotoUrl);
-                        });
-                    });
+                    ImageManager.apiUploadImage(requireContext(), selectedImageUri, fotoUrl -> ImageManager.setImageViewPhoto(view.getContext(), ivUserPfp, fotoUrl, sucess -> {
+                        if (sucess) apiUpdateUserPorfilePicture(fotoUrl);
+                    }));
                 }
             }
         });
