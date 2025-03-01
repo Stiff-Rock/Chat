@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.google.gson.Gson;
 import com.stiffrock.chat.AuthActivity;
 import com.stiffrock.chat.R;
 import com.stiffrock.chat.dto.ApiResponse;
@@ -62,7 +63,6 @@ public class SignUpFragment extends Fragment {
 
         CredentialsDTO credentials = new CredentialsDTO(inputUsername, inputPassword1);
 
-        //TODO: IMPROVE USER FEEDBACK
         Call<ApiResponse> call = apiService.registerUser(credentials);
         call.enqueue(new Callback<ApiResponse>() {
             @Override
@@ -72,22 +72,16 @@ public class SignUpFragment extends Fragment {
                     Toast.makeText(requireContext(), response.body().getMessage(), Toast.LENGTH_SHORT).show();
                     redirectToLogIn();
                 } else {
-                    String errorMessage;
-                    switch (response.code()) {
-                        case 400:
-                            errorMessage = "Bad Request: Invalid input.";
-                            break;
-                        case 409:
-                            //TODO: QUE ES ESTE MENSAJE DE MIERDA
-                            errorMessage = "Conflict: User already exists or password is empty.";
-                            break;
-                        case 422:
-                            errorMessage = "Unprocessable Entity: Invalid data provided.";
-                            break;
-                        default:
-                            errorMessage = "Register failed, please try again.";
-                            break;
+                    String errorMessage = "Login failed, please try again.";
+                    try {
+                        if (response.errorBody() != null) {
+                            ApiResponse errorResponse = new Gson().fromJson(response.errorBody().string(), ApiResponse.class);
+                            errorMessage = errorResponse.getMessage();
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error parsing error response", e);
                     }
+
                     Log.e(TAG, "Register failed: " + response.code() + "\n" + errorMessage);
                     Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
                 }

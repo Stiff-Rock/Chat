@@ -63,7 +63,6 @@ public class LogInFragment extends Fragment {
 
         CredentialsDTO credentials = new CredentialsDTO(inputUsername, inputPassword);
 
-        //TODO: IMPROVE USER FEEDBACK
         Call<User> call = apiService.logInUser(credentials);
         call.enqueue(new Callback<User>() {
             @Override
