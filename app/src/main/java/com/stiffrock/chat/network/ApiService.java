@@ -6,6 +6,7 @@ import com.stiffrock.chat.dto.GroupChatDTO;
 import com.stiffrock.chat.dto.MessageDTO;
 import com.stiffrock.chat.dto.MessageUpdateDto;
 import com.stiffrock.chat.dto.PrivateChatDTO;
+import com.stiffrock.chat.dto.UploadResponse;
 import com.stiffrock.chat.model.BaseChat;
 import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.Message;
@@ -14,13 +15,16 @@ import com.stiffrock.chat.model.User;
 
 import java.util.List;
 
+import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.Multipart;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -67,8 +71,6 @@ public interface ApiService {
     @DELETE("chats/private/delete/{chatId}")
     Call<ApiResponse> deleteContact(@Path("chatId") Long chatId);
 
-    @GET("chats/photos/{solicitorId}")
-    Call<String> getAllChatsPhotos(@Path("solicitorId") Long solicitorId, @Query("chats") List<Long> chats);
 
     // Endpoint de grupos
     @POST("groups/create")
@@ -88,4 +90,10 @@ public interface ApiService {
 
     @DELETE("groups/{groupId}/admins/{userId}")
     Call<ApiResponse> removeAdmin(@Path("groupId") Long groupId, @Path("userId") Long userId);
+
+
+    // Enpoint de archivos
+    @Multipart
+    @POST("files/upload")
+    Call<UploadResponse> uploadImage(@Part MultipartBody.Part file);
 }

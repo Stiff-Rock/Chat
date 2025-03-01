@@ -4,7 +4,6 @@ import static com.stiffrock.chat.utils.LogTag.TAG;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -57,8 +56,6 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
     private Set<Long> participants;
     private final List<User> contacts;
 
-    private byte[] groupPhoto;
-
     private ApiService apiService;
 
     public AddGroupFragment(List<User> contacts) {
@@ -84,13 +81,7 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
             if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                 Uri selectedImageUri = result.getData().getData();
                 if (ImageManager.isValidImage(requireActivity(), selectedImageUri)) {
-                    Bitmap bitmap = ImageManager.uriToBitmap(requireContext(), selectedImageUri);
-                    if (bitmap != null) {
-                        groupPfp.setImageBitmap(bitmap);
-                        groupPhoto = ImageManager.getBytesFromBitmap(bitmap);
-                    } else {
-                        Toast.makeText(requireContext(), "Failed to load image", Toast.LENGTH_SHORT).show();
-                    }
+                    groupPfp.setImageURI(selectedImageUri);
                 }
             }
         });
@@ -121,7 +112,8 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
         }
 
         Long userId = CurrentUser.getCurrentUser().getId();
-        GroupChatDTO gcd = new GroupChatDTO(groupName, participants, userId, groupPhoto);
+        //TODO
+        GroupChatDTO gcd = new GroupChatDTO(groupName, participants, userId, null);
 
         Call<ApiResponse> call = apiService.createGroupChat(gcd);
         call.enqueue(new Callback<ApiResponse>() {

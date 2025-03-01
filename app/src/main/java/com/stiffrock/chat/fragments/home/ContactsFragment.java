@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 import com.stiffrock.chat.ChatActivity;
 import com.stiffrock.chat.HomeActivity;
 import com.stiffrock.chat.R;
@@ -40,9 +39,7 @@ import com.stiffrock.chat.utils.GsonManager;
 import com.stiffrock.chat.utils.OnItemClickListener;
 import com.stiffrock.chat.utils.WebSocketNotificationListener;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,13 +81,13 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     }
 
     private void apiGetChatList() {
-        //TODO:
         if (chats != null && privateChatsMap != null && allChatsMap != null)
             if (!chats.isEmpty() && !privateChatsMap.isEmpty() && !allChatsMap.isEmpty()) return;
 
         chats = new ArrayList<>();
         privateChatsMap = new HashMap<>();
         allChatsMap = new HashMap<>();
+
         Call<List<BaseChat>> call = apiService.getUserChats(CurrentUser.getCurrentUser().getId());
         call.enqueue(new Callback<List<BaseChat>>() {
             @Override
@@ -112,12 +109,10 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
                     adapter = new MyAdapter(chats, ContactsFragment.this);
                     recyclerView.setAdapter(adapter);
 
-                    apiGetAllChatsPhotos();
                     wsGetContactsStatus();
                 } else {
                     Toast.makeText(requireContext(), "No se han encontrado contactos", Toast.LENGTH_SHORT).show();
                 }
-                // Cuando ya ha cargado los chats, luego les pone las foto
             }
 
             @Override
@@ -177,61 +172,6 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         }
 
         Toast.makeText(requireContext(), "Se ha añadido un nuevo " + type, Toast.LENGTH_SHORT).show();
-    }
-
-    private void apiGetAllChatsPhotos() {
-        Long userId = CurrentUser.getCurrentUser().getId();
-        List<Long> chatIds = new ArrayList<>();
-        for (BaseChat chat : allChatsMap.keySet()) {
-            chatIds.add(chat.getId());
-        }
-
-        Call<String> call = apiService.getAllChatsPhotos(userId, chatIds);
-        call.enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    try {
-                        Type mapType = new TypeToken<Map<Long, String>>() {
-                        }.getType();
-                        Map<Long, String> photoMap = GsonManager.gson.fromJson(response.body(), mapType);
-
-                        Map<Long, byte[]> decodedMap = new HashMap<>();
-                        for (Map.Entry<Long, String> entry : photoMap.entrySet()) {
-                            decodedMap.put(entry.getKey(), Base64.getDecoder().decode(entry.getValue()));
-                        }
-
-                        setChatPhotos(decodedMap);
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error parsing photos: " + e.getMessage());
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<String> call, @NonNull Throwable throwable) {
-                Log.e(TAG, "GetAllChatsPhotos failed: " + throwable.getMessage());
-            }
-        });
-    }
-
-    private void setChatPhotos(Map<Long, byte[]> chatPhotosMap) {
-        Log.w(TAG, "SETCHATPHOTOS");
-        for (Map.Entry<BaseChat, ItemChatCard> entry : allChatsMap.entrySet()) {
-            BaseChat chat = entry.getKey();
-            ItemChatCard icc = entry.getValue();
-            int index = chats.indexOf(icc);
-
-            if (!chatPhotosMap.containsKey(chat.getId())) continue;
-            byte[] photoBytes = chatPhotosMap.get(chat.getId());
-            if (chat instanceof PrivateChat) {
-                ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser()).setProfilePicture(photoBytes);
-            } else if (chat instanceof GroupChat) {
-                ((GroupChat) chat).setChatPhoto(photoBytes);
-            } else continue;
-
-            adapter.notifyItemChanged(index);
-        }
     }
 
     //TODO: MANEJAR CUANDO PASA ESTO EN OTROS FRAGMENTS DE CHAT

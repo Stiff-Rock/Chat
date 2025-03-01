@@ -43,6 +43,9 @@ dependencies {
 
     implementation(libs.security.crypto)
 
+    implementation(libs.github.glide)
+    annotationProcessor(libs.glide.compiler)
+
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
