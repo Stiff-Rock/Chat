@@ -1,12 +1,11 @@
 package com.stiffrock.chat.fragments.chat;
 
+import static com.stiffrock.chat.network.ServerConfig.SOCKET_ADDR;
 import static com.stiffrock.chat.utils.LogTag.TAG;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -89,22 +88,28 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         tvChatName.setText(chat.getName());
 
         ivContactPhoto = view.findViewById(R.id.ivContactPhoto);
-        byte[] photoBytes = chat.getChatPhoto();
-        if (photoBytes != null && photoBytes.length > 0) {
-            Bitmap bitmap = BitmapFactory.decodeByteArray(photoBytes, 0, photoBytes.length);
-            ivContactPhoto.setImageBitmap(bitmap);
+
+        String photo = chat.getChatPhotoUrl();
+        if (photo != null) {
+            ImageManager.setImageViewPhoto(view.getContext(), ivContactPhoto, photo, null);
         }
 
         pickImageLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                Toast.makeText(view.getContext(), "Imagen seleccionada, porfavor espere a que cargue...", Toast.LENGTH_SHORT).show();
                 Uri selectedImageUri = result.getData().getData();
                 if (ImageManager.isValidImage(requireActivity(), selectedImageUri)) {
-                    ivContactPhoto.setImageURI(selectedImageUri);
-                    apiSetChatPhoto();
+                    ImageManager.apiUploadImage(requireContext(), selectedImageUri, fotoUrl -> {
+                        fotoUrl = fotoUrl.replace("{ipAndPort}", SOCKET_ADDR);
+                        String finalFotoUrl = fotoUrl;
+                        ImageManager.setImageViewPhoto(view.getContext(), ivContactPhoto, fotoUrl, sucess -> {
+                            if (sucess) apiUpdateGroupChatPorfilePicture(finalFotoUrl);
+                        });
+                    });
                 }
             }
         });
-        ivContactPhoto.setOnClickListener(v -> ImageManager.openGallery(pickImageLauncher));
+        ivContactPhoto.setOnClickListener(v -> ImageManager.openGallery(requireActivity(), pickImageLauncher));
 
         view.findViewById(R.id.btnAddMember).setOnClickListener(v -> addMemberDialog());
         view.findViewById(R.id.btnLeaveGroup).setOnClickListener(v -> {
@@ -122,9 +127,6 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         return view;
-    }
-
-    private void apiSetChatPhoto() {
     }
 
     @Override
@@ -229,9 +231,7 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
         // Filtrar contactos que no están en el grupo
-        List<PrivateChat> contacts = CurrentUser.getContacts().stream()
-                .filter(pc -> !chat.getParticipants().contains(pc.getContact(CurrentUser.getCurrentUser())))
-                .collect(Collectors.toList());
+        List<PrivateChat> contacts = CurrentUser.getContacts().stream().filter(pc -> !chat.getParticipants().contains(pc.getContact(CurrentUser.getCurrentUser()))).collect(Collectors.toList());
 
         List<Item> contactItems = new ArrayList<>();
         for (PrivateChat pc : contacts) {
@@ -378,6 +378,28 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
             @Override
             public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable throwable) {
                 Log.e(TAG, "RemoveAdmin request failed: " + throwable.getMessage());
+                Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void apiUpdateGroupChatPorfilePicture(String imageUrl) {
+        Long chatId = chat.getId();
+        Call<ApiResponse> call = apiService.updateGroupChatPorfilePicture(chatId, imageUrl);
+        call.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Toast.makeText(requireContext(), "Foto del grupo actualizada!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.e(TAG, "Error updating gorup chat photo: " + response.code());
+                    Toast.makeText(requireContext(), "Error actualizando foto del grupo", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable throwable) {
+                Log.e(TAG, "UpdateGroupChatPorfilePicture request failed: " + throwable.getMessage());
                 Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }
         });

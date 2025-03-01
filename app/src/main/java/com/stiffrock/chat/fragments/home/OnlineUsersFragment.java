@@ -41,7 +41,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class OnlineUsersFragment extends Fragment implements OnItemClickListener {
-    private final List<Item> contactCards = new ArrayList<>();
+    private List<Item> contactCards;
     private List<User> users;
 
     private LinearLayout loadingScreen;
@@ -68,6 +68,8 @@ public class OnlineUsersFragment extends Fragment implements OnItemClickListener
     }
 
     private void apiGetOnlineUsers() {
+        contactCards = new ArrayList<>();
+
         Call<List<User>> call = apiService.getOnlineUsers();
         call.enqueue(new Callback<List<User>>() {
             @Override
@@ -75,8 +77,10 @@ public class OnlineUsersFragment extends Fragment implements OnItemClickListener
                 if (response.isSuccessful() && response.body() != null) {
                     users = response.body();
                     for (User usr : users) {
-                        if (!usr.equals(CurrentUser.getCurrentUser()))
+                        if (!usr.equals(CurrentUser.getCurrentUser())) {
+                            Log.w(TAG, usr.toString());
                             contactCards.add(new ItemContactCard(usr, true, false));
+                        }
                     }
                     adapter = new MyAdapter(contactCards, OnlineUsersFragment.this);
                     recyclerView.setAdapter(adapter);

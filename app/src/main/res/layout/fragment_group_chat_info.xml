@@ -23,7 +23,7 @@
                 android:contentDescription="@string/foto_de_perfil"
                 android:src="@drawable/default_group"
                 android:id="@+id/ivContactPhoto"
-                android:scaleType="centerCrop" />
+                android:scaleType="fitCenter" />
     </androidx.cardview.widget.CardView>
 
     <TextView

@@ -7,7 +7,7 @@ import java.util.Set;
 public class GroupChat extends BaseChat {
     private String name;
     private Set<User> admins;
-    private byte[] chatPhoto;
+    private String chatPhotoUrl;
 
     public GroupChat() {
     }
@@ -35,12 +35,12 @@ public class GroupChat extends BaseChat {
         this.admins = admins;
     }
 
-    public byte[] getChatPhoto() {
-        return chatPhoto;
+    public String getChatPhotoUrl() {
+        return chatPhotoUrl;
     }
 
-    public void setChatPhoto(byte[] chatPhoto) {
-        this.chatPhoto = chatPhoto;
+    public void setChatPhotoUrl(String chatPhotoUrl) {
+        this.chatPhotoUrl = chatPhotoUrl;
     }
 
     @NonNull

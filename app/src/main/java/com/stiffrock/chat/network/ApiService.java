@@ -63,6 +63,9 @@ public interface ApiService {
     @GET("users/user/{userId}/chats")
     Call<List<BaseChat>> getUserChats(@Path("userId") Long userId);
 
+    @POST("users/user/{userId}/pfp")
+    Call<ApiResponse> updateUserPorfilePicture(@Path("userId") Long userId, @Query("imageUrl") String imageUrl);
+
 
     // Endpoint de chats
     @POST("chats/private/create")
@@ -90,6 +93,9 @@ public interface ApiService {
 
     @DELETE("groups/{groupId}/admins/{userId}")
     Call<ApiResponse> removeAdmin(@Path("groupId") Long groupId, @Path("userId") Long userId);
+
+    @POST("groups/{groupId}/photo")
+    Call<ApiResponse> updateGroupChatPorfilePicture(@Path("groupId") Long groupId, @Query("imageUrl") String imageUrl);
 
 
     // Enpoint de archivos

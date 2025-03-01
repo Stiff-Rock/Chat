@@ -1,5 +1,7 @@
 package com.stiffrock.chat.model;
 
+import androidx.annotation.NonNull;
+
 import java.util.Objects;
 import java.util.Set;
 
@@ -61,11 +63,9 @@ public class User {
         return Objects.hashCode(id);
     }
 
+    @NonNull
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                '}';
+        return "User{" + "id=" + id + ", profilePictureUrl='" + profilePictureUrl + '\'' + ", username='" + username + '\'' + '}';
     }
 }

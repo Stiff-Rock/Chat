@@ -27,6 +27,7 @@ import com.stiffrock.chat.items.ItemMessageSent;
 import com.stiffrock.chat.model.BaseChat;
 import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.PrivateChat;
+import com.stiffrock.chat.utils.ImageManager;
 import com.stiffrock.chat.utils.OnItemClickListener;
 
 import java.util.ArrayList;
@@ -162,7 +163,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
 
             if (item.getPhotoUrl() != null) {
-
+                ImageManager.setImageViewPhoto(view.itemView.getContext(), view.ivChatPhoto, item.getPhotoUrl(), null);
             }
 
             view.tvChatName.setText(item.getChatName());
@@ -191,7 +192,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
 
             if (item.getPhotoUrl() != null) {
-
+                ImageManager.setImageViewPhoto(view.itemView.getContext(), view.ivContactPhoto, item.getPhotoUrl(), null);
             }
 
             view.tvContactName.setText(item.getName());

@@ -2,11 +2,17 @@ package com.stiffrock.chat.utils;
 
 import static com.stiffrock.chat.utils.LogTag.TAG;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ImageView;
@@ -14,14 +20,21 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.stiffrock.chat.R;
 import com.stiffrock.chat.dto.UploadResponse;
 import com.stiffrock.chat.network.RetrofitClient;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -33,36 +46,53 @@ import retrofit2.Response;
 public class ImageManager {
     public static final int MAX_IMAGE_SIZE_MB = 10;
 
-    // Abre la galería seleccionada por el usuario
-    public static void openGallery(ActivityResultLauncher<Intent> launcher) {
+    public static void openGallery(Activity activity, ActivityResultLauncher<Intent> launcher) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_MEDIA_IMAGES}, 100);
+                return;
+            }
+        } else {
+            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
+                return;
+            }
+        }
+
         Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+        intent.setType("image/*");
         launcher.launch(intent);
     }
 
     // Asegura que la imagen tenga un formato válido y cumpla el peso máximo
     public static boolean isValidImage(Activity activity, Uri uri) {
         try {
-            String mimeType = activity.getContentResolver().getType(uri);
-            if (!"image/jpeg".equals(mimeType) && !"image/png".equals(mimeType)) {
-                Toast.makeText(activity, "Formato no permitido. Usa JPG o PNG", Toast.LENGTH_SHORT).show();
+            // Verificar tipo MIME
+            ContentResolver resolver = activity.getContentResolver();
+            String mimeType = resolver.getType(uri);
+
+            if (mimeType == null) return false;
+
+            if (!mimeType.startsWith("image/")) {
+                Toast.makeText(activity, "Formato no permitido", Toast.LENGTH_SHORT).show();
                 return false;
             }
 
-            InputStream inputStream = activity.getContentResolver().openInputStream(uri);
-            if (inputStream == null) throw new IOException("InputStream is null");
-            int fileSize = inputStream.available();
-            inputStream.close();
+            // Verificar tamaño usando ContentResolver
+            ParcelFileDescriptor pfd = resolver.openFileDescriptor(uri, "r");
+            if (pfd == null) return false;
 
-            if (fileSize > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
-                Toast.makeText(activity, "La imagen es demasiado grande (Máx 10MB)", Toast.LENGTH_SHORT).show();
+            long size = new ParcelFileDescriptor.AutoCloseInputStream(pfd).available();
+            pfd.close();
+
+            if (size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+                Toast.makeText(activity, "La imagen es demasiado grande", Toast.LENGTH_SHORT).show();
                 return false;
             }
 
             return true;
         } catch (IOException e) {
-            Log.e(TAG, "Error loading image: " + e.getMessage());
-            Toast.makeText(activity, "Error al cargar la imagen", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Error validando imagen: " + e.getMessage());
             return false;
         }
     }
@@ -107,11 +137,29 @@ public class ImageManager {
         }
     }
 
-    public static void setImageViewPhoto(Context context, ImageView imageView, String url) {
-        GlideApp.with(context).load(url).placeholder(R.drawable.loading_dots).error(R.drawable.default_user).into(imageView);
+    public static void setImageViewPhoto(Context context, ImageView imageView, String url, LoadCallback loadCallback) {
+        GlideApp.with(context).load(url).placeholder(R.drawable.loading).error(R.drawable.default_user).listener(new RequestListener<Drawable>() {
+            @Override
+            public boolean onLoadFailed(@Nullable GlideException e, Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
+                Toast.makeText(context, "La subida de la foto ha fallado", Toast.LENGTH_SHORT).show();
+                if (loadCallback != null) loadCallback.onUrlLoaded(false);
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+                if (loadCallback != null) loadCallback.onUrlLoaded(true);
+                return false;
+            }
+        }).into(imageView);
     }
+
 
     public interface UploadCallback {
         void onUploaded(String fotoUrl);
+    }
+
+    public interface LoadCallback {
+        void onUrlLoaded(boolean success);
     }
 }

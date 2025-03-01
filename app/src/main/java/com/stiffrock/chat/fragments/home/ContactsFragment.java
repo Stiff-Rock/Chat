@@ -81,9 +81,6 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
     }
 
     private void apiGetChatList() {
-        if (chats != null && privateChatsMap != null && allChatsMap != null)
-            if (!chats.isEmpty() && !privateChatsMap.isEmpty() && !allChatsMap.isEmpty()) return;
-
         chats = new ArrayList<>();
         privateChatsMap = new HashMap<>();
         allChatsMap = new HashMap<>();

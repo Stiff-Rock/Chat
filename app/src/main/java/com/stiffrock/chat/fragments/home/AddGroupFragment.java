@@ -85,7 +85,7 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
                 }
             }
         });
-        groupPfp.setOnClickListener(v -> ImageManager.openGallery(pickImageLauncher));
+        groupPfp.setOnClickListener(v -> ImageManager.openGallery(requireActivity(), pickImageLauncher));
 
         apiService = RetrofitClient.getApiService();
 
@@ -97,6 +97,14 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
         recyclerView.setAdapter(adapter);
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (pickImageLauncher != null) {
+            pickImageLauncher.unregister();
+        }
     }
 
     private void createGroup() {

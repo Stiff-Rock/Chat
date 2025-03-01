@@ -53,6 +53,7 @@ import com.stiffrock.chat.network.WebSocketClient;
 import com.stiffrock.chat.network.WebSocketNotification;
 import com.stiffrock.chat.utils.FragmentContainerActivity;
 import com.stiffrock.chat.utils.GsonManager;
+import com.stiffrock.chat.utils.ImageManager;
 import com.stiffrock.chat.utils.WebSocketNotificationListener;
 
 import java.time.LocalDateTime;
@@ -226,15 +227,30 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         });
 
         // TODO: PFP
-        if (CurrentUser.getCurrentChat() instanceof PrivateChat) {
+        BaseChat chat = CurrentUser.getCurrentChat();
+        if (chat instanceof PrivateChat) {
+            User contact = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser());
             onlineStatus.setVisibility(View.VISIBLE);
-            ivContactPhoto.setImageResource(R.drawable.default_user);
-        } else {
+            if (contact.getProfilePictureUrl() != null) {
+                ImageManager.setImageViewPhoto(this, ivContactPhoto, contact.getProfilePictureUrl(), null);
+            } else {
+                ivContactPhoto.setImageResource(R.drawable.default_user);
+            }
+        } else if (chat instanceof GroupChat) {
             onlineStatus.setVisibility(View.GONE);
-            ivContactPhoto.setImageResource(R.drawable.default_group);
+
+            if (((GroupChat) chat).getChatPhotoUrl() != null) {
+                ImageManager.setImageViewPhoto(this, ivContactPhoto, ((GroupChat) chat).getChatPhotoUrl(), null);
+            } else {
+                ivContactPhoto.setImageResource(R.drawable.default_group);
+            }
         }
 
-        toolbar.findViewById(R.id.btnHome).setOnClickListener(v -> {
+        toolbar.findViewById(R.id.btnHome).
+
+                setOnClickListener(v ->
+
+        {
             if (!isSearching) {
                 Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
                 if (fragment instanceof ChatMessagesFragment) navigateToHomeActivity();
@@ -384,7 +400,6 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         adapter.notifyItemChanged(index);
     }
 
-    //TODO: HANDLE TRYING RE-SEND
     private void apiSendMessage(MessageDTO messageDTO) {
         Call<Message> call = apiService.sendMessage(messageDTO);
         call.enqueue(new Callback<Message>() {
