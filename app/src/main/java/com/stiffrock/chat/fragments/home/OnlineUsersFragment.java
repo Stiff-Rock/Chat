@@ -86,7 +86,6 @@ public class OnlineUsersFragment extends Fragment implements OnItemClickListener
                     users = response.body();
                     for (User usr : users) {
                         if (!usr.equals(CurrentUser.getCurrentUser())) {
-                            Log.w(TAG, usr.toString());
                             contactCards.add(new ItemContactCard(usr, true, false));
                         }
                     }

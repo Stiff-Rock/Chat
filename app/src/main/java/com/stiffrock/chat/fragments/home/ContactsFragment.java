@@ -97,13 +97,13 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
             @Override
             public void onResponse(@NonNull Call<List<BaseChat>> call, @NonNull Response<List<BaseChat>> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    CurrentUser.getContacts().clear();
                     for (BaseChat chat : response.body()) {
                         ItemChatCard icc = new ItemChatCard(chat);
                         chats.add(icc);
                         if (chat instanceof PrivateChat) {
                             User contact = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser());
                             privateChatsMap.put(contact, icc);
-                            CurrentUser.getContacts().clear();
                             CurrentUser.getContacts().add((PrivateChat) chat);
                         }
 
@@ -192,6 +192,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
             type = "contacto";
             User contact = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser());
             privateChatsMap.put(contact, icc);
+            CurrentUser.getContacts().add((PrivateChat) chat);
             wsGetContactsStatus();
         } else if (chat instanceof GroupChat) {
             type = "grupo";
@@ -327,7 +328,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
 
         ItemChatCard icc = privateChatsMap.get(user);
         if (icc == null) {
-            Log.w(TAG, "Could not retireve contact ChatCard:\nUser: " + user);
+            Log.wtf(TAG, "Could not retireve contact ChatCard:\nUser: " + user);
             return;
         }
         icc.setOnline(isOnline);
