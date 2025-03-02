@@ -1,5 +1,7 @@
 package com.stiffrock.chat.dto;
 
+import androidx.annotation.NonNull;
+
 /**
  * Data Tansfer Object para estandarizar la serialización de las solicitudes de
  * creación de chats privados.
@@ -32,6 +34,7 @@ public class PrivateChatDTO {
         this.userId2 = userId2;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "PrivateChatDTO{" +

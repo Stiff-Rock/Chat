@@ -1,5 +1,7 @@
 package com.stiffrock.chat.dto;
 
+import androidx.annotation.NonNull;
+
 /**
  * Data Tansfer Object para estandarizar la serialización de las solicitudes de envio de mensajes.
  */
@@ -41,6 +43,7 @@ public class MessageDTO {
         this.messageContent = messageContent;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "MessageDTO{" + "senderId=" + senderId + ", chatId=" + chatId + ", messageContent='" + messageContent + '\'' + '}';
