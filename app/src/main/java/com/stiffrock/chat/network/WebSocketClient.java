@@ -8,7 +8,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.utils.WebSocketNotificationListener;
 
@@ -55,7 +55,6 @@ public class WebSocketClient {
         return instance;
     }
 
-    //TODO: HANDLE FALIED CONNECTIONS
     public void connect() {
         Request request = new Request.Builder().url(APP_WEB_SOCKET_URL).build();
 

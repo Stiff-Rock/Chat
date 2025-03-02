@@ -5,6 +5,19 @@ import androidx.annotation.NonNull;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Clase que representa a un usuario
+ * </p>
+ * Atributos:
+ * <p>
+ * - {@link #id}: Id único del usuario en la BBDD
+ * <p>
+ * - {@link #profilePictureUrl}: Url de la foto de perfil del usuario, almacenada en la BBDD
+ * <p>
+ * - {@link #username}: Nombre de usuario entre 3 y 20 caracteres
+ * <p>
+ * - {@link #chats}: Chats en los que participa este usuario
+ */
 public class User {
     private Long id;
     private String profilePictureUrl;

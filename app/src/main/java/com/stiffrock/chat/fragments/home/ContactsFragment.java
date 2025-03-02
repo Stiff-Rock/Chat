@@ -25,7 +25,7 @@ import com.stiffrock.chat.dto.ApiResponse;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemChatCard;
 import com.stiffrock.chat.model.BaseChat;
-import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.model.PrivateChat;
@@ -48,6 +48,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Clase del fragment que muestra los contactos y grupos a los que pertenece el usuario y gestionarlos.
+ */
 public class ContactsFragment extends Fragment implements OnItemClickListener, WebSocketNotificationListener {
     private ApiService apiService;
     private RecyclerView recyclerView;
@@ -80,6 +83,10 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         apiGetChatList();
     }
 
+    /**
+     * Carga la lista de chats que este usuario tiene asociados en la BBDD mediante una solicitud
+     * a la api y los carga en el RecyclerView
+     */
     private void apiGetChatList() {
         chats = new ArrayList<>();
         privateChatsMap = new HashMap<>();
@@ -123,6 +130,9 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         });
     }
 
+    /**
+     * Envia un mensaje al WebSocket para que este devuelta el status de los contactos del usuario
+     */
     private void wsGetContactsStatus() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("action", WebSocketAction.GET_CONTACTS_ONLINE_STATUS.name());
@@ -131,6 +141,11 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         wsClient.sendMessage(jsonObject.toString());
     }
 
+    /**
+     * Envia un mensaje al WebSocket para que este devuela el status de un usuario concreto
+     *
+     * @param user Usuario del que se solicita saber el status
+     */
     private void wsGetUserStatus(User user) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("action", WebSocketAction.GET_USER_ONLINE_STATUS.name());
@@ -139,6 +154,12 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         wsClient.sendMessage(jsonObject.toString());
     }
 
+    /**
+     * Añade un nuevo contacto, lo muestra en el RecyclerView y solicita su status
+     *
+     * @param chat Chat que se acaba de crear conn dicho usuario
+     * @param user Usuario con el que se está establenciendo un nuevo chato
+     */
     public void addContact(BaseChat chat, User user) {
         ItemChatCard icc = new ItemChatCard(chat);
         chats.add(icc);
@@ -152,6 +173,12 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         adapter.notifyItemInserted(chats.size() - 1);
     }
 
+    /**
+     * Añade un nuevo chat al RecyclerView.
+     * Este método es llamado por el listener de notificaciones de WebSocket.
+     *
+     * @param chat Chat al que el usuario ha sido añadido
+     */
     private void addChat(BaseChat chat) {
         ItemChatCard icc = new ItemChatCard(chat);
         chats.add(icc);
@@ -171,7 +198,13 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         Toast.makeText(requireContext(), "Se ha añadido un nuevo " + type, Toast.LENGTH_SHORT).show();
     }
 
-    private void deleteContact(BaseChat chat) {
+    /**
+     * Elimina un chat del RecyclerView.
+     * Este método es llamado por el listener de notificacione de WebSocket.
+     *
+     * @param chat Chat que se va a eliminar
+     */
+    private void deleteChat(BaseChat chat) {
         int index;
         ItemChatCard icc;
         String chatName;
@@ -199,8 +232,13 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         Toast.makeText(requireContext(), "Se ha eliminado el " + type + " \"" + chatName + "\"", Toast.LENGTH_SHORT).show();
     }
 
-    private void apiDeleteContact(Long chatId) {
-        Call<ApiResponse> call = apiService.deleteContact(chatId);
+    /**
+     * Método que envía una solicitud al servidor para eliminar a un contacto.
+     *
+     * @param contactId Id del chat que se tiene con dicho contacto
+     */
+    private void apiDeleteContact(Long contactId) {
+        Call<ApiResponse> call = apiService.deleteContact(contactId);
         call.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
@@ -218,7 +256,13 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         });
     }
 
-    private void openContactPopup(View view, ItemChatCard item) {
+    /**
+     * Abre el context menu con las acciones posbiles relacionadas con el contacto seleccionado
+     *
+     * @param view View el item que se ha seleccionado
+     * @param item Item del RecyclerView que se ha seleccionado
+     */
+    private void openContactContextMenuPopup(View view, ItemChatCard item) {
         BaseChat chat = item.getChat();
         if (!(chat instanceof PrivateChat)) return;
 
@@ -236,11 +280,24 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         popupMenu.show();
     }
 
+    /**
+     * Muestra una notificación en forma de Toast de un chat del que se ha recibido un mensaje
+     * y reorganizan los item del recycler en funcion del mensaje del contacto más reciente.
+     *
+     * @param msg Mensaje que se ha recibido
+     */
     private void showNotification(Message msg) {
         if (msg.getSender().getUsername().equals("SYSTEM")) return;
 
         BaseChat chat = msg.getChat();
-        Toast.makeText(requireContext(), "Mensaje recibido de " + getChatName(chat), Toast.LENGTH_SHORT).show();
+
+        String chatName;
+        if (chat instanceof PrivateChat)
+            chatName = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser()).getUsername();
+        else if (chat instanceof GroupChat) chatName = ((GroupChat) chat).getName();
+        else return;
+
+        Toast.makeText(requireContext(), "Mensaje recibido de " + chatName, Toast.LENGTH_SHORT).show();
 
         ItemChatCard icc = privateChatsMap.get(msg.getSender());
         int lastIndex = chats.indexOf(icc);
@@ -256,15 +313,13 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         adapter.notifyItemMoved(lastIndex, 0);
     }
 
-    private String getChatName(BaseChat chat) {
-        String name;
-        if (chat instanceof PrivateChat) name = ((PrivateChat) chat).getName();
-        else name = ((GroupChat) chat).getName();
-        String[] usernames = name.split("&");
-        String currentUsrName = CurrentUser.getCurrentUser().getUsername();
-        return usernames[0].equals(currentUsrName) ? usernames[1] : usernames[0];
-    }
-
+    /**
+     * Actualiza el online status de un item del RecyclerVew asociado con un contacto.
+     * Este método es llamado por el listener de notificacione de WebSocket.
+     *
+     * @param isOnline Si el usuario esta online o no.
+     * @param user     El usuario en cuestión.
+     */
     private void updateContactOnlineStatus(boolean isOnline, User user) {
         if (adapter == null) return;
 
@@ -278,6 +333,8 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
         adapter.notifyItemChanged(index);
     }
 
+    /* Listeners personalizados para gestionar el click o la selección de elementos del RecyclerView
+    que contiene los chats */
     @Override
     public void onItemClick(View view, Item item, int postion) {
         CurrentUser.setCurrentChat(((ItemChatCard) item).getChat());
@@ -286,9 +343,20 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
 
     @Override
     public void onLongItemClick(View view, Item item, int postion) {
-        openContactPopup(view, (ItemChatCard) item);
+        openContactContextMenuPopup(view, (ItemChatCard) item);
     }
 
+    /**
+     * Listener de notificaciones recibidas por el WebSocket. Se determina que se debe realizar en
+     * función del contenido del JSON de notificación recibido.
+     *
+     * @param notification Contenido en formato Json de la notificacion que va a ser parseado
+     *                     por la utility class de {@link WebSocketNotification}.
+     *
+     * @see WebSocketNotificationListener
+     * @see WebSocketNotification
+     * @see WebSocketAction
+     */
     @Override
     public void onNotificationReceived(String notification) {
         WebSocketNotification wsn = WebSocketNotification.parse(notification);
@@ -304,7 +372,7 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
             case DELETE_CONTACT:
             case DELETE_GROUP:
                 BaseChat deletedChat = (BaseChat) wsn.getContent();
-                deleteContact(deletedChat);
+                deleteChat(deletedChat);
                 break;
             case USER_CONNECTED:
                 User userConnected = (User) wsn.getContent();

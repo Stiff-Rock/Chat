@@ -1,15 +1,24 @@
 package com.stiffrock.chat.items;
 
-import static com.stiffrock.chat.utils.LogTag.TAG;
-
-import android.util.Log;
-
 import com.stiffrock.chat.model.BaseChat;
-import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.PrivateChat;
 import com.stiffrock.chat.model.User;
 
+/**
+ * Elemento de RecyclerView que representa un chat
+ * <p>
+ * Extiende de {@link Item}
+ * </p>
+ * Atributos:
+ * <p>
+ * - {@link #photoUrl}: Url de la foto almacenada en el servidor, asociada con este item.
+ * <p>
+ * - {@link #chatName}: Nombre del chat
+ * <p>
+ * - {@link #chat}: Referencia al objeto {@link BaseChat} al que representa
+ */
 public class ItemChatCard extends Item {
     private String photoUrl;
     private String chatName;

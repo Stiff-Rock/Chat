@@ -7,6 +7,29 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Clase que representa un mensaje enviado por un usuario o como notificacion del servidor.
+ * </p>
+ * Atributos:
+ * <p>
+ * - {@link #id}: Id único del mensaje en la BBDD.
+ * <p>
+ * - {@link #sender}: Referencia al objeto {@link User} del usuario que ha enviado el mensaje.
+ * <p>
+ * - {@link #chat}: Referencia al objeto {@link BaseChat} del chat al que que se ha enviado el mensaje.
+ * <p>
+ * - {@link #messageContent}: Contenido del mensaje.
+ * <p>
+ * - {@link #timestamp}: Hora a la que se ha enviado el mensaje.
+ * <p>
+ * - {@link #messageState}: Estado en el que se encuentra el mensaje.
+ * <p>
+ * - {@link #readBy}: Set de usuarios que han leido el mensaje.
+ * <p>
+ * - {@link #deleted}: Boolean que indica si el usuario ha "eliminado" el mensaje. El mensaje no se
+ * elimina realmente de la BBDD pero evita que se muestre el contenido del mensaje en el chat, mostrando
+ * un aviso de 'Mensaje eliminado' en vez de el contenido oringial.
+ */
 public class Message {
     private Long id;
     private User sender;

@@ -25,7 +25,7 @@ import com.stiffrock.chat.dto.MessageUpdateDto;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemMessageRecieved;
 import com.stiffrock.chat.items.ItemMessageSent;
-import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.model.MessageState;
 import com.stiffrock.chat.model.User;
@@ -41,7 +41,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
+/**
+ * Clase del fragment que muestra el chat en el que se está conversando
+ */
 public class ChatMessagesFragment extends Fragment implements OnItemClickListener {
     private RecyclerView recyclerView;
     private Map<Item, Message> itemMessageMap;
@@ -67,6 +69,11 @@ public class ChatMessagesFragment extends Fragment implements OnItemClickListene
         return view;
     }
 
+    /**
+     * Envía una solicitud al sevidor para eliminar un mensaje enviado
+     *
+     * @param msgId Id del mensaje que se quiere eliminar
+     */
     private void apiDeleteMessage(Long msgId) {
         Call<ApiResponse> call = apiService.deleteMessage(msgId);
         call.enqueue(new Callback<ApiResponse>() {
@@ -86,6 +93,10 @@ public class ChatMessagesFragment extends Fragment implements OnItemClickListene
         });
     }
 
+    /**
+     * Método que obtiene los items visibles en el RecyclerView de mensajes para marcar los mensajes
+     * recibidos como leídos.
+     */
     private void checkVisibleMessages() {
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
         if (layoutManager instanceof LinearLayoutManager) {
@@ -115,6 +126,11 @@ public class ChatMessagesFragment extends Fragment implements OnItemClickListene
         }
     }
 
+    /**
+     * Notifica al servidor que un mensaje ha sido leido por este usuario.
+     *
+     * @param mud Objeto de solicitud de actualizacion de mensaje.
+     */
     private void sendMessageSatusChange(MessageUpdateDto mud) {
         Call<ApiResponse> call = apiService.updateMessageStatus(mud);
         call.enqueue(new Callback<ApiResponse>() {
@@ -132,7 +148,13 @@ public class ChatMessagesFragment extends Fragment implements OnItemClickListene
         });
     }
 
-    private void openMsgPopup(View view, ItemMessageSent item) {
+    /**
+     * Abre un popup sobre el mensaje seleccionado para dar la posibilidad de borrarlo.
+     *
+     * @param view View asociado con el item seleccionado
+     * @param item Item del RecyclerView del mensaje seleeccionado
+     */
+    private void openMsgContextMenuPopup(View view, ItemMessageSent item) {
         PopupMenu popupMenu = new PopupMenu(view.getContext(), view);
         MenuInflater inflater = popupMenu.getMenuInflater();
         inflater.inflate(R.menu.chat_context_menu, popupMenu.getMenu());
@@ -148,27 +170,45 @@ public class ChatMessagesFragment extends Fragment implements OnItemClickListene
         popupMenu.show();
     }
 
+    /**
+     * Instancia el adapter.
+     *
+     * @param msgItems Lista de mensajes a mostrar en el RecyclerView
+     * @return instancia del {@link MyAdapter}
+     */
     public MyAdapter initAdapter(List<Item> msgItems) {
         return new MyAdapter(msgItems, this);
     }
 
+    /**
+     * Establece el diccionnario de Items y Mensaje utilizado para obtener la referencia
+     * a un item del recycler a partir de su mensaje asociado.
+     *
+     * @param itemMessageMap Map recibido por el Activity padre al terminar de cargar la vista
+     */
     public void setMap(Map<Item, Message> itemMessageMap) {
         this.itemMessageMap = itemMessageMap;
     }
 
+    /**
+     * Método que devuelte el RecyclerView, llamado por la Activity padre.o
+     *
+     * @return instancia del RecyclerView
+     */
     public RecyclerView getRecyclerView() {
         return recyclerView;
     }
 
-    @Override
-    public void onItemClick(View view, Item item, int postion) {
-    }
-
+    // Listener para manejar el comportamiento al seleccionar un item del RecyclerView
     @Override
     public void onLongItemClick(View view, Item item, int postion) {
         if (item instanceof ItemMessageSent) {
             ItemMessageSent ims = (ItemMessageSent) item;
-            openMsgPopup(view, ims);
+            openMsgContextMenuPopup(view, ims);
         }
+    }
+
+    @Override
+    public void onItemClick(View view, Item item, int postion) {
     }
 }

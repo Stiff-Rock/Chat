@@ -1,6 +1,15 @@
 package com.stiffrock.chat.items;
 
-public class ItemMessageNotification extends Item{
+/**
+ * Elemento de RecyclerView que representa a un mensaje de notificación del servidor en el chat
+ * <p>
+ * Extiende de {@link Item}
+ * </p>
+ * Atributos:
+ * <p>
+ * - {@link #message}: Contenido en texto de la notificación
+ */
+public class ItemMessageNotification extends Item {
     private final String message;
 
     public ItemMessageNotification(String message) {

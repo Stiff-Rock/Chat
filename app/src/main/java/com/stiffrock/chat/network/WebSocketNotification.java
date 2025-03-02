@@ -14,6 +14,10 @@ import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.model.WebSocketAction;
 import com.stiffrock.chat.utils.GsonManager;
 
+/**
+ * Clase que sirve para enviar notificaiones serializadas desde el Websocket al cliente y
+ * gestiona el parseo de estas notificaciones.
+ */
 public class WebSocketNotification {
     private final WebSocketAction action;
     private final Object content;

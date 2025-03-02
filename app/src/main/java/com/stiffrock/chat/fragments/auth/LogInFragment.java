@@ -21,7 +21,7 @@ import com.stiffrock.chat.AuthActivity;
 import com.stiffrock.chat.R;
 import com.stiffrock.chat.dto.ApiResponse;
 import com.stiffrock.chat.dto.CredentialsDTO;
-import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
@@ -31,6 +31,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Clase del fragment que gestiona el inicio de sesión
+ */
 public class LogInFragment extends Fragment {
     private EditText etUsername, etPassword;
     private CheckBox ckbxRememberMe;
@@ -52,6 +55,11 @@ public class LogInFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Gestiona el inicio de sesión del usuario, comprobando que los campos no están vacios y que
+     * el servidor verifique que las credenciales son correctas. En caso de que sean correctas,
+     * dirige al HomeActivitys.
+     */
     private void handleLogin() {
         String inputUsername = etUsername.getText().toString().trim();
         String inputPassword = etPassword.getText().toString().trim();
@@ -108,6 +116,11 @@ public class LogInFragment extends Fragment {
         });
     }
 
+    /**
+     * Inicia el fragment dado por parámetro.
+     *
+     * @param fragment Fragment a mostrar.
+     */
     private void replaceFragment(Fragment fragment) {
         ((AuthActivity) requireActivity()).replaceFragment(fragment);
     }

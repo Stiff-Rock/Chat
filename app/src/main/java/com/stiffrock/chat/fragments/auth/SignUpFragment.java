@@ -25,6 +25,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Clase del fragment que gestiona el registro del usuario
+ */
 public class SignUpFragment extends Fragment {
     private EditText etUsername, etPassword1, etPassword2;
 
@@ -45,6 +48,11 @@ public class SignUpFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Gestiona el registro del usuario, asegurandose de que todos los campos hayan sido rellenados
+     * y que cumplan los requisitos. Si las credenciales son correctas, envía una solicitud de
+     * registro de nuevo usuario al servidor.
+     */
     private void handleSignIn() {
         String inputUsername = etUsername.getText().toString().trim();
         String inputPassword1 = etPassword1.getText().toString().trim();
@@ -95,6 +103,9 @@ public class SignUpFragment extends Fragment {
         });
     }
 
+    /**
+     * Hace cargar a la activity el fragment de inicio de sesión
+     */
     private void redirectToLogIn() {
         ((AuthActivity) requireActivity()).replaceFragment(new LogInFragment());
     }

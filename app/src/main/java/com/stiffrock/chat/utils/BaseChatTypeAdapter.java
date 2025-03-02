@@ -13,6 +13,9 @@ import com.stiffrock.chat.model.PrivateChat;
 
 import java.lang.reflect.Type;
 
+/**
+ * Clase que ayuda a Gson a saber como serializar la clase {@link BaseChat} y como gestonar la herencia
+ */
 public class BaseChatTypeAdapter implements JsonSerializer<BaseChat>, JsonDeserializer<BaseChat> {
     private static final String TYPE = "type";
 

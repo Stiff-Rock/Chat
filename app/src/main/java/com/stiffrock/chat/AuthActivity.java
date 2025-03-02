@@ -7,10 +7,16 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.stiffrock.chat.network.WebSocketClient;
 import com.stiffrock.chat.utils.FragmentContainerActivity;
 
 
+/**
+ * Clase de la activity que contiene los fragments relacionados con el registro e inicio de sesión
+ * del usuario.
+ * <p>
+ * Hereda de {@link FragmentContainerActivity}, clase que contiene comportamientos comunes entre
+ * activities que contienen fragments.
+ */
 public class AuthActivity extends FragmentContainerActivity {
 
     @Override
@@ -25,6 +31,9 @@ public class AuthActivity extends FragmentContainerActivity {
 
     }
 
+    /**
+     * Inicia HomeActivity
+     */
     public void navigateToHomeActivity() {
         Intent intent = new Intent(AuthActivity.this, HomeActivity.class);
         startActivity(intent);

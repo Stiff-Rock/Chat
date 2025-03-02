@@ -1,5 +1,8 @@
 package com.stiffrock.chat.dto;
 
+/**
+ * Data Tansfer Object para estandarizar la serialización de las solicitudes de envio de mensajes.
+ */
 public class MessageDTO {
     private Long senderId;
     private Long chatId;

@@ -22,7 +22,7 @@ import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemMessageNotification;
 import com.stiffrock.chat.items.ItemMessageRecieved;
-import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.model.PrivateChat;
 import com.stiffrock.chat.model.User;
@@ -39,6 +39,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Clase del fragment que muestra información de un contacto seleccionado de un grupo
+ */
 public class ContactInfoFragment extends Fragment {
     private final User user;
 
@@ -50,6 +53,7 @@ public class ContactInfoFragment extends Fragment {
 
     private ApiService apiService;
 
+    // Se pasa el usuario seleccionado por constructor al navegar al fragment
     public ContactInfoFragment(User user) {
         this.user = user;
     }
@@ -95,6 +99,10 @@ public class ContactInfoFragment extends Fragment {
         apiGetUserMessages();
     }
 
+    /**
+     * Envía una solicitud al servidor para cargar los mensajes enviados por este usuario
+     * y los carga en un RecyclerView
+     */
     private void apiGetUserMessages() {
         Call<List<Message>> call = apiService.getUserMessages(user.getId());
         call.enqueue(new Callback<List<Message>>() {
@@ -145,8 +153,14 @@ public class ContactInfoFragment extends Fragment {
         });
     }
 
-    private String formatDateTime(LocalDateTime now) {
+    /**
+     * Método auxiliar para formatear a String un LocalDateTime.
+     *
+     * @param dateTime Hora a formatear a String
+     * @return String con el la hora formateada en HH:mm
+     */
+    private String formatDateTime(LocalDateTime dateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-        return now.format(formatter);
+        return dateTime.format(formatter);
     }
 }

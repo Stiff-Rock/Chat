@@ -32,7 +32,7 @@ import com.stiffrock.chat.fragments.home.AddGroupFragment;
 import com.stiffrock.chat.fragments.home.ContactsFragment;
 import com.stiffrock.chat.fragments.home.OnlineUsersFragment;
 import com.stiffrock.chat.fragments.home.UserProfileFragment;
-import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.model.PrivateChat;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
@@ -46,6 +46,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Clase de la activity principal de la app. Contiene los fragments para visualizar los contactos,
+ * los usuarios en línea, crear un grupo y modficar tu perfil.
+ * <p>
+ * Hereda de {@link FragmentContainerActivity}, clase que contiene comportamientos comunes entre
+ * activities que contienen fragments.
+ */
 public class HomeActivity extends FragmentContainerActivity {
     private ApiService apiService;
     public Toolbar toolbar;
@@ -77,12 +84,14 @@ public class HomeActivity extends FragmentContainerActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        // En caso de haberse desconectado del websocket de la app, se reconecta
         if (!wsClient.isConnected()) wsClient.connect();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        // En caos de que se esté cerrando la app, se desconecta del websocket
         if (isFinishing() && wsClient.isConnected()) wsClient.disconnect();
     }
 
@@ -95,13 +104,16 @@ public class HomeActivity extends FragmentContainerActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.userProfile) {
+            // Muestra el perfil del usuario usando la app
             toggleHomeButton(true);
             replaceFragment(new UserProfileFragment());
             return true;
         } else if (item.getItemId() == R.id.addContact) {
+            // Muestra un popup para introducir un nombre de usuario para añadirle como contacto
             addContactDialog();
             return true;
         } else if (item.getItemId() == R.id.addGroup) {
+            // Muestra el fragment para crear un nuevo grupo
             toggleHomeButton(true);
             Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
             if (currentFragment instanceof ContactsFragment) {
@@ -110,13 +122,16 @@ public class HomeActivity extends FragmentContainerActivity {
             }
             return true;
         } else if (item.getItemId() == R.id.showOnlineUsers) {
+            // Muestra el fragment para ver a todos los usuarios online en la aplicación
             toggleHomeButton(true);
             replaceFragment(new OnlineUsersFragment());
             return true;
         } else if (item.getItemId() == R.id.logOut) {
+            // Cierrra la sesión
             logOut();
             return true;
         } else if (item.getItemId() == android.R.id.home) {
+            // Inicia el fragment de contactos
             toggleHomeButton(false);
             replaceFragment(new ContactsFragment());
             return true;
@@ -125,6 +140,12 @@ public class HomeActivity extends FragmentContainerActivity {
         }
     }
 
+    /**
+     * Activa o desactiva el botón que te devuelve al fragment de contactos en caso de encontrarse
+     * en otro fragment.
+     *
+     * @param active Boolean que indica si debe activar (true) o desactivar (false)
+     */
     private void toggleHomeButton(boolean active) {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(active);
@@ -132,6 +153,11 @@ public class HomeActivity extends FragmentContainerActivity {
         }
     }
 
+    /**
+     * Muestra un popup para añadir un contacto por su nombre de usuario. Al introducir
+     * el nombre de usuario y presionar "Aceptar", se hace una petición al servidor para comprobar
+     * si el usuario introducido existe y en caso de que si, se añade como contacto.
+     */
     private void addContactDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LinearLayout layout = new LinearLayout(this);
@@ -152,7 +178,7 @@ public class HomeActivity extends FragmentContainerActivity {
         builder.setTitle(title).setView(layout).setPositiveButton("Aceptar", (dialog, which) -> {
             String userInput = editText.getText().toString().trim();
             if (userInput.isBlank()) return;
-            getUserByUsername(userInput);
+            apiGetUserByUsername(userInput);
         }).setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss());
 
         AlertDialog dialog = builder.create();
@@ -172,14 +198,20 @@ public class HomeActivity extends FragmentContainerActivity {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(backgroundColor));
     }
 
-    private void getUserByUsername(String name) {
+    /**
+     * Método para enviar y gestionar una petición al servidor para comprobar si un usuario
+     * existe a partir de su nombre y en caso positivo. Añadirlo como contacto con otra petición.
+     *
+     * @param name Nombre de usuario a enviar al servidor
+     */
+    private void apiGetUserByUsername(String name) {
         Call<User> call = apiService.getUserByUsername(name);
         call.enqueue(new Callback<User>() {
             @Override
             public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     User user = response.body();
-                    addContact(user);
+                    apiAddContact(user);
                 } else {
                     Toast.makeText(HomeActivity.this, "El usuario introducido no existe", Toast.LENGTH_SHORT).show();
                 }
@@ -193,7 +225,12 @@ public class HomeActivity extends FragmentContainerActivity {
         });
     }
 
-    public void addContact(User user) {
+    /**
+     * Método para enviar una petición al servidor para añadir a un usuario como contacto.
+     *
+     * @param user Usuario a añadir como contacto
+     */
+    public void apiAddContact(User user) {
         Long userId1 = CurrentUser.getCurrentUser().getId();
         Long userId2 = user.getId();
 
@@ -228,8 +265,12 @@ public class HomeActivity extends FragmentContainerActivity {
         });
     }
 
+    /**
+     * Cierra la sesión, desconectandose del websocket, borrando las shared preferences con las
+     * credenciales del usuario previamente logeado y volviento al AuthActivity.
+     */
     private void logOut() {
-        WebSocketClient.getInstance().disconnect();
+        wsClient.disconnect();
         CurrentUser.setCurrentUser(null);
 
         SharedPreferences sp = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
@@ -240,6 +281,11 @@ public class HomeActivity extends FragmentContainerActivity {
         navigateToActivity(AuthActivity.class);
     }
 
+    /**
+     * Navega a la activity dada por parámetro.
+     *
+     * @param targetActivity Clase de la activity que se va a lanzar.
+     */
     public void navigateToActivity(Class<?> targetActivity) {
         Intent intent = new Intent(HomeActivity.this, targetActivity);
         startActivity(intent);

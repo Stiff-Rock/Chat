@@ -7,6 +7,9 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.stiffrock.chat.R;
 
+/**
+ * Clase abstracta de utilidad que centraliza la gestion de fragments
+ */
 public class FragmentContainerActivity extends AppCompatActivity {
     public void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();

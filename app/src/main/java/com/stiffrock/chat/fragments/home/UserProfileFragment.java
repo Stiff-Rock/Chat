@@ -21,7 +21,7 @@ import androidx.fragment.app.Fragment;
 
 import com.stiffrock.chat.R;
 import com.stiffrock.chat.dto.ApiResponse;
-import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.utils.ImageManager;
@@ -30,6 +30,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Clase del fragment que muestra el perfil del usuario logeado
+ */
 public class UserProfileFragment extends Fragment {
     private ImageView ivUserPfp;
 
@@ -47,6 +50,7 @@ public class UserProfileFragment extends Fragment {
         if (photoUrl != null)
             ImageManager.setImageViewPhoto(view.getContext(), ivUserPfp, photoUrl, null);
 
+        // Confirurar el launcher para elegir una foto de la galería para establecerlo como foto de perfil
         pickImageLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                 Toast.makeText(view.getContext(), "Imagen seleccionada, porfavor espere a que cargue...", Toast.LENGTH_SHORT).show();
@@ -77,6 +81,11 @@ public class UserProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Envía una solicitud al servidor para actualizar la foto de perfil del usuario
+     *
+     * @param imageUrl Url de la foto subida al servidor
+     */
     private void apiUpdateUserPorfilePicture(String imageUrl) {
         Long userId = CurrentUser.getCurrentUser().getId();
 

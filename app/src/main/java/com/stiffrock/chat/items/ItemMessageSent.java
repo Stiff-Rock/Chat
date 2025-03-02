@@ -2,6 +2,21 @@ package com.stiffrock.chat.items;
 
 import com.stiffrock.chat.model.MessageState;
 
+/**
+ * Elemento de RecyclerView que representa a un mensaje de enviado en el chat
+ * <p>
+ * Extiende de {@link Item}
+ * </p>
+ * Atributos:
+ * <p>
+ * - {@link #sender}: Nombre del usuario que a enviado el mensaje (El usuario utilizando la app)
+ * <p>
+ * - {@link #message}: Contenido en texto del mensaje
+ * <p>
+ * - {@link #timestamp}: Hora a la que se envió el mensaje
+ * <p>
+ * - {@link #messageState}: Estado en el que se encuentra el mensaje (No enviado, enviado, leido-parcial, leido por todos)
+ */
 public class ItemMessageSent extends Item {
     private final String sender;
     private String message;

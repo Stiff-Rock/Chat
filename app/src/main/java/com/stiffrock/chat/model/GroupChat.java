@@ -4,6 +4,19 @@ import androidx.annotation.NonNull;
 
 import java.util.Set;
 
+/**
+ * Clase que representa un chat grupal
+ * </p>
+ * Hereda de {@link BaseChat}
+ * </p>
+ * Atributos:
+ * <p>
+ * - {@link #name}: Nombre del chat actual. No tiene porque ser único.
+ * <p>
+ * - {@link #admins}: Set de {@link User} que son administradores en este grupo (al menos uno)
+ * <p>
+ * - {@link #chatPhotoUrl}: Url de la foto del grupo almacenada en el servidor
+ */
 public class GroupChat extends BaseChat {
     private String name;
     private Set<User> admins;

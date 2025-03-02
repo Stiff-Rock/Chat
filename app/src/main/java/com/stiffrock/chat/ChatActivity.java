@@ -34,14 +34,14 @@ import com.google.gson.JsonObject;
 import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.dto.MessageDTO;
 import com.stiffrock.chat.fragments.chat.ChatMessagesFragment;
-import com.stiffrock.chat.fragments.chat.GroupChatInfoFragment;
 import com.stiffrock.chat.fragments.chat.ContactInfoFragment;
+import com.stiffrock.chat.fragments.chat.GroupChatInfoFragment;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemMessageNotification;
 import com.stiffrock.chat.items.ItemMessageRecieved;
 import com.stiffrock.chat.items.ItemMessageSent;
 import com.stiffrock.chat.model.BaseChat;
-import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.model.PrivateChat;
@@ -70,6 +70,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Clase de la activiy que contiene los fragments relacionados con los chats privados/grupales
+ * y gestiona la recepción y envío de mensajes.
+ * <p>
+ * Hereda de {@link FragmentContainerActivity}, clase que contiene comportamientos comunes entre
+ * activities que contienen fragments.
+ */
 public class ChatActivity extends FragmentContainerActivity implements WebSocketNotificationListener {
     private final List<Item> msgItems = new ArrayList<>();
     private final Map<Item, Message> itemMessageMap = new HashMap<>();
@@ -103,6 +110,7 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
 
         apiService = RetrofitClient.getApiService();
 
+        // Escucha que el ChatMessagesFragment haya temrinado de cargarse y configura su RecyclerView
         getSupportFragmentManager().registerFragmentLifecycleCallbacks(new FragmentManager.FragmentLifecycleCallbacks() {
             @Override
             public void onFragmentResumed(@NonNull FragmentManager fm, @NonNull Fragment f) {
@@ -113,18 +121,21 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
                 adapter = ((ChatMessagesFragment) f).initAdapter(msgItems);
                 ((ChatMessagesFragment) f).setMap(itemMessageMap);
 
-                getMessageHistory();
+                apiGetMessageHistory();
 
                 recyclerView.setAdapter(adapter);
             }
         }, true);
 
+        // Muestra o esconde el botón del toolbar de búsqueda de mensajes en función del fragment
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
             int visibility = currentFragment instanceof ChatMessagesFragment ? View.VISIBLE : View.GONE;
             btnSearch.setVisibility(visibility);
         });
 
+        /* Obtiene la insancia del cliente del WebSocket y se conecta al WebSocket del chat grupal
+        en caso de encontrarse en un grupo */
         wsClient = WebSocketClient.getInstance();
         if (CurrentUser.getCurrentChat() instanceof GroupChat) {
             wsClient.connectToGroupChat();
@@ -132,6 +143,9 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         wsClient.setOnNotificationReceivedListener(this);
     }
 
+    /**
+     * Inicia la toolbar y configura las acciones
+     */
     private void initToolbarMenu() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -157,9 +171,6 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         ConstraintLayout searchBarContainer = toolbar.findViewById(R.id.searchBarContainer);
 
         ImageView ivContactPhoto = toolbar.findViewById(R.id.ivContactPhoto);
-
-        TextView tvContactName = toolbar.findViewById(R.id.tvContactName);
-        tvContactName.setText(getChatName(CurrentUser.getCurrentChat()));
 
         onlineStatus = toolbar.findViewById(R.id.ivOnlineStatus);
 
@@ -227,8 +238,10 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         });
 
         BaseChat chat = CurrentUser.getCurrentChat();
+        TextView tvContactName = toolbar.findViewById(R.id.tvContactName);
         if (chat instanceof PrivateChat) {
             User contact = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser());
+            tvContactName.setText(contact.getUsername());
             onlineStatus.setVisibility(View.VISIBLE);
             if (contact.getProfilePictureUrl() != null) {
                 ImageManager.setImageViewPhoto(this, ivContactPhoto, contact.getProfilePictureUrl(), null);
@@ -237,7 +250,7 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
             }
         } else if (chat instanceof GroupChat) {
             onlineStatus.setVisibility(View.GONE);
-
+            tvContactName.setText(((GroupChat) chat).getName());
             if (((GroupChat) chat).getChatPhotoUrl() != null) {
                 ImageManager.setImageViewPhoto(this, ivContactPhoto, ((GroupChat) chat).getChatPhotoUrl(), null);
             } else {
@@ -245,11 +258,7 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
             }
         }
 
-        toolbar.findViewById(R.id.btnHome).
-
-                setOnClickListener(v ->
-
-        {
+        toolbar.findViewById(R.id.btnHome).setOnClickListener(v -> {
             if (!isSearching) {
                 Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
                 if (fragment instanceof ChatMessagesFragment) navigateToHomeActivity();
@@ -279,6 +288,10 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         }
     }
 
+    /**
+     * Solicitud al WebSoket para recibir el status del contacto con el que se esté chateando
+     * en caso de encontrarse en un chat grupal
+     */
     private void wsGetContactsStatus() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("action", WebSocketAction.GET_CONTACTS_ONLINE_STATUS.name());
@@ -287,7 +300,10 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         wsClient.sendMessage(jsonObject.toString());
     }
 
-    private void getMessageHistory() {
+    /**
+     * Envía una solicitud al servidor para obtener y cargar la lista de los mensajes intercambiados en el chat
+     */
+    private void apiGetMessageHistory() {
         Long chatId = CurrentUser.getCurrentChat().getId();
         Call<List<Message>> call = apiService.getMessageHistory(chatId);
         call.enqueue(new Callback<List<Message>>() {
@@ -317,6 +333,12 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         });
     }
 
+    /**
+     * Añade la burbuja de texto en función de quien lo haya enviado.
+     *
+     * @param itemType Tipo de mensaje (Propio, Ajeno o Notificación del servidor)
+     * @param msg      El mensaje a mostrar
+     */
     public void addTextBubble(int itemType, Message msg) {
         String sender = msg.getSender().getUsername();
         String text = msg.getMessageContent();
@@ -343,6 +365,12 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         recyclerView.scrollToPosition(msgItems.size() - 1);
     }
 
+    /**
+     * Gestionna la creación del mensaje antes de enviarlo al servidor
+     *
+     * @param etMensaje EditText donde se escribe el mensaje que se encuentra en el
+     *                  {@link ChatMessagesFragment}
+     */
     public void sendMessage(EditText etMensaje) {
         String text = etMensaje.getText().toString().trim();
         if (text.isBlank()) return;
@@ -361,11 +389,25 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         apiSendMessage(new MessageDTO(userId, chatID, text));
     }
 
-    private String formatDateTime(LocalDateTime now) {
+    /**
+     * Método auxiliar para formatear a String un LocalDateTime.
+     *
+     * @param dateTime Hora a formatear a String
+     * @return String con el la hora formateada en HH:mm
+     */
+    private String formatDateTime(LocalDateTime dateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-        return now.format(formatter);
+        return dateTime.format(formatter);
     }
 
+    /**
+     * Gestionna la rececpción de mensajes, mostrandolo si el mensaje del chat en el que
+     * se encuentra el usuario en ese momento o mostrando una notificación si no.
+     * <p>
+     * Este método es llamado por el listener de notificacione de WebSocket.
+     *
+     * @param msg Mensaje recibido
+     */
     private void recieveMessage(Message msg) {
         messages.add(msg);
 
@@ -385,6 +427,14 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         } else showNotification(msg);
     }
 
+    /**
+     * Actualiza el mensaje que ha sido modificado, ya sea porque se ha eliminado, o porque
+     * se ha actualizado su status de lectura
+     * <p>
+     * Este método es llamado por el listener de notificacione de WebSocket.
+     *
+     * @param msg Mensaje actualizado
+     */
     private void updateMessage(Message msg) {
         Item item = messageItemMap.get(msg);
         int index = msgItems.indexOf(item);
@@ -399,6 +449,11 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         adapter.notifyItemChanged(index);
     }
 
+    /**
+     * Solicitud al servidor para enviar un mensaje a un chat
+     *
+     * @param messageDTO Objeto de solicitud de envío del mensaje
+     */
     private void apiSendMessage(MessageDTO messageDTO) {
         Call<Message> call = apiService.sendMessage(messageDTO);
         call.enqueue(new Callback<Message>() {
@@ -427,20 +482,36 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         });
     }
 
+    /**
+     * Muestra una notificación en forma de Toast de un mensaje recibido en otro chat diferente
+     * al actual.
+     *
+     * @param msg Mensaje recibido
+     */
     private void showNotification(Message msg) {
         BaseChat chat = msg.getChat();
-        Toast.makeText(this, "Mensaje recibido de " + getChatName(chat), Toast.LENGTH_SHORT).show();
+
+        String chatName;
+        if (chat instanceof PrivateChat) {
+            User contact = ((PrivateChat) chat).getContact(CurrentUser.getCurrentUser());
+            chatName = contact.getUsername();
+        } else if (chat instanceof GroupChat) {
+            chatName = ((GroupChat) chat).getName();
+        } else return;
+
+        Toast.makeText(this, "Mensaje recibido de " + chatName, Toast.LENGTH_SHORT).show();
     }
 
-    private String getChatName(BaseChat chat) {
-        String name;
-        if (chat instanceof PrivateChat) name = ((PrivateChat) chat).getName();
-        else name = ((GroupChat) chat).getName();
-        String[] usernames = name.split("&");
-        String currentUsrName = CurrentUser.getCurrentUser().getUsername();
-        return usernames[0].equals(currentUsrName) ? usernames[1] : usernames[0];
-    }
-
+    /**
+     * Listener de notificaciones recibidas por el WebSocket. Se determina que se debe realizar en
+     * función del contenido del JSON de notificación recibido.
+     *
+     * @param notification Contenido en formato Json de la notificacion que va a ser parseado
+     *                     por la utility class de {@link WebSocketNotification}.
+     * @see WebSocketNotificationListener
+     * @see WebSocketNotification
+     * @see WebSocketAction
+     */
     @Override
     public void onNotificationReceived(String notification) {
         WebSocketNotification wsn = WebSocketNotification.parse(notification);
@@ -489,7 +560,7 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
                     JsonObject userJson = content.getAsJsonObject("user");
                     GroupChat chat = GsonManager.gson.fromJson(groupChatJson, GroupChat.class);
                     User user = GsonManager.gson.fromJson(userJson, User.class);
-                    ((GroupChatInfoFragment) fragmentGCC).updateChat(WebSocketAction.GROUP_CHAT_CHANGED, chat, user);
+                    ((GroupChatInfoFragment) fragmentGCC).updateChatMembersInfo(WebSocketAction.GROUP_CHAT_CHANGED, chat, user);
                 }
                 break;
             case GROUP_CHAT_DELETION:
@@ -500,7 +571,7 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
                     JsonObject userJson = content.getAsJsonObject("user");
                     GroupChat chat = GsonManager.gson.fromJson(groupChatJson, GroupChat.class);
                     User user = GsonManager.gson.fromJson(userJson, User.class);
-                    ((GroupChatInfoFragment) fragmentGCD).updateChat(WebSocketAction.GROUP_CHAT_DELETION, chat, user);
+                    ((GroupChatInfoFragment) fragmentGCD).updateChatMembersInfo(WebSocketAction.GROUP_CHAT_DELETION, chat, user);
                 }
                 break;
             default:
@@ -508,6 +579,13 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         }
     }
 
+    /**
+     * Añade comportamiento adicional al método heredado en {@link FragmentContainerActivity}
+     * en el cual muestra o esconde el botón de búsqueda de mensajes en función del fragment
+     * en el que se vaya a navegar el usuario.
+     *
+     * @param fragment Fragmetn al que se va a navegar.
+     */
     @Override
     public void replaceFragment(Fragment fragment) {
         super.replaceFragment(fragment);
@@ -515,6 +593,9 @@ public class ChatActivity extends FragmentContainerActivity implements WebSocket
         btnSearch.setVisibility(visibility);
     }
 
+    /**
+     * Navega a la actividad de {@link HomeActivity}
+     */
     public void navigateToHomeActivity() {
         Intent intent = new Intent(ChatActivity.this, HomeActivity.class);
         startActivity(intent);

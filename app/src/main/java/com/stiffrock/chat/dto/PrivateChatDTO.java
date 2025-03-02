@@ -1,5 +1,9 @@
 package com.stiffrock.chat.dto;
 
+/**
+ * Data Tansfer Object para estandarizar la serialización de las solicitudes de
+ * creación de chats privados.
+ */
 public class PrivateChatDTO {
     private Long userId1;
     private Long userId2;

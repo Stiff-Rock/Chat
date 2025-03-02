@@ -27,7 +27,7 @@ import com.stiffrock.chat.R;
 import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemContactCard;
-import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
@@ -40,6 +40,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Clase del fragment que muestra la lista de usuarios conectados a la aplicación.
+ * (Conectados al WebSocket). Permite añadir nuevos contactos.
+ */
 public class OnlineUsersFragment extends Fragment implements OnItemClickListener {
     private List<Item> contactCards;
     private List<User> users;
@@ -67,6 +71,10 @@ public class OnlineUsersFragment extends Fragment implements OnItemClickListener
         return view;
     }
 
+    /**
+     * Envia un request al servidor para recibir de vuelta una lista de usuarios conectados a la app
+     * y los carga en el RecyclerView.
+     */
     private void apiGetOnlineUsers() {
         contactCards = new ArrayList<>();
 
@@ -105,6 +113,13 @@ public class OnlineUsersFragment extends Fragment implements OnItemClickListener
         });
     }
 
+    /**
+     * Muestr aun popup al seleccionar un usuario para dar a elegir si se quiere añadir como contacto
+     *
+     * @param icc   Item del RecyclerView presionado
+     * @param index Índice del item presionado en el RecyclerView
+     * @param user  Usuario con el que el item presionado esta asociado
+     */
     private void addContactDialog(ItemContactCard icc, int index, User user) {
         Context context = requireContext();
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -121,7 +136,7 @@ public class OnlineUsersFragment extends Fragment implements OnItemClickListener
 
         builder.setTitle(title).setView(layout).setPositiveButton("Aceptar", (dialog, which) -> {
             HomeActivity home = (HomeActivity) requireActivity();
-            home.addContact(user);
+            home.apiAddContact(user);
             icc.setSelected(false);
             adapter.notifyItemChanged(index);
         }).setNegativeButton("Cancelar", (dialog, which) -> {
@@ -147,6 +162,7 @@ public class OnlineUsersFragment extends Fragment implements OnItemClickListener
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(backgroundColor));
     }
 
+    // Listener para gestionar el item del RecyclerView que se ha clickado
     @Override
     public void onItemClick(View view, Item item, int postion) {
         ItemContactCard icc = (ItemContactCard) item;
@@ -159,6 +175,5 @@ public class OnlineUsersFragment extends Fragment implements OnItemClickListener
 
     @Override
     public void onLongItemClick(View view, Item item, int postion) {
-
     }
 }

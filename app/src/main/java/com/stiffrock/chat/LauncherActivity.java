@@ -13,7 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.stiffrock.chat.dto.CredentialsDTO;
-import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.utils.SecureStorage;
@@ -22,12 +22,17 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Clase de la activity que gestiona el lanzamiento de la app.
+ * Maneja el autologin o inicia el AuthActivity para que el usuario se autentique
+ */
 public class LauncherActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.loading_screen);
 
+        // Gestiona posibles errores del autologin para asegurarse de que la aplicación no crashea
         try {
             handleAutoLogin();
         } catch (Exception e) {
@@ -36,6 +41,10 @@ public class LauncherActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Maneja el autologin y trata de autenticar al usuario en el servidor con las credenciales que ha podido guardar
+     * si ha marcado la casilla de "Recuérdame"
+     */
     private void handleAutoLogin() {
         SharedPreferences sp = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         boolean rememberLogIn = sp.getBoolean("rememberLogIn", false);
@@ -81,6 +90,11 @@ public class LauncherActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Inicia una nueva activity.
+     *
+     * @param activity Clase del activity a lanzar
+     */
     private void startActivity(Class<?> activity) {
         Intent intent = new Intent(this, activity);
         startActivity(intent);

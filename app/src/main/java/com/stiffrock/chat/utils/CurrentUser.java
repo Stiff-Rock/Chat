@@ -1,8 +1,23 @@
-package com.stiffrock.chat.model;
+package com.stiffrock.chat.utils;
+
+import com.stiffrock.chat.model.BaseChat;
+import com.stiffrock.chat.model.PrivateChat;
+import com.stiffrock.chat.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Clase estática de utilidad que almacena al información del usuario actualmetne usando la aplicación
+ * </p>
+ * Atributos:
+ * <p>
+ * - {@link #currentUser}: Referencia al objeto {@link User} del usuario logeado acutalmente
+ * <p>
+ * - {@link #contacts}: Lista de contactos que este usuario posee.
+ * <p>
+ * - {@link #currentGroupChat}: Chat en el que se encuentra actualmente el usuario (puede ser null).
+ */
 public class CurrentUser {
     private static User currentUser;
     private static List<PrivateChat> contacts = new ArrayList<>();

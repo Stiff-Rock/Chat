@@ -1,6 +1,19 @@
 package com.stiffrock.chat.items;
 
-public class ItemMessageRecieved extends Item{
+/**
+ * Elemento de RecyclerView que representa a un mensaje de recibido en el chat
+ * <p>
+ * Extiende de {@link Item}
+ * </p>
+ * Atributos:
+ * <p>
+ * - {@link #sender}: Nombre del usuario que a enviado el mensaje
+ * <p>
+ * - {@link #message}: Contenido en texto del mensaje
+ * <p>
+ * - {@link #timestamp}: Hora a la que se envió el mensaje
+ */
+public class ItemMessageRecieved extends Item {
     private final String sender;
     private String message;
     private final String timestamp;

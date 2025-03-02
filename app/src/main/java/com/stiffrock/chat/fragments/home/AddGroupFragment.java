@@ -28,7 +28,7 @@ import com.stiffrock.chat.dto.ApiResponse;
 import com.stiffrock.chat.dto.GroupChatDTO;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemContactCard;
-import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
@@ -44,6 +44,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Clase del fragment que se encarga de gestionar la creación de un nuevo grupo
+ */
 public class AddGroupFragment extends Fragment implements OnItemClickListener {
     private EditText etGroupName;
 
@@ -60,6 +63,11 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
 
     private ApiService apiService;
 
+    /**
+     * Lista de contactos que se vas a mostrar como posibles integrantes del grupo
+     *
+     * @param contacts Lista de {@link User} que contiene los contactos del usuario
+     */
     public AddGroupFragment(List<User> contacts) {
         this.contacts = contacts;
     }
@@ -79,6 +87,8 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
         view.findViewById(R.id.btnCreateGroup).setOnClickListener(v -> createGroup());
 
         groupPfp = view.findViewById(R.id.groupPfp);
+
+        // Confirurar el launcher para elegir una foto de la galería para establecerlo como foto del grupo
         pickImageLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                 Toast.makeText(view.getContext(), "Imagen seleccionada, porfavor espere a que cargue...", Toast.LENGTH_SHORT).show();
@@ -89,6 +99,7 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
                 }
             }
         });
+
         groupPfp.setOnClickListener(v -> ImageManager.openGallery(requireActivity(), pickImageLauncher));
 
         apiService = RetrofitClient.getApiService();
@@ -111,6 +122,10 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
         }
     }
 
+    /**
+     * Gestiona que la configuracion del grupo (nombre, miembros y foto) sea correcta antes de
+     * enviar la solicitud al servidor para crearlo.o
+     */
     private void createGroup() {
         String groupName = etGroupName.getText().toString().trim();
         if (groupName.isBlank()) {
@@ -126,6 +141,7 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
         Long userId = CurrentUser.getCurrentUser().getId();
 
         if (currentImageUri != null) {
+            // Si el usuario ha elegido una foto para el grupo, la sube al servidor.
             ImageManager.apiUploadImage(requireContext(), currentImageUri, fotoUrl -> {
                 GroupChatDTO gcd = new GroupChatDTO(groupName, participants, userId, fotoUrl);
                 apiCreateGroup(gcd);
@@ -136,6 +152,11 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
         }
     }
 
+    /**
+     * Envía una solicitud al servidor para crear el grupo.
+     *
+     * @param gcd Solicitud de creación de grupo
+     */
     private void apiCreateGroup(GroupChatDTO gcd) {
         Call<ApiResponse> call = apiService.createGroupChat(gcd);
         call.enqueue(new Callback<ApiResponse>() {
@@ -157,6 +178,8 @@ public class AddGroupFragment extends Fragment implements OnItemClickListener {
         });
     }
 
+    /* Listeners personalizados para gestionar el click o la selección de elementos del RecyclerView
+    que contiene los contactos a añadir al grupo */
     @Override
     public void onItemClick(View view, Item item, int postion) {
         ItemContactCard icc = (ItemContactCard) item;

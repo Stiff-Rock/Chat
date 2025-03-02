@@ -6,6 +6,10 @@ import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.model.MessageState;
 import com.stiffrock.chat.model.User;
 
+/**
+ * Data Tansfer Object para estandarizar la serialización de las solicitudes de actualización
+ * de mensajes.
+ */
 public class MessageUpdateDto {
     private Long readerUser;
     private Long msgId;
@@ -47,10 +51,6 @@ public class MessageUpdateDto {
     @NonNull
     @Override
     public String toString() {
-        return "MessageUpdateDto{" +
-                "readerUser=" + readerUser +
-                ", msgId=" + msgId +
-                ", state=" + state +
-                '}';
+        return "MessageUpdateDto{" + "readerUser=" + readerUser + ", msgId=" + msgId + ", state=" + state + '}';
     }
 }

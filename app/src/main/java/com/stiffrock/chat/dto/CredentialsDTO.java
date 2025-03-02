@@ -1,5 +1,9 @@
 package com.stiffrock.chat.dto;
 
+/**
+ * Data Tansfer Object para estandarizar la serialización de las solicitudes de
+ * inicio de sesion o registro al servidor.
+ */
 public class CredentialsDTO {
     private String username;
     private String password;

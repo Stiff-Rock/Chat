@@ -38,7 +38,7 @@ import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.dto.ApiResponse;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemContactCard;
-import com.stiffrock.chat.model.CurrentUser;
+import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.PrivateChat;
 import com.stiffrock.chat.model.User;
@@ -58,6 +58,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Clase del fragment que muestra la información del chat grupal en el que se encuentra el usuario
+ */
 public class GroupChatInfoFragment extends Fragment implements OnItemClickListener {
     private GroupChat chat;
 
@@ -73,13 +76,11 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
 
     private boolean isRecyclerLoaded;
 
-    public GroupChatInfoFragment() {
-        chat = (GroupChat) CurrentUser.getCurrentChat();
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_group_chat_info, container, false);
+
+        chat = (GroupChat) CurrentUser.getCurrentChat();
 
         apiService = RetrofitClient.getApiService();
 
@@ -93,6 +94,7 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
             ImageManager.setImageViewPhoto(view.getContext(), ivContactPhoto, photo, null);
         }
 
+        // Confirurar el launcher para elegir una foto de la galería para establecerlo como foto del grupo
         pickImageLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                 Toast.makeText(view.getContext(), "Imagen seleccionada, porfavor espere a que cargue...", Toast.LENGTH_SHORT).show();
@@ -115,7 +117,7 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
                 Toast.makeText(requireContext(), "Designa otro admin antes de abandonar el grupo", Toast.LENGTH_SHORT).show();
                 return;
             }
-            leaveGroup();
+            leaveGroupDialog();
         });
 
         recyclerView = view.findViewById(R.id.recyclerView);
@@ -130,6 +132,10 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         apiGetChatInfo();
     }
 
+    /**
+     * Envía una solicitud al servidor para obtener la información sobre el chat almacenada en la BBDD
+     * y la carga en la vista.
+     */
     private void apiGetChatInfo() {
         isRecyclerLoaded = false;
 
@@ -156,6 +162,9 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         });
     }
 
+    /**
+     * Inicializa el adapter del RecyclerView que contiene la lista de participantes del grupo.
+     */
     private void initAdapter() {
         contactItems = new ArrayList<>();
         userItemContactCardMap = new HashMap<>();
@@ -174,7 +183,16 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         isRecyclerLoaded = true;
     }
 
-    public void showOptionsMenu(ItemContactCard item, View view, int postion) {
+    /**
+     * Muestra un popup con las acciones posibles relacionadas conn la gestion de los miembros del
+     * grupo, caso de ser admin y la posiblidad de ver la infomación de contacto del integrante
+     * seleciconado.
+     *
+     * @param item    Item del RecyclerView seleccionado
+     * @param view    View del item del RecyclerView
+     * @param postion Posicion en la que se encuentra el item en el RecyclerView
+     */
+    public void showOptionsContextMenu(ItemContactCard item, View view, int postion) {
         PopupMenu popupMenu = new PopupMenu(view.getContext(), view);
         MenuInflater inflater = popupMenu.getMenuInflater();
         inflater.inflate(R.menu.group_chat_context_menu, popupMenu.getMenu());
@@ -212,6 +230,10 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         popupMenu.show();
     }
 
+    /**
+     * Muestra un popup cuando se presiona el botón de "Añadir miembro" que muestra un RecyclerView
+     * con la lista de contactos del usuario para añadir a alguno de ellos al grupo.
+     */
     private void addMemberDialog() {
         if (!isRecyclerLoaded) return;
 
@@ -253,7 +275,10 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         dialog.show();
     }
 
-    private void leaveGroup() {
+    /**
+     * Muestra un popup para confirmar si se quiere abandonar el grupo
+     */
+    private void leaveGroupDialog() {
         Context context = requireContext();
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LinearLayout layout = new LinearLayout(context);
@@ -286,6 +311,11 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(backgroundColor));
     }
 
+    /**
+     * Envía una solicitud al servidor para añadir un nuevo usuario al grupo
+     *
+     * @param user Usuario a añadir al grupo
+     */
     private void apiAddMember(User user) {
         Call<ApiResponse> addMember = apiService.addMember(chat.getId(), user.getId());
         addMember.enqueue(new Callback<ApiResponse>() {
@@ -308,6 +338,11 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         });
     }
 
+    /**
+     * Envía una solicitud al servidor para eliminar a un usuario del grupo
+     *
+     * @param user Usuario a eliminar del grupo
+     */
     private void apiRemoveMember(User user) {
         Call<ApiResponse> removeMember = apiService.removeMember(chat.getId(), user.getId());
         removeMember.enqueue(new Callback<ApiResponse>() {
@@ -336,6 +371,11 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         });
     }
 
+    /**
+     * Envia una solicitud al servidor para establecer a un miembro como administrador del grupo
+     *
+     * @param user Usuario que se va a establecer como admin
+     */
     private void apiAddAdmin(User user) {
         Call<ApiResponse> addAdmin = apiService.addAdmin(chat.getId(), user.getId());
         addAdmin.enqueue(new Callback<ApiResponse>() {
@@ -357,6 +397,11 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         });
     }
 
+    /**
+     * Envia una solicitud al servidor para eliminar privilegios de administrador de un miembro
+     *
+     * @param user Usuario al que se le van a revocar sus priviledios de administrador
+     */
     private void apiRemoveAdmin(User user) {
         Call<ApiResponse> removeAdmin = apiService.removeAdmin(chat.getId(), user.getId());
         removeAdmin.enqueue(new Callback<ApiResponse>() {
@@ -378,6 +423,11 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         });
     }
 
+    /**
+     * Envia una solicitud al servido para actualiar la foto del grupo
+     *
+     * @param imageUrl Url de la foto subira al servidor
+     */
     private void apiUpdateGroupChatPorfilePicture(String imageUrl) {
         Long chatId = chat.getId();
         Call<ApiResponse> call = apiService.updateGroupChatPhoto(chatId, imageUrl);
@@ -401,12 +451,26 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         });
     }
 
+    /**
+     * Navega al fragment que muestra la información de un usuario seleccionado
+     *
+     * @param user Usuario del que se quiere ver la información
+     */
     private void navigateToUserInfoFragment(User user) {
         ChatActivity ca = (ChatActivity) getActivity();
         if (ca != null) ca.replaceFragment(new ContactInfoFragment(user));
     }
 
-    public void updateChat(WebSocketAction action, GroupChat chat, User user) {
+    /**
+     * Método que actualiza la información de los miembros grupo.
+     * <p>
+     * Este método es llamado por el listener de notificaciones de WebSocket.
+     *
+     * @param action Acción que se ha realizado
+     * @param chat   Referencia el chat grupal
+     * @param user   Usuario que se ha visto afectado por el cambio
+     */
+    public void updateChatMembersInfo(WebSocketAction action, GroupChat chat, User user) {
         if (chat.getId().equals(this.chat.getId())) {
             this.chat = chat;
 
@@ -429,6 +493,7 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         }
     }
 
+    // Listeners para gestionar el click o la seleccion de los items del RecyclerView de miembros
     @Override
     public void onItemClick(View view, Item item, int postion) {
         ItemContactCard icc = (ItemContactCard) item;
@@ -440,7 +505,7 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
         ItemContactCard icc = (ItemContactCard) item;
         if (!icc.getUser().equals(CurrentUser.getCurrentUser())) {
             icc.setSelected(true);
-            showOptionsMenu(icc, view, postion);
+            showOptionsContextMenu(icc, view, postion);
         }
     }
 }
