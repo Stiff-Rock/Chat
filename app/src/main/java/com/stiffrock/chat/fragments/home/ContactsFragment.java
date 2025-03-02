@@ -25,7 +25,6 @@ import com.stiffrock.chat.dto.ApiResponse;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemChatCard;
 import com.stiffrock.chat.model.BaseChat;
-import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.model.PrivateChat;
@@ -35,6 +34,7 @@ import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.network.WebSocketClient;
 import com.stiffrock.chat.network.WebSocketNotification;
+import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.utils.GsonManager;
 import com.stiffrock.chat.utils.OnItemClickListener;
 import com.stiffrock.chat.utils.WebSocketNotificationListener;
@@ -161,6 +161,8 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
      * @param user Usuario con el que se está establenciendo un nuevo chato
      */
     public void addContact(BaseChat chat, User user) {
+        if (chat instanceof PrivateChat) CurrentUser.getContacts().add((PrivateChat) chat);
+
         ItemChatCard icc = new ItemChatCard(chat);
         chats.add(icc);
         if (chat instanceof PrivateChat) {
@@ -352,7 +354,6 @@ public class ContactsFragment extends Fragment implements OnItemClickListener, W
      *
      * @param notification Contenido en formato Json de la notificacion que va a ser parseado
      *                     por la utility class de {@link WebSocketNotification}.
-     *
      * @see WebSocketNotificationListener
      * @see WebSocketNotification
      * @see WebSocketAction

@@ -32,12 +32,12 @@ import com.stiffrock.chat.fragments.home.AddGroupFragment;
 import com.stiffrock.chat.fragments.home.ContactsFragment;
 import com.stiffrock.chat.fragments.home.OnlineUsersFragment;
 import com.stiffrock.chat.fragments.home.UserProfileFragment;
-import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.model.PrivateChat;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
 import com.stiffrock.chat.network.WebSocketClient;
+import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.utils.FragmentContainerActivity;
 
 import java.util.ArrayList;
@@ -242,6 +242,11 @@ public class HomeActivity extends FragmentContainerActivity {
             public void onResponse(@NonNull Call<PrivateChat> call, @NonNull Response<PrivateChat> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     PrivateChat chat = response.body();
+                    if (CurrentUser.getContacts().contains(chat)) {
+                        Toast.makeText(HomeActivity.this, "Ya tienes este contacto", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fcv);
                     if (currentFragment instanceof ContactsFragment) {
                         ContactsFragment cf = (ContactsFragment) currentFragment;
