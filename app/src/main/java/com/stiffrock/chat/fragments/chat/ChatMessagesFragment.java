@@ -25,17 +25,23 @@ import com.stiffrock.chat.dto.MessageUpdateDto;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemMessageRecieved;
 import com.stiffrock.chat.items.ItemMessageSent;
-import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.model.Message;
 import com.stiffrock.chat.model.MessageState;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
+import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.utils.OnItemClickListener;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -49,6 +55,11 @@ public class ChatMessagesFragment extends Fragment implements OnItemClickListene
     private Map<Item, Message> itemMessageMap;
 
     private ApiService apiService;
+
+    // Single Thread Executor para no saturar el servidor con request al actualizar el status de los mensajes
+    private final ExecutorService msgStatusUpdateExecutor = Executors.newSingleThreadExecutor();
+    // Conjunto para llevar el seguimiento de mensajes con solicitudes pendientes.
+    private final Set<Long> pendingMessageRequests = Collections.synchronizedSet(new HashSet<>());
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -128,22 +139,29 @@ public class ChatMessagesFragment extends Fragment implements OnItemClickListene
 
     /**
      * Notifica al servidor que un mensaje ha sido leido por este usuario.
+     * Usa un SingleThreadExecutor para no saturar el servidor con solicitudes y almacena las solicitudes
+     * en cola o en espera de respuesta en un HashMap syncronizado.
      *
      * @param mud Objeto de solicitud de actualizacion de mensaje.
      */
     private void sendMessageSatusChange(MessageUpdateDto mud) {
-        Call<ApiResponse> call = apiService.updateMessageStatus(mud);
-        call.enqueue(new Callback<ApiResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
-                if (!response.isSuccessful() && response.body() == null) {
+        Long messageId = mud.getMsgId();
+
+        if (pendingMessageRequests.contains(messageId)) return;
+
+        pendingMessageRequests.add(messageId);
+
+        msgStatusUpdateExecutor.execute(() -> {
+            try {
+                Call<ApiResponse> call = apiService.updateMessageStatus(mud);
+                Response<ApiResponse> response = call.execute();
+                if (!response.isSuccessful()) {
                     Log.e(TAG, "Error updating message status: " + response.code());
                 }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable throwable) {
-                Log.e(TAG, "SendMessageSatusChange request failed: " + throwable.getMessage());
+            } catch (IOException e) {
+                Log.e(TAG, "Database operation failed: " + e.getMessage());
+            } finally {
+                pendingMessageRequests.remove(messageId);
             }
         });
     }

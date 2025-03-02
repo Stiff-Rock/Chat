@@ -38,13 +38,13 @@ import com.stiffrock.chat.adapters.MyAdapter;
 import com.stiffrock.chat.dto.ApiResponse;
 import com.stiffrock.chat.items.Item;
 import com.stiffrock.chat.items.ItemContactCard;
-import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.model.GroupChat;
 import com.stiffrock.chat.model.PrivateChat;
 import com.stiffrock.chat.model.User;
 import com.stiffrock.chat.model.WebSocketAction;
 import com.stiffrock.chat.network.ApiService;
 import com.stiffrock.chat.network.RetrofitClient;
+import com.stiffrock.chat.utils.CurrentUser;
 import com.stiffrock.chat.utils.ImageManager;
 import com.stiffrock.chat.utils.OnItemClickListener;
 
@@ -261,7 +261,7 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
             @Override
             public void onItemClick(View view, Item item, int postion) {
                 ItemContactCard icc = (ItemContactCard) item;
-                apiAddMember(icc.getUser());
+                apiAddMember(icc);
                 dialog.dismiss();
             }
 
@@ -314,14 +314,17 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
     /**
      * Envía una solicitud al servidor para añadir un nuevo usuario al grupo
      *
-     * @param user Usuario a añadir al grupo
+     * @param icc Item de contacto con la información del usuario
      */
-    private void apiAddMember(User user) {
-        Call<ApiResponse> addMember = apiService.addMember(chat.getId(), user.getId());
+    private void apiAddMember(ItemContactCard icc) {
+        Call<ApiResponse> addMember = apiService.addMember(chat.getId(), icc.getUser().getId());
         addMember.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    contactItems.add(icc);
+                    adapter.notifyItemInserted(contactItems.size() - 1);
+
                     ApiResponse apiResponse = response.body();
                     Toast.makeText(requireContext(), apiResponse.getMessage(), Toast.LENGTH_SHORT).show();
                 } else {
@@ -471,24 +474,31 @@ public class GroupChatInfoFragment extends Fragment implements OnItemClickListen
      * @param user   Usuario que se ha visto afectado por el cambio
      */
     public void updateChatMembersInfo(WebSocketAction action, GroupChat chat, User user) {
+        Log.w(TAG, "chat: " + chat);
         if (chat.getId().equals(this.chat.getId())) {
             this.chat = chat;
 
             ItemContactCard icc = userItemContactCardMap.get(user);
             int index = contactItems.indexOf(icc);
-            contactItems.remove(icc);
+            boolean deleted = contactItems.remove(icc);
+
+            if (!deleted) {
+                Log.wtf(TAG, "User's contact card could not be deleted from the list\n - contactItems: " + contactItems);
+                return;
+            }
+
+            adapter.notifyItemRemoved(index);
             userItemContactCardMap.remove(user);
             if (action == WebSocketAction.GROUP_CHAT_CHANGED) {
                 ItemContactCard newIcc = new ItemContactCard(user, false, false);
 
                 if (user.equals(CurrentUser.getCurrentUser())) newIcc.setName("(Tú)");
+
                 if (chat.getAdmins().contains(user)) newIcc.setName("[ADMIN] " + newIcc.getName());
 
-                contactItems.add(newIcc);
+                contactItems.add(index, newIcc);
                 userItemContactCardMap.put(user, newIcc);
-                adapter.notifyItemChanged(index);
-            } else if (action == WebSocketAction.GROUP_CHAT_DELETION) {
-                adapter.notifyItemRemoved(index);
+                adapter.notifyItemInserted(index);
             }
         }
     }
