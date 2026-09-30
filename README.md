@@ -1,5 +1,5 @@
 # WhatsApp Clone
-A messaging app made for Android with a SpringBoot back-end and SQLite (available at the [ChatServer repository](https://github.com/Stiff-Rock/ChatServer))
+A messaging app made for Android that connects to an API (built with SpringBoot and available at the [ChatServer repository](https://github.com/Stiff-Rock/ChatServer)) using Retrofit.
 
 ## Features
 - Profiles with custom username and profile pictures
